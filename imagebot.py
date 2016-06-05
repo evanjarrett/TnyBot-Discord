@@ -10,7 +10,6 @@ bot = commands.Bot(command_prefix="", description=description)
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
 base_dir = config["Images"]["dir"]
-bot.run(config["User"]["user"], config["User"]["pass"])
 
 
 @bot.event
@@ -44,3 +43,6 @@ def on_message(message):
             c.setopt(c.WRITEDATA, f)
             c.perform()
             f.close()
+
+
+bot.run(config["User"]["user"], config["User"]["pass"])

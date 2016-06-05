@@ -11,7 +11,7 @@ bot = commands.Bot(command_prefix="", description=description)
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
-bot.run(config["User2"]["user"], config["User2"]["pass"])
+
 
 @bot.event
 @asyncio.coroutine
@@ -89,3 +89,5 @@ def _bot():
     """Is the bot cool?"""
     yield from bot.say("Yes, the bot is cool.")
 
+
+bot.run(config["User2"]["user"], config["User2"]["pass"])
