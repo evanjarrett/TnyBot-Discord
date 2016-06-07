@@ -1,5 +1,4 @@
 from discord.ext import commands
-import asyncio
 import configparser
 import pycurl
 import os
@@ -12,13 +11,13 @@ config.read("../tnybot_config")
 base_dir = config["Images"]["dir"]
 
 channels_config = config.items("Channels")
+# Channels are in name = id format, but we only need the id
 channels = []
 for c in channels_config:
     channels.append(c[1])
 
 
-@bot.event
-@asyncio.coroutine
+@bot.async_event
 def on_ready():
     print("Logged in as")
     print(bot.user.name)
@@ -26,8 +25,7 @@ def on_ready():
     print("------")
 
 
-@bot.event
-@asyncio.coroutine
+@bot.async_event
 def on_message(message):
     if len(message.attachments):
         chnl = message.channel.id
