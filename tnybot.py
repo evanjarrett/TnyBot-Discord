@@ -7,7 +7,7 @@ import configparser
 description = """An example bot to showcase the discord.ext.commands extension
 module.
 There are a number of utility commands being showcased here."""
-bot = commands.Bot(command_prefix="", description=description)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(""), description=description)
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
@@ -23,7 +23,7 @@ def on_ready():
 
 @bot.async_event
 def on_message(message):
-
+    yield from bot.process_commands(message)
 
 
 @bot.command(aliases=["hi", "sup", "안녕"])
