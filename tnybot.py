@@ -40,7 +40,17 @@ def hello():
     yield from bot.say(random.choice(choices))
 
 
-@bot.command()
+# @bot.command(pass_context=True)
+# @asyncio.coroutine
+# def clear(ctx, amount=10):
+#     """Clears chat"""
+#     messages = yield from bot.logs_from(ctx.message.channel, amount)
+#     for msg in messages:
+#         yield from bot.delete_message(msg)
+#         yield from asyncio.sleep(.5)
+
+
+@bot.command(aliases=["샤샤샤"])
 @asyncio.coroutine
 def shyshyshy():
     """No Sana No Life."""

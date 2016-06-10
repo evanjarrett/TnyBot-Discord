@@ -65,22 +65,27 @@ def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("------")
+
     for c_id in channels:
         channel = bot.get_channel(c_id)
-        print(channel)
-        logs = yield from bot.logs_from(channel)
-        for message in logs:
-            yield from get_attachments(message)
-        global has_curled
-        if has_curled is True:
-            has_curled = False
-            print("sleeping for 10")
-            yield from asyncio.sleep(10)
+        if channel is not None:
+            print(channel)
+            logs = yield from bot.logs_from(channel)
+            for message in logs:
+                yield from get_attachments(message)
+            global has_curled
+            if has_curled is True:
+                has_curled = False
+                print("sleeping for 10")
+                yield from asyncio.sleep(10)
+
+    print("Done downloading missed images")
 
 
 @bot.async_event
 def on_message(message):
-    yield from get_attachments(message)
+    if message.author != bot.user:
+        yield from get_attachments(message)
 
 
 bot.run(config["User"]["user"], config["User"]["pass"])
