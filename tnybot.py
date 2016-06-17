@@ -1,18 +1,22 @@
+import asyncio
+import configparser
+import random
+
 import discord
 from discord.ext import commands
-import asyncio
-import random
-import configparser
+
+from modules.NowPlaying import NowPlaying
 
 description = """An example bot to showcase the discord.ext.commands extension
 module.
 There are a number of utility commands being showcased here."""
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(""), description=description)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("#!"), description=description)
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
 
 
+@bot.listen
 @bot.async_event
 def on_ready():
     print("Logged in as")
@@ -21,6 +25,7 @@ def on_ready():
     print("------")
 
 
+@bot.listen
 @bot.async_event
 def on_message(message):
     yield from bot.process_commands(message)
@@ -40,14 +45,24 @@ def hello():
     yield from bot.say(random.choice(choices))
 
 
-# @bot.command(pass_context=True)
-# @asyncio.coroutine
-# def clear(ctx, amount=10):
-#     """Clears chat"""
-#     messages = yield from bot.logs_from(ctx.message.channel, amount)
-#     for msg in messages:
-#         yield from bot.delete_message(msg)
-#         yield from asyncio.sleep(.5)
+@bot.command(pass_context=True)
+@asyncio.coroutine
+def clear(ctx, amount=10):
+    """Clears chat"""
+    messages = yield from bot.logs_from(ctx.message.channel, amount)
+    count = 0
+    for msg in messages:
+        yield from bot.delete_message(msg)
+        if count >= 10:
+            count = 0
+            yield from asyncio.sleep(1)
+
+
+@bot.command(pass_context=True)
+@asyncio.coroutine
+def playing(ctx):
+    """Sets now playing status"""
+    yield from bot.set_status(ctx.message)
 
 
 @bot.command(aliases=["샤샤샤"])
@@ -80,5 +95,5 @@ def _bot():
     """Is the bot cool?"""
     yield from bot.say("Yes, the bot is cool.")
 
-
+NowPlaying(bot)
 bot.run(config["User2"]["user"], config["User2"]["pass"])

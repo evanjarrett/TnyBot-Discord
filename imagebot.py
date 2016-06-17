@@ -1,8 +1,9 @@
-from discord.ext import commands
-import configparser
-import pycurl
-import os
 import asyncio
+import configparser
+import os
+import pycurl
+
+from discord.ext import commands
 
 description = """Fetches any attachments uploaded to discord"""
 bot = commands.Bot(command_prefix="", description=description)
@@ -38,7 +39,10 @@ def get_attachments(message):
 
             for a in message.attachments:
                 url = a["url"]
-                pic_name = url.split("/")[-1]
+                parts = url.split("/")
+                pic_name = parts[-1]
+                if "unknown" in pic_name:
+                    pic_name = parts[-2] + pic_name
                 file_path = dirs + pic_name
                 pcurl.setopt(pcurl.URL, url)
 
@@ -59,6 +63,7 @@ def get_attachments(message):
                     print("already have that image: " + pic_name)
 
 
+@bot.listen
 @bot.async_event
 def on_ready():
     print("Logged in as")
@@ -82,10 +87,10 @@ def on_ready():
     print("Done downloading missed images")
 
 
+@bot.listen
 @bot.async_event
 def on_message(message):
     if message.author != bot.user:
         yield from get_attachments(message)
-
 
 bot.run(config["User"]["user"], config["User"]["pass"])
