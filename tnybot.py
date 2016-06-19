@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 
 from modules.NowPlaying import NowPlaying
+from modules.chat import Chat
 
 description = """An example bot to showcase the discord.ext.commands extension
 module.
@@ -95,5 +96,6 @@ def _bot():
     """Is the bot cool?"""
     yield from bot.say("Yes, the bot is cool.")
 
-NowPlaying(bot)
+
+Chat(bot)
 bot.run(config["User2"]["user"], config["User2"]["pass"])
