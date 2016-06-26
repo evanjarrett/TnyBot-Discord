@@ -20,6 +20,12 @@ for c in channels_config:
 
 has_curled = False
 
+mergedChannels = [
+    '185164155592900608',
+    '133389185988952064',
+    '195732639724994560'
+]
+
 
 @asyncio.coroutine
 def get_attachments(message):
@@ -29,13 +35,16 @@ def get_attachments(message):
             print("attachment found!")
             server_dir = message.channel.server.name
             channel_dir = message.channel.name
-            dirs = base_dir + "/" + server_dir + "/" + channel_dir + "/"
+
+            dirs = base_dir + "/" + server_dir + "/"
+            if chnl not in mergedChannels:
+                dirs = dirs + channel_dir + "/"
 
             pcurl = pycurl.Curl()
             pcurl.setopt(pcurl.SSL_VERIFYHOST, 2)
             pcurl.setopt(pcurl.SSL_VERIFYPEER, 1)
             pcurl.setopt(pcurl.USERAGENT,
-                         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.63 Safari/537.36")
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.63 Safari/537.36")
 
             for a in message.attachments:
                 url = a["url"]
@@ -92,5 +101,6 @@ def on_ready():
 def on_message(message):
     if message.author != bot.user:
         yield from get_attachments(message)
+
 
 bot.run(config["User"]["user"], config["User"]["pass"])

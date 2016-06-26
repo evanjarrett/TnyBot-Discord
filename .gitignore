@@ -1,3 +1,4 @@
 .idea/
+res/*.txt
 __pycache__/
 nohup.out

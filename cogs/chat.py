@@ -1,17 +1,17 @@
 import asyncio
 
-from exceptions.expections import SameUserException
-from .abstract_module import AbstractMethod
 from chatterbot import ChatBot
-from chatterbot.training.trainers import ChatterBotCorpusTrainer, ListTrainer
+from chatterbot.training.trainers import ListTrainer
+
+from exceptions.expections import SameUserException
 
 
-class Chat(AbstractMethod):
+class Chat():
     _sentence = []
     _chatbot = None
 
     def __init__(self, bot):
-        super().__init__(bot)
+        self.bot = bot
 
     @asyncio.coroutine
     def on_ready(self):
@@ -31,11 +31,6 @@ class Chat(AbstractMethod):
             "who is your bias?",
             "Chungha",
         ])
-
-        self._chatbot.set_trainer(ChatterBotCorpusTrainer)
-
-        # Train based on the english corpus
-        self._chatbot.train("chatterbot.corpus.english")
 
         # Get a response to an input statement
 
