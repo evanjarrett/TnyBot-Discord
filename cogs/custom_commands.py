@@ -34,7 +34,7 @@ class CustomCommands:
     @commands.command(pass_context=True, no_pm=True)
     async def add(self, ctx, name=None, *, command=None):
         if name is None or command is None:
-            await self.bot.say('Please match the format `!add [command] [link]`')
+            await self.bot.say("Please match the format `{}add [command] [link]`".format(self.bot.get_prefix()))
 
         message = ctx.message
         command.replace("\n", "")
@@ -44,14 +44,15 @@ class CustomCommands:
             await self.bot.say("Command `{}` is already in the commands list.".format(name))
         else:
             self.config.save(name, command)
-            await self.bot.say("Added `{}` to the commands list. `!undo` if you made an error".format(name))
+            await self.bot.say(
+                "Added `{0}` to the commands list. `{1}undo` if you made an error".format(name, self.bot.get_prefix()))
             self.undo_list[message.author] = name
-            print(name + ' | added by: ' + message.author.name)  # debug
+            print("{0} | added by: {1}".format(name, message.author.name))
 
     @commands.command(pass_context=True, no_pm=True)
     async def delete(self, ctx, name=None):
         if name is None:
-            await self.bot.say('Please match the format `!delete [command]`')
+            await self.bot.say("Please match the format `{}delete [command]`".format(self.bot.get_prefix()))
 
         message = ctx.message
         name = self.bot.trim_prefix(message, name)
@@ -92,10 +93,9 @@ class CustomCommands:
         last_command = self.config.get_all()[-1]
         await self.bot.say(self.config.get(last_command))
 
-    @commands.command(no_pm=True)
-    async def temp(self, first, second, third, *, rest):
-        print(first)
-        print(second)
-        print(third)
-        print(rest)
+    @commands.command(pass_context=True, no_pm=True)
+    @commands.has_role("test")
+    async def temp(self, ctx):
+        for r in ctx.message.author.roles:
+            print(r.name)
         pass

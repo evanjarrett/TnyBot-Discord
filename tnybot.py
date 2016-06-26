@@ -1,7 +1,7 @@
 import configparser
 
 from discord.ext import commands
-from discord.ext.commands import Bot
+from discord.ext.commands import Bot, CheckFailure
 from cogs import Commands, CustomCommands, Notifications
 
 
@@ -20,6 +20,10 @@ class TnyBot(Bot):
         if name in self.commands.keys():
             await self.process_commands(message)
 
+    async def on_command_error(self, exception, ctx):
+        if isinstance(exception, CheckFailure):
+            print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
+
     def is_prefixed(self, message, part):
         prefixes = self._get_prefix(message)
         for p in prefixes:
@@ -32,11 +36,15 @@ class TnyBot(Bot):
             part = part.strip(p)
         return part
 
+    def get_prefix(self, message):
+        return self._get_prefix(message)
 
-description = """An example bot to showcase the discord.ext.commands extension module.
-There are a number of utility commands being showcased here."""
-
-bot = TnyBot(command_prefix=commands.when_mentioned_or("%"), description=description)
+bot = TnyBot(
+    command_prefix=commands.when_mentioned_or("!"),
+    description=
+    """An example bot to showcase the discord.ext.commands extension module.
+    There are a number of utility commands being showcased here."""
+)
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")

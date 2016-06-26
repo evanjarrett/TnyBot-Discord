@@ -39,12 +39,12 @@ class Notifications:
                             '`{} mentioned {} in {} | #{}:` {}'.format(message.author.name, search, message.server.name,
                                 message.channel.name, message.content))
 
-    @commands.command(pass_context=True)
+    @commands.command(aliases=["notification"], pass_context=True)
     async def notify(self, ctx, notification=None):
         self.config.append(notification, ctx.message.author.id)
         await self.bot.say("Ok, I will notify you when `{}` is mentioned".format(notification))
 
-    @commands.command(pass_context=True)
+    @commands.command(aliases=["deletenotification"], pass_context=True)
     async def delnotify(self, ctx, notification=None):
         self.config.truncate(notification, ctx.message.author.id)
         await self.bot.say("Ok, I will no longer notify you when `{}` is mentioned".format(notification))
