@@ -33,6 +33,7 @@ class CustomCommands:
 
     @commands.command(pass_context=True, no_pm=True)
     async def add(self, ctx, name=None, *, command=None):
+        """Adds a new custom command"""
         if name is None or command is None:
             await self.bot.say("Please match the format `{}add [command] [link]`".format(self.bot.get_prefix()))
 
@@ -51,6 +52,7 @@ class CustomCommands:
 
     @commands.command(pass_context=True, no_pm=True)
     async def delete(self, ctx, name=None):
+        """Deletes a custom command"""
         if name is None:
             await self.bot.say("Please match the format `{}delete [command]`".format(self.bot.get_prefix()))
 
@@ -64,6 +66,7 @@ class CustomCommands:
 
     @commands.command(pass_context=True, no_pm=True)
     async def undo(self, ctx):
+        """Undo the last command you tried to make"""
         message = ctx.message
         author = message.author
 
@@ -80,22 +83,19 @@ class CustomCommands:
 
     @commands.command(no_pm=True)
     async def random(self):
+        """Returns a random command from the list"""
         random_command = random.choice(self.config.get_all())
         await self.bot.say(self.config.get(random_command))
 
-    @commands.command(no_pm=True)
-    async def say(self, *, message=None):
-        if message is not None:
-            self.bot.say(message)
-
     @commands.command(aliases=["latest"], no_pm=True)
     async def last(self):
+        """Returns the last/latest command in the list"""
         last_command = self.config.get_all()[-1]
         await self.bot.say(self.config.get(last_command))
 
-    @commands.command(pass_context=True, no_pm=True)
-    @commands.has_role("test")
-    async def temp(self, ctx):
-        for r in ctx.message.author.roles:
-            print(r.name)
-        pass
+    # @commands.command(pass_context=True, no_pm=True)
+    # @commands.has_role("test")
+    # async def temp(self, ctx):
+    #     for r in ctx.message.author.roles:
+    #         print(r.name)
+    #     pass

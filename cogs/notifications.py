@@ -1,4 +1,6 @@
 import re
+
+import discord
 from discord.ext import commands
 
 from utils.config import Config
@@ -15,6 +17,7 @@ class Notifications:
 
     async def on_ready(self):
         print("listening in another class " + __name__)
+        await self.bot.change_status(game=discord.Game(name="Notification Bot"))
 
     async def on_message(self, message):
         if message.author == self.bot.user:
@@ -41,16 +44,21 @@ class Notifications:
 
     @commands.command(aliases=["notification"], pass_context=True)
     async def notify(self, ctx, notification=None):
+        """Adds a new notification. You will get a PM when this keyword is mentioned.
+            Also supports some basic regex.
+        """
         self.config.append(notification, ctx.message.author.id)
         await self.bot.say("Ok, I will notify you when `{}` is mentioned".format(notification))
 
     @commands.command(aliases=["deletenotification"], pass_context=True)
     async def delnotify(self, ctx, notification=None):
+        """Deletes a notification. This can be used in conjunction with the notifications command"""
         self.config.truncate(notification, ctx.message.author.id)
         await self.bot.say("Ok, I will no longer notify you when `{}` is mentioned".format(notification))
 
     @commands.command(pass_context=True)
     async def notifications(self, ctx):
+        """Sends you a PM with a list of notifications"""
         notify_list = []
         user = ctx.message.author
         for i, n in enumerate(self.config.get_all()):

@@ -36,10 +36,17 @@ class Commands:
                 count = 0
                 await asyncio.sleep(1)
 
-    @commands.command(pass_context=True)
-    async def playing(self, ctx, *, game=None):
+    @commands.command()
+    @commands.has_any_role("whales", "admin")
+    async def playing(self, *, game=None):
         """Sets now playing status"""
         await self.bot.change_status(game=game if game is None else discord.Game(name=game))
+
+    @commands.command(no_pm=True)
+    async def say(self, *, message=None):
+        """Says what you tell it to say"""
+        if message is not None:
+            self.bot.say(message)
 
     @commands.command(aliases=["샤샤샤"])
     async def shyshyshy(self):
@@ -53,9 +60,7 @@ class Commands:
 
     @commands.group(pass_context=True)
     async def cool(self, ctx):
-        """Says if a user is cool.
-        In reality this just checks if a subcommand is being invoked.
-        """
+        """Says if a something is cool."""
         if ctx.invoked_subcommand is None:
             await self.bot.say("No, {0.subcommand_passed} is not cool".format(ctx))
 
