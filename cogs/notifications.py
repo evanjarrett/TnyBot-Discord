@@ -34,7 +34,7 @@ class Notifications:
                 # foreach user listening to that notification
                 for user_id in self.config.get_as_list(n):
                     user = server.get_member(user_id)
-                    if user is not None:
+                    if user is not None and user != message.author:
                         await self.bot.send_message(user,
                             '`{} mentioned {} in {} | #{}:` {}'.format(message.author.name, search, message.server.name,
                                 message.channel.name, message.content))
