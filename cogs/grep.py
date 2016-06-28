@@ -14,17 +14,13 @@ class Grep:
             pass
 
     @grep.command(name="-i")
-    async def _ignore(self, ctx):
+    async def _ignore(self):
         """Ignore case distinctions in both the PATTERN and the input files."""
-        if ctx.invoked_subcommand is None:
-            pass
         await self.bot.say("ignoring case")
 
     @grep.command(name="-c")
-    async def _count(self, ctx):
+    async def _count(self):
         """Suppress normal output; instead print a count of matching lines for each input file. """
-        if ctx.invoked_subcommand is None:
-            pass
         await self.bot.say("getting count")
 
     async def _messages(self):
