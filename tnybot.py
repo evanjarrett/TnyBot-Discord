@@ -2,7 +2,7 @@ import configparser
 
 from discord.ext import commands
 from discord.ext.commands import Bot, CheckFailure
-from cogs import Commands, CustomCommands, Notifications
+from cogs import Commands, CustomCommands, Notifications, Grep
 
 
 class TnyBot(Bot):
@@ -16,13 +16,17 @@ class TnyBot(Bot):
         print("------")
 
     async def on_message(self, message):
-        name = self.trim_prefix(message, message.content.split()[0])
-        if name in self.commands.keys():
-            await self.process_commands(message)
+        splits = message.content.split()
+        if len(splits) > 1:
+            name = self.trim_prefix(message, splits[0])
+            if name in self.commands.keys():
+                await self.process_commands(message)
 
-    async def on_command_error(self, exception, ctx):
+    async def on_command_error(self, exception, ctx, *args, **kwargs):
         if isinstance(exception, CheckFailure):
             print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
+        else:
+            await self.on_error("on_command_error", exception, ctx)
 
     def is_prefixed(self, message, part):
         prefixes = self._get_prefix(message)
@@ -39,6 +43,7 @@ class TnyBot(Bot):
     def get_prefix(self, message):
         return self._get_prefix(message)
 
+
 bot = TnyBot(
     command_prefix=commands.when_mentioned_or("!"),
     description=
@@ -52,4 +57,5 @@ config.read("../tnybot_config")
 bot.add_cog(Commands(bot))
 bot.add_cog(CustomCommands(bot))
 bot.add_cog(Notifications(bot))
+bot.add_cog(Grep(bot))
 bot.run(config["User2"]["user"], config["User2"]["pass"])
