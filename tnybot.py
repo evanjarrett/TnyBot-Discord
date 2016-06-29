@@ -6,7 +6,10 @@ from cogs import Commands, CustomCommands, Notifications, Grep
 
 
 class TnyBot(Bot):
-    def __init__(self, command_prefix, formatter=None, description=None, pm_help=False, **options):
+    def __init__(self, command_prefix=commands.when_mentioned_or("!"),
+            formatter=None,
+            description="""Tnybot is a basic bot that includes custom commands and notifications""",
+            pm_help=False, **options):
         super().__init__(command_prefix, formatter, description, pm_help, **options)
 
     async def on_ready(self):
@@ -44,12 +47,7 @@ class TnyBot(Bot):
         return self._get_prefix(message)
 
 
-bot = TnyBot(
-    command_prefix=commands.when_mentioned_or("!"),
-    description=
-    """An example bot to showcase the discord.ext.commands extension module.
-    There are a number of utility commands being showcased here."""
-)
+bot = TnyBot()
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
