@@ -17,12 +17,12 @@ class TnyBot(Bot):
 
     async def on_message(self, message):
         splits = message.content.split()
-        if len(splits) > 1:
+        if len(splits) > 0:
             name = self.trim_prefix(message, splits[0])
             if name in self.commands.keys():
                 await self.process_commands(message)
 
-    async def on_command_error(self, exception, ctx, *args, **kwargs):
+    async def on_command_error(self, exception, ctx):
         if isinstance(exception, CheckFailure):
             print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
         else:
