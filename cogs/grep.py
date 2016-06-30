@@ -15,6 +15,7 @@ class Grep:
 
     async def on_command_error(self, exception, ctx):
         await self.bot.send_message(ctx.message.channel, "That isn't something I can search")
+        await self.bot.send_message(ctx.message.channel, "Try searching messages,channels or members")
 
     @commands.group(pass_context=True, no_pm=True)
     async def grep(self, ctx):
@@ -35,6 +36,14 @@ class Grep:
     async def _count(self, ctx):
         """Suppress normal output; instead print a count of matching lines for each input file. """
         self.count = True
+        await self.issue_command(ctx)
+
+    @grep.command(name="-ci", aliases=["-ic"], pass_context=True, no_pm=True)
+    async def _count_ignore(self, ctx):
+        """Suppress normal output; instead print a count of matching lines for each input file.
+        Ignore case distinctions in both the PATTERN and the input files."""
+        self.count = True
+        self.ignore_case = True
         await self.issue_command(ctx)
 
     async def _messages(self, ctx, needle):
@@ -122,7 +131,7 @@ class Grep:
         if len(lines) > 0:
             await self.bot.say("\n".join(lines))
         else:
-            await self.bot.say("I couldn't find any matches for `{}` in the user list".format(needle))
+            await self.bot.say("I couldn't find any matches for `{}` in the channel list".format(needle))
 
     async def issue_command(self, ctx):
         msg = ctx.message.content
