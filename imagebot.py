@@ -26,10 +26,10 @@ class ImageBot(Bot):
         print("------")
 
         for c_id in self.channels:
-            channel = bot.get_channel(c_id)
+            channel = self.get_channel(c_id)
             if channel is not None:
                 print(channel)
-                logs = bot.logs_from(channel)
+                logs = self.logs_from(channel)
                 async for message in logs:
                     await self.get_attachments(message)
                 if self.has_curled is True:
@@ -40,7 +40,7 @@ class ImageBot(Bot):
         print("Done downloading missed images")
 
     async def on_message(self, message):
-        if message.author != bot.user:
+        if message.author != self.user:
             await self.get_attachments(message)
 
     async def get_attachments(self, message):
