@@ -20,10 +20,19 @@ class TnyBot(Bot):
 
     async def on_message(self, message):
         splits = message.content.split()
-        if len(splits) > 0:
+        if splits[0] == bot.user.mention:
+            await self.process_commands(message)
+
+        elif len(splits) > 0:
             name = self.trim_prefix(message, splits[0])
             if name in self.commands.keys():
                 await self.process_commands(message)
+
+    async def on_message_edit(self, before, after):
+        if before.pinned is False and after.pinned is True:
+            self.dispatch("message_pinned", after)
+        if before.pinned is True and after.pinned is False:
+            self.dispatch("pin_removed", after)
 
     async def on_command_error(self, exception, ctx):
         if isinstance(exception, CheckFailure):
@@ -43,17 +52,18 @@ class TnyBot(Bot):
             part = part.strip(p)
         return part
 
-    def get_prefix(self, message):
-        return self._get_prefix(message)
+    def get_prefix(self, ctx):
+        return ctx.prefix.replace(self.user.mention, '@' + self.user.name)
 
-
-bot = TnyBot()
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
+
+bot = TnyBot()
 
 bot.add_cog(Commands(bot))
 bot.add_cog(CustomCommands(bot))
 bot.add_cog(Notifications(bot))
 bot.add_cog(Grep(bot))
+
 bot.run(config["User2"]["user"], config["User2"]["pass"])

@@ -36,7 +36,8 @@ class CustomCommands:
         """Adds a new custom command"""
         message = ctx.message
         if name is None or command is None:
-            await self.bot.say("Please match the format `{}add [command] [link]`".format(self.bot.get_prefix(message)))
+            await self.bot.say("Please match the format `{}add [command] [link]`".format(self.bot.get_prefix(ctx)))
+            return
 
         command.replace("\n", "")
         name = self.bot.trim_prefix(message, name)
@@ -47,7 +48,7 @@ class CustomCommands:
             self.config.save(name, command)
             await self.bot.say(
                 "Added `{0}` to the commands list. `{1}undo` if you made an error".format(name,
-                    self.bot.get_prefix(message)))
+                    self.bot.get_prefix(ctx)))
             self.undo_list[message.author] = name
             print("{0} | added by: {1}".format(name, message.author.name))
 
@@ -56,7 +57,8 @@ class CustomCommands:
         """Deletes a custom command"""
         message = ctx.message
         if name is None:
-            await self.bot.say("Please match the format `{}delete [command]`".format(self.bot.get_prefix(message)))
+            await self.bot.say("Please match the format `{}delete [command]`".format(self.bot.get_prefix(ctx)))
+            return
 
         name = self.bot.trim_prefix(message, name)
 

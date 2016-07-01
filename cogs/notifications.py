@@ -42,6 +42,18 @@ class Notifications:
                             '`{} mentioned {} in {} | #{}:` {}'.format(message.author.name, search, message.server.name,
                                 message.channel.name, message.content))
 
+    async def on_message_pinned(self, message):
+        server = message.server
+        for user_id in self.config.get_as_list("pinnedMessages"):
+            user = server.get_member(user_id)
+            if user is not None:
+                await self.bot.send_message(user,
+                    '`{} pinned a message in {} | #{}:` {}'.format(message.author.name, message.server.name,
+                        message.channel.name, message.content))
+
+    async def pin_removed(self, message):
+        pass
+
     @commands.command(aliases=["notification"], pass_context=True)
     async def notify(self, ctx, notification=None):
         """Adds a new notification. You will get a PM when this keyword is mentioned.
@@ -49,6 +61,13 @@ class Notifications:
         """
         self.config.append(notification, ctx.message.author.id)
         await self.bot.say("Ok, I will notify you when `{}` is mentioned".format(notification))
+
+    @commands.command(aliases=["notifyPinned"], pass_context=True)
+    async def notify_pinned(self, ctx):
+        """Adds a notification for when a message is pinned
+        """
+        self.config.append("pinnedMessages", ctx.message.author.id)
+        await self.bot.say("Ok, I will notify you when a message is pinned")
 
     @commands.command(aliases=["deletenotification"], pass_context=True)
     async def delnotify(self, ctx, notification=None):
