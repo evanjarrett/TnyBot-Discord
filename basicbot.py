@@ -17,7 +17,7 @@ class BasicBot(Bot):
 
     async def on_message(self, message):
         splits = message.content.split()
-        if splits[0] == self.user.mention:
+        if splits and splits[0] == self.user.mention:
             await self.process_commands(message)
 
         elif len(splits) > 0:
