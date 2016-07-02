@@ -1,0 +1,9 @@
+[User]
+user = xxx@xxx.com
+pass = XXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[Images]
+dir = /home/discord/tnybot
+
+[Channels]
+general = 000000000000000000000
