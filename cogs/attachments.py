@@ -51,7 +51,7 @@ class Attachments:
         if len(message.attachments):
             chnl = message.channel.id
             if chnl in self.channels:
-                print("attachment found!")
+                print("attachment found! Uploaded by {}".format(message.author.name))
                 server_dir = message.channel.server.name
                 channel_dir = message.channel.name
 
