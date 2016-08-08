@@ -11,7 +11,7 @@ class Reminders:
     def __init__(self, bot):
         self.bot = bot
 
-        self.connection = sqlite3.connect('test.db')
+        self.connection = sqlite3.connect(self._db_file)
         self.connection.execute(
             '''CREATE TABLE IF NOT EXISTS reminders
             (id         INT PRIMARY KEY NOT NULL,
