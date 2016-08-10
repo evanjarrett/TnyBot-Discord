@@ -1,8 +1,12 @@
 import asyncio
+import re
 import sqlite3
 import time
 
+import discord
 from discord.ext import commands
+from parsedatetime import parsedatetime
+from pytz import timezone
 
 
 class Reminders:
@@ -14,12 +18,15 @@ class Reminders:
         self.connection = sqlite3.connect(self._db_file)
         self.connection.execute(
             '''CREATE TABLE IF NOT EXISTS reminders
-            (id         INT PRIMARY KEY NOT NULL,
-            user_id     INT             NOT NULL,
-            message     TEXT            NOT NULL,
-            remind_date INT             NOT NULL
+            (user_id    INT     NOT NULL,
+            message     TEXT    NOT NULL,
+            remind_date INT     NOT NULL
         )''')
-        self.connection.close()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.connection is not None:
+            print("closing the connection")
+            self.connection.close()
 
     async def on_ready(self):
         print("listening in another class " + __name__)
@@ -31,31 +38,55 @@ class Reminders:
         pass
 
     @commands.command(aliases=["reminder", "remind"], pass_context=True)
-    async def remindme(self, ctx, date, message):
+    async def remindme(self, ctx, *, date):
         """Creates a reminder. You will receive a PM when the reminder is done."""
+        message = self.get_quoted_message(ctx)
+        date = date.split("\"")[0]
+
+        cal = parsedatetime.Calendar()
+        # I'm not sure if this TZ needs to be set to where the bot is, or where the user is...
+        dt = cal.parseDT(datetimeString=date, tzinfo=timezone("US/Pacific"))[0]
+        date = dt.astimezone(timezone('UTC')).timestamp()
         await self.bot.say("Ok I will message you about '{}' on {}".format(message, date))
         await self.save(ctx.message.author.id, date, message)
-        pass
 
     async def save(self, user_id, date, message):
-        self.connection.execute(
-            "INSERT INTO reminders (user_id,message,remind_date) VALUES ({}, {}, {}".format(
-                user_id,
-                date,
-                message
-            )
+        query = "INSERT INTO reminders (user_id,message,remind_date) VALUES ({}, '{}', {})".format(
+            user_id,
+            message,
+            date
         )
+        print(query)
+        self.connection.execute(query)
         self.connection.commit()
-        self.connection.close()
 
     async def check_db(self):
+        dt = time.time()
+        print("checking database {}".format(dt))
         cursor = self.connection.execute(
-            "SELECT id, user_id, message, reminder_date FROM reminders where remind_date <= {}".format(time.time()))
-        for row in cursor:
-            print("id " + row[0])
-            print("user " + row[1])
-            print("message " + row[2])
-            print("date " + row[3])
+            "SELECT user_id, message, remind_date FROM reminders WHERE remind_date <= {}".format(dt + 60))
+        for user_id, message, date in cursor:
+            user = None
+            for server in self.bot.servers:
+                user = server.get_member(str(user_id))
+                if isinstance(user, discord.User):
+                    break
 
+            await self.bot.send_message(user, "Hey you told me to remind you about `{}` at this time.".format(message))
+
+        self.connection.execute("DELETE FROM reminders WHERE remind_date <= {}".format(dt + 60))
         self.connection.commit()
-        self.connection.close()
+
+    @staticmethod
+    def get_quoted_message(ctx):
+        msg = ctx.message.content
+        regex = re.compile(r"([\"'])((?:\\\1|.)*?)\1")
+        match = re.search(regex, msg)
+        if match is None:
+            str = msg.split()[-1]
+        else:
+            quote = match.group(1)
+            needle = match.group(2)
+            str = needle.replace("\\" + quote, quote)
+
+        return str
