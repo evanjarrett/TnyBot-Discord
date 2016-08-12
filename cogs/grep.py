@@ -21,6 +21,14 @@ class Grep:
 
     @commands.group(pass_context=True, no_pm=True)
     async def grep(self, ctx):
+        """
+        Works similar to GNU grep. Searches for a string in messages,channels or members.
+        Examples:
+            grep tnybot members
+            grep "this works" messages
+            grep -i 'This WOrKs' messages
+            grep -c "bob" members
+        """
         # Reset flags
         self.ignore_case = False
         self.count = False

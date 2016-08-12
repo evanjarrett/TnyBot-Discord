@@ -1,4 +1,4 @@
-git+https://github.com/cookkkie/discord.py.git@async
+git+https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py[voice]
 pycurl
 parsedatetime
 pytz

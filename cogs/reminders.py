@@ -20,8 +20,7 @@ class Reminders:
             '''CREATE TABLE IF NOT EXISTS reminders
             (user_id    INT     NOT NULL,
             message     TEXT    NOT NULL,
-            remind_date INT     NOT NULL
-        )''')
+            remind_date INT     NOT NULL)''')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.connection is not None:
@@ -83,10 +82,10 @@ class Reminders:
         regex = re.compile(r"([\"'])((?:\\\1|.)*?)\1")
         match = re.search(regex, msg)
         if match is None:
-            str = msg.split()[-1]
+            msg_str = msg.split()[-1]
         else:
             quote = match.group(1)
             needle = match.group(2)
-            str = needle.replace("\\" + quote, quote)
+            msg_str = needle.replace("\\" + quote, quote)
 
-        return str
+        return msg_str
