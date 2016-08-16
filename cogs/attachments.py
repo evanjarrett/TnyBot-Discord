@@ -1,8 +1,10 @@
 import asyncio
 import configparser
 import os
+import imghdr
 
 from urllib import request as urllib_request
+from urllib.error import HTTPError
 
 
 class Attachments:
@@ -16,6 +18,10 @@ class Attachments:
 
     def __init__(self, bot, config_file):
         self.bot = bot
+
+        opener = urllib_request.build_opener()
+        opener.addheaders = [("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Tnybot/1.0 Chrome/53.0")]
+        urllib_request.install_opener(opener)
 
         config = configparser.RawConfigParser()
         config.read(config_file)
@@ -45,7 +51,7 @@ class Attachments:
         print("Done downloading missed images")
 
     async def on_message(self, message):
-            await self.fetch(message)
+        await self.fetch(message)
 
     async def fetch(self, message):
         if message.author != self.bot.user:
@@ -78,21 +84,30 @@ class Attachments:
         pic_name = parts[-1]
         if "unknown" in pic_name:
             pic_name = parts[-2] + pic_name
-        file_path = dirs + pic_name
+        file_path = Attachments.add_extension(dirs + pic_name)
 
         if not os.path.exists(dirs):
             print("making new directory: " + dirs)
             os.makedirs(dirs)
 
         if not os.path.isfile(file_path):
-            opener = urllib_request.build_opener()
-            opener.addheaders = [("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Tnybot/1.0 Chrome/53.0")]
-            urllib_request.install_opener(opener)
-            urllib_request.urlretrieve(url, file_path)
-            self.has_curled = True
-            await asyncio.sleep(3)
+            try:
+                urllib_request.urlretrieve(url, file_path)
+                print(file_path)
+            except HTTPError as e:
+                print(e.code)
+            else:
+                self.has_curled = True
+                await asyncio.sleep(3)
         else:
             print("already have that image: " + pic_name)
+
+        ext = imghdr.what(file_path)
+        if ext is not None and not file_path.endswith(ext):
+            if not (ext == "jpeg" and file_path.endswith("jpg")):
+                print("!! This image extension should be changed to {}".format(ext))
+                file, curr_ext = os.path.splitext(file_path)
+                os.rename(file_path, "{}.{}".format(file, ext))
 
     def get_directory(self, channel):
         server_dir = channel.server.name
@@ -102,3 +117,18 @@ class Attachments:
         if channel.id not in self.mergedChannels:
             dirs = dirs + channel_dir + "/"
         return dirs
+
+    @staticmethod
+    def add_extension(file_path):
+        if not Attachments.has_extension(file_path):
+            # Default to jpeg for now, this will fix sites like tistory
+            file_path += ".jpg"
+        return file_path
+
+    @staticmethod
+    def has_extension(file_path):
+        for e in ["jpg", "jpeg", "png", "gif"]:
+            # I really only care about these, anything else probably wont work
+            if file_path.lower().endswith("." + e):
+                return True
+        return False
