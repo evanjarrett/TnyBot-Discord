@@ -2,7 +2,7 @@ import asyncio
 import configparser
 import os
 
-import pycurl
+from urllib import request as urllib_request
 
 
 class Attachments:
@@ -35,7 +35,8 @@ class Attachments:
                 print(channel)
                 logs = self.bot.logs_from(channel)
                 async for message in logs:
-                    await self.get_attachments(message)
+                    await self.fetch(message)
+
                 if self.has_curled is True:
                     self.has_curled = False
                     print("sleeping for 10")
@@ -44,47 +45,60 @@ class Attachments:
         print("Done downloading missed images")
 
     async def on_message(self, message):
+            await self.fetch(message)
+
+    async def fetch(self, message):
         if message.author != self.bot.user:
             await self.get_attachments(message)
+            await self.get_embeds(message)
+
+    async def get_embeds(self, message):
+        if len(message.embeds):
+            chnl = message.channel.id
+            if chnl in self.channels:
+                dirs = self.get_directory(message.channel)
+                for e in message.embeds:
+                    if e["type"] == "image":
+                        print("embedded image found! Uploaded by {}".format(message.author.name))
+                        url = e["url"]
+                        await self.download_image(url, dirs)
 
     async def get_attachments(self, message):
         if len(message.attachments):
             chnl = message.channel.id
             if chnl in self.channels:
-                print("attachment found! Uploaded by {}".format(message.author.name))
-                server_dir = message.channel.server.name
-                channel_dir = message.channel.name
-
-                dirs = self.base_dir + "/" + server_dir + "/"
-                if chnl not in self.mergedChannels:
-                    dirs = dirs + channel_dir + "/"
-
-                pcurl = pycurl.Curl()
-                pcurl.setopt(pcurl.SSL_VERIFYHOST, 2)
-                pcurl.setopt(pcurl.SSL_VERIFYPEER, 1)
-                pcurl.setopt(pcurl.USERAGENT,
-                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.63 Safari/537.36")
-
+                dirs = self.get_directory(message.channel)
                 for a in message.attachments:
+                    print("attachment found! Uploaded by {}".format(message.author.name))
                     url = a["url"]
-                    parts = url.split("/")
-                    pic_name = parts[-1]
-                    if "unknown" in pic_name:
-                        pic_name = parts[-2] + pic_name
-                    file_path = dirs + pic_name
-                    pcurl.setopt(pcurl.URL, url)
+                    await self.download_image(url, dirs)
 
-                    if not os.path.exists(dirs):
-                        print("making new directory: " + dirs)
-                        os.makedirs(dirs)
+    async def download_image(self, url, dirs):
+        parts = url.split("/")
+        pic_name = parts[-1]
+        if "unknown" in pic_name:
+            pic_name = parts[-2] + pic_name
+        file_path = dirs + pic_name
 
-                    if not os.path.isfile(file_path):
-                        f = open(file_path, "wb")
-                        pcurl.setopt(pcurl.WRITEDATA, f)
-                        print(file_path)
-                        pcurl.perform()
-                        f.close()
-                        self.has_curled = True
-                        await asyncio.sleep(3)
-                    else:
-                        print("already have that image: " + pic_name)
+        if not os.path.exists(dirs):
+            print("making new directory: " + dirs)
+            os.makedirs(dirs)
+
+        if not os.path.isfile(file_path):
+            opener = urllib_request.build_opener()
+            opener.addheaders = [("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Tnybot/1.0 Chrome/53.0")]
+            urllib_request.install_opener(opener)
+            urllib_request.urlretrieve(url, file_path)
+            self.has_curled = True
+            await asyncio.sleep(3)
+        else:
+            print("already have that image: " + pic_name)
+
+    def get_directory(self, channel):
+        server_dir = channel.server.name
+        server_dir = server_dir.strip(".")
+        channel_dir = channel.name
+        dirs = self.base_dir + "/" + server_dir + "/"
+        if channel.id not in self.mergedChannels:
+            dirs = dirs + channel_dir + "/"
+        return dirs
