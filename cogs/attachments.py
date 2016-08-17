@@ -42,7 +42,9 @@ class Attachments:
                 print(channel)
                 logs = self.bot.logs_from(channel)
                 async for message in logs:
-                    await self.fetch(message)
+                    if message.author != self.bot.user:
+                        await self.get_attachments(message)
+                        await self.get_embeds(message)
 
                 if self.has_curled is True:
                     self.has_curled = False
@@ -52,9 +54,6 @@ class Attachments:
         print("Done downloading missed images")
 
     async def on_message(self, message):
-        await self.fetch(message)
-
-    async def fetch(self, message):
         if message.author != self.bot.user:
             await self.get_attachments(message)
             await self.get_embeds(message)
@@ -64,9 +63,12 @@ class Attachments:
             chnl = message.channel.id
             if chnl in self.channels:
                 dirs = self.get_directory(message.channel)
+                has_print = False
                 for e in message.embeds:
                     if e["type"] == "image":
-                        print("embedded image found! Uploaded by {}".format(message.author.name))
+                        if not has_print:
+                            print("embedded image found! Uploaded by {}".format(message.author.name))
+                            has_print = True
                         url = e["url"]
                         await self.download_image(url, dirs)
 
@@ -75,22 +77,34 @@ class Attachments:
             chnl = message.channel.id
             if chnl in self.channels:
                 dirs = self.get_directory(message.channel)
+                print("attachment found! Uploaded by {}".format(message.author.name))
                 for a in message.attachments:
-                    print("attachment found! Uploaded by {}".format(message.author.name))
                     url = a["url"]
                     await self.download_image(url, dirs)
 
     async def download_image(self, url, dirs):
         parts = url.split("/")
         pic_name = parts[-1]
+        if ".srt" in pic_name:
+            return
         if "unknown" in pic_name:
             pic_name = parts[-2] + pic_name
+
         file_path = dirs + pic_name
         if not Attachments.has_extension(file_path):
-            res = urllib_request.urlopen(url)
-            img_ext = res.info().get_content_subtype()
-            pic_name += ("." + img_ext)
-            file_path += ("." + img_ext)
+            if os.path.exists(file_path + ".jpeg") \
+                    or os.path.exists(file_path + ".gif") \
+                    or os.path.exists(file_path + ".png"):
+                # Don't bother checking the content-type if have a file saved with an extension already
+                return
+            try:
+                res = urllib_request.urlopen(url)
+                img_ext = res.info().get_content_subtype()
+                pic_name += ("." + img_ext)
+                file_path += ("." + img_ext)
+            except HTTPError as e:
+                print(e.code)
+                return
 
         if not os.path.exists(dirs):
             print("making new directory: " + dirs)
@@ -102,18 +116,22 @@ class Attachments:
                 print(file_path)
             except HTTPError as e:
                 print(e.code)
+                return
             else:
                 self.has_curled = True
                 await asyncio.sleep(3)
         else:
             print("already have that image: " + pic_name)
+            pass
 
         ext = imghdr.what(file_path)
         if ext is not None and not file_path.lower().endswith(ext):
             if not (ext == "jpeg" and file_path.lower().endswith("jpg")):
-                print("!! Making a copy with {} extension".format(ext))
                 file, curr_ext = os.path.splitext(file_path)
-                shutil.copy(file_path, "{}.{}".format(file, ext))
+                new_file = "{}.{}".format(file, ext)
+                if not os.path.isfile(new_file):
+                    print("!! Making a copy with {} extension".format(ext))
+                    shutil.copy(file_path, new_file)
 
     def get_directory(self, channel):
         server_dir = channel.server.name
