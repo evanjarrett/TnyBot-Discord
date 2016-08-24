@@ -12,6 +12,6 @@ tnybot.add_cog(Commands(tnybot))
 tnybot.add_cog(CustomCommands(tnybot))
 tnybot.add_cog(Notifications(tnybot))
 tnybot.add_cog(Grep(tnybot))
-tnybot.add_cog(Reminders(tnybot))
+tnybot.add_cog(Reminders(tnybot, config["TimeZone"]))
 
 tnybot.run(config["User2"]["user"], config["User2"]["pass"])

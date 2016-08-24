@@ -12,8 +12,9 @@ from pytz import timezone
 class Reminders:
     _db_file = "res/reminders.db"
 
-    def __init__(self, bot):
+    def __init__(self, bot, tz="UTC"):
         self.bot = bot
+        self.tz = tz
 
         self.connection = sqlite3.connect(self._db_file)
         self.connection.execute(
@@ -48,7 +49,7 @@ class Reminders:
 
         cal = parsedatetime.Calendar()
         # I'm not sure if this TZ needs to be set to where the bot is, or where the user is...
-        dt = cal.parseDT(datetimeString=date, tzinfo=timezone("US/Pacific"))[0]
+        dt = cal.parseDT(datetimeString=date, tzinfo=timezone(self.tz))[0]
         date = dt.astimezone(timezone('UTC')).timestamp()
         await self.bot.say("Ok I will message you about '{}' on {}".format(message, date))
         await self.save(ctx.message.author.id, date, message)
@@ -65,7 +66,7 @@ class Reminders:
 
     async def check_db(self):
         dt = time.time()
-        print("checking database {}".format(dt))
+        # print("checking database {}".format(dt))
         cursor = self.connection.execute(
             "SELECT user_id, message, remind_date FROM reminders WHERE remind_date <= {}".format(dt + 60))
         for user_id, message, date in cursor:

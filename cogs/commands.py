@@ -60,12 +60,12 @@ class Commands:
 
     @commands.command(aliases=["rolleyes", "eyes"])
     async def rollseyes(self):
-        loop = range(0, 6)
         message = await self.bot.say(":eyes:")
-        for x in loop:
-            await self.bot.edit_message(message, ":eyes:")
+        for x in range(0, 6):
             await asyncio.sleep(1)
             await self.bot.edit_message(message, "<:flippedEyes:217116949895708672>")
+            await asyncio.sleep(1)
+            await self.bot.edit_message(message, ":eyes:")
 
     @commands.group(pass_context=True)
     async def cool(self, ctx):
