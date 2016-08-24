@@ -11,12 +11,6 @@ from urllib.error import HTTPError
 class Attachments:
     has_curled = False
 
-    mergedChannels = [
-        '185164155592900608',
-        '133389185988952064',
-        '195732639724994560'
-    ]
-
     def __init__(self, bot, config_file):
         self.bot = bot
 
@@ -35,11 +29,18 @@ class Attachments:
         for c in channels_config:
             self.channels.append(c[1])
 
+        merged_channels_config = config.items("MergedChannels")
+        # Do the same for the channels that we want merged together
+        self.mergedChannels = []
+        for c in merged_channels_config:
+            self.mergedChannels.append(c[1])
+
         self.bot.loop.create_task(self.wait())
 
     async def wait(self):
         print("Running background task")
         await self.bot.wait_until_ready()
+        # We want to run this in a separate process, since on_ready could be called multiple times
         for c_id in self.channels:
             channel = self.bot.get_channel(c_id)
             if channel is not None:

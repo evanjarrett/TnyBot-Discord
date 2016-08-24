@@ -31,6 +31,7 @@ class Reminders:
 
     async def wait(self):
         await self.bot.wait_until_ready()
+        # We want to run this in a separate process, since on_ready could be called multiple times
         while True:
             await self.check_db()
             await asyncio.sleep(60)

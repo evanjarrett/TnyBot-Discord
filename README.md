@@ -8,8 +8,7 @@ In order to use the bots, have a look at [sample_config](https://github.com/00fi
 
 The bots expect the config to be located at `../tnybot_config`.
 I didn't want to risk accidentally committing credentials to github, so I put it put it outside this repo. 
-TnyBot uses `[User2]` instead of `[User]`.
-These can be quickly edited in the associated py files for now.
+This can be quickly edited in the associated py files for now.
 
 
 If you want to build your own bot, you can add or remove the Cogs from TnyBot as required.
