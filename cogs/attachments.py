@@ -35,7 +35,11 @@ class Attachments:
         for c in channels_config:
             self.channels.append(c[1])
 
-    async def on_ready(self):
+        self.bot.loop.create_task(self.wait())
+
+    async def wait(self):
+        print("Running background task")
+        await self.bot.wait_until_ready()
         for c_id in self.channels:
             channel = self.bot.get_channel(c_id)
             if channel is not None:
@@ -50,8 +54,10 @@ class Attachments:
                     self.has_curled = False
                     print("sleeping for 10")
                     await asyncio.sleep(10)
-
         print("Done downloading missed images")
+
+    async def on_ready(self):
+        print("listening in another class " + __name__)
 
     async def on_message(self, message):
         if message.author != self.bot.user:
@@ -85,7 +91,7 @@ class Attachments:
     async def download_image(self, url, dirs):
         parts = url.split("/")
         pic_name = parts[-1]
-        if ".srt" in pic_name:
+        if ".srt" in pic_name or ".html" in pic_name:
             return
         if "unknown" in pic_name:
             pic_name = parts[-2] + pic_name

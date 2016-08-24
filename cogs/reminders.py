@@ -21,17 +21,21 @@ class Reminders:
             (user_id    INT     NOT NULL,
             message     TEXT    NOT NULL,
             remind_date INT     NOT NULL)''')
+        self.bot.loop.create_task(self.wait())
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.connection is not None:
             print("closing the connection")
             self.connection.close()
 
-    async def on_ready(self):
-        print("listening in another class " + __name__)
+    async def wait(self):
+        await self.bot.wait_until_ready()
         while True:
             await self.check_db()
             await asyncio.sleep(60)
+
+    async def on_ready(self):
+        print("listening in another class " + __name__)
 
     async def on_message(self, message):
         pass

@@ -46,7 +46,7 @@ class Commands:
     async def say(self, *, message=None):
         """Says what you tell it to say"""
         if message is not None:
-            self.bot.say(message)
+            await self.bot.say(message)
 
     @commands.command(aliases=["샤샤샤"])
     async def shyshyshy(self):
@@ -57,6 +57,15 @@ class Commands:
     async def joined(self, member: discord.Member):
         """Says when a member joined."""
         await self.bot.say("{0.name} joined in {0.joined_at}".format(member))
+
+    @commands.command(aliases=["rolleyes", "eyes"])
+    async def rollseyes(self):
+        loop = range(0, 6)
+        message = await self.bot.say(":eyes:")
+        for x in loop:
+            await self.bot.edit_message(message, ":eyes:")
+            await asyncio.sleep(1)
+            await self.bot.edit_message(message, "<:flippedEyes:217116949895708672>")
 
     @commands.group(pass_context=True)
     async def cool(self, ctx):

@@ -10,10 +10,11 @@ class BasicBot(Bot):
         super().__init__(command_prefix, formatter, description, pm_help, **options)
 
     async def on_ready(self):
+        print("------------------------------------------------------------------------------------------------------")
         print("Logged in as")
         print(self.user.name)
         print(self.user.id)
-        print("------")
+        print("------------------------------------------------------------------------------------------------------")
 
     async def on_message(self, message):
         splits = message.content.split()
