@@ -73,6 +73,7 @@ class Commands:
 
     @commands.command(aliases=["rolleyes", "eyes"])
     async def rollseyes(self):
+        """Rolls eyes"""
         message = await self.bot.say(":eyes:")
         for x in range(0, 6):
             await asyncio.sleep(1)
