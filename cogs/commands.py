@@ -34,6 +34,7 @@ class Commands:
             await self.bot.delete_message(msg)
             if count >= 10:
                 count = 0
+                # Take a break to help avoid rate limit
                 await asyncio.sleep(1)
 
     @commands.command()
@@ -57,6 +58,15 @@ class Commands:
     async def joined(self, member: discord.Member):
         """Says when a member joined."""
         await self.bot.say("{0.name} joined in {0.joined_at}".format(member))
+
+    @commands.command(aliases=["emojis"], pass_context=True)
+    async def emoji(self, ctx):
+        """Gets the emoji for this server"""
+        server = ctx.message.server
+        msg = ""
+        for e in server.emojis:
+            msg = msg + str(e) + " "
+        await self.bot.say(msg)
 
     @commands.command(aliases=["rolleyes", "eyes"])
     async def rollseyes(self):

@@ -47,8 +47,9 @@ class Notifications:
         for user_id in self.config.get_as_list("pinnedMessages"):
             user = server.get_member(user_id)
             if user is not None:
+                # Until we have a way to know who edited/pinned a message, it will say "Someone"
                 await self.bot.send_message(user,
-                    '`{} pinned a message in {} | #{}:` {}'.format(message.author.name, message.server.name,
+                    '`Someone pinned a message by {} in {} | #{}:` {}'.format(message.author.name, message.server.name,
                         message.channel.name, message.content))
 
     async def pin_removed(self, message):
