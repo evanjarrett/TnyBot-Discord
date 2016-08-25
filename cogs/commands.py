@@ -31,7 +31,10 @@ class Commands:
         messages = self.bot.logs_from(ctx.message.channel, amount)
         count = 0
         async for msg in messages:
-            await self.bot.delete_message(msg)
+            try:
+                await self.bot.delete_message(msg)
+            except discord.Forbidden as e:
+                print(e.args[0])
             if count >= 10:
                 count = 0
                 # Take a break to help avoid rate limit
