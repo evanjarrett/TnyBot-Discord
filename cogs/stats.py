@@ -29,8 +29,6 @@ class Stats:
     async def on_message(self, message):
         user_id = message.author.id
         server_id = message.server.id
-        if server_id != "169697176149164032":
-            return
         sub_query = "COALESCE(((SELECT message_count FROM stats WHERE user_id = {} and server_id = {}) + 1),1)".format(
             user_id,
             server_id
