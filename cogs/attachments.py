@@ -98,7 +98,7 @@ class Attachments:
             pic_name = parts[-2] + pic_name
 
         file_path = dirs + pic_name
-        if not Attachments.has_extension(file_path):
+        if not self.has_extension(file_path):
             if os.path.exists(file_path + ".jpeg") \
                     or os.path.exists(file_path + ".gif") \
                     or os.path.exists(file_path + ".png"):
@@ -124,6 +124,15 @@ class Attachments:
             except HTTPError as e:
                 print(e.code)
                 return
+            except UnicodeEncodeError:
+                # Special retry logic for IDN domains
+                try:
+                    url = "http://" + url.replace("http://", "").encode("idna").decode("utf-8")
+                    urllib_request.urlretrieve(url, file_path)
+                    print(file_path)
+                except HTTPError as e:
+                    print(e.code)
+                    return
             else:
                 self.has_curled = True
                 await asyncio.sleep(3)

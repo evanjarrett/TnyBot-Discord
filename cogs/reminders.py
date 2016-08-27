@@ -22,14 +22,14 @@ class Reminders:
             (user_id    INT     NOT NULL,
             message     TEXT    NOT NULL,
             remind_date INT     NOT NULL)''')
-        self.bot.loop.create_task(self.wait())
+        self.bot.loop.create_task(self.background())
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.connection is not None:
             print("closing the connection")
             self.connection.close()
 
-    async def wait(self):
+    async def background(self):
         await self.bot.wait_until_ready()
         # We want to run this in a separate process, since on_ready could be called multiple times
         while True:
