@@ -38,7 +38,6 @@ class Stats:
             server_id,
             sub_query
         )
-        print(query)
         self.connection.execute(query)
         self.connection.commit()
 
