@@ -29,8 +29,9 @@ class Stats:
     async def on_message(self, message):
         user_id = message.author.id
         server_id = message.server.id
-
-        sub_query = "((SELECT message_count FROM stats WHERE user_id = {} and server_id = {}) + 1)".format(
+        if server_id != "169697176149164032":
+            return
+        sub_query = "COALESCE(((SELECT message_count FROM stats WHERE user_id = {} and server_id = {}) + 1),1)".format(
             user_id,
             server_id
         )
@@ -39,6 +40,7 @@ class Stats:
             server_id,
             sub_query
         )
+        print(query)
         self.connection.execute(query)
         self.connection.commit()
 
