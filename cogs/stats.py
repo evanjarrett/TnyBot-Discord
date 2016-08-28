@@ -15,7 +15,7 @@ class Stats:
             '''CREATE TABLE IF NOT EXISTS stats
             (user_id INT PRIMARY KEY NOT NULL,
             server_id       INT      NOT NULL,
-            message_count   TEXT     NOT NULL DEFAULT 0,
+            message_count   INT      NOT NULL DEFAULT 0,
             command_count   INT      NOT NULL DEFAULT 0)''')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -27,6 +27,9 @@ class Stats:
         print("listening in another class " + __name__)
 
     async def on_message(self, message):
+        if message.server is None:
+            # Ignore PMs
+            return
         user_id = message.author.id
         server_id = message.server.id
         sub_query = "COALESCE(((SELECT message_count FROM stats WHERE user_id = {} and server_id = {}) + 1),1)".format(
