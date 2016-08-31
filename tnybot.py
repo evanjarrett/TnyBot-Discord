@@ -13,6 +13,7 @@ tnybot.add_cog(CustomCommands(tnybot))
 tnybot.add_cog(Notifications(tnybot))
 tnybot.add_cog(Grep(tnybot))
 tnybot.add_cog(Stats(tnybot))
-tnybot.add_cog(Reminders(tnybot, config["TimeZone"]))
+# Currently removed while I figure out why my background task is killing the bot
+# tnybot.add_cog(Reminders(tnybot, config["TimeZone"]))
 
 tnybot.run(config["User"]["user"], config["User"]["pass"])

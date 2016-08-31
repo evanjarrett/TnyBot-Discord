@@ -52,7 +52,7 @@ class Notifications:
                     '`Someone pinned a message by {} in {} | #{}:` {}'.format(message.author.name, message.server.name,
                         message.channel.name, message.content))
 
-    async def pin_removed(self, message):
+    async def on_pin_removed(self, message):
         pass
 
     @commands.command(aliases=["notification"], pass_context=True)
