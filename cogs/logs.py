@@ -1,5 +1,5 @@
 class Stats:
-    _logs_dir = "res/logs/"
+    _logs_dir = "res/logs"
 
     def __init__(self, bot):
         self.bot = bot
@@ -62,3 +62,8 @@ class Stats:
     async def on_pin_removed(self, message):
         pass
 
+    def get_channel_log(self, channel):
+        server_dir = channel.server.name
+        server_dir = server_dir.strip(".")
+        channel = channel.name
+        return self._logs_dir + "/" + server_dir + "/" + channel + ".log"

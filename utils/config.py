@@ -1,5 +1,13 @@
+from configparser import RawConfigParser
+
 import configparser
 import os
+
+
+class MyConfigParser(RawConfigParser):
+    """RawConfigParser that does not convert to lower"""
+    def optionxform(self, optionstr):
+        return optionstr
 
 
 class Config:
@@ -7,7 +15,7 @@ class Config:
         self.file = file
         self.section = section
 
-        self.config = configparser.RawConfigParser()
+        self.config = MyConfigParser()
 
         if not os.path.isfile(self.file):
             self.config.add_section(self.section)
