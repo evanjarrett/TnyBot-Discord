@@ -11,6 +11,9 @@ class Notifications:
     notification_section = "Notifications"
     undo_list = {}
 
+    # TODO: make config
+    ignore_list = ["131723417060638721"]
+
     def __init__(self, bot):
         self.bot = bot
         self.config = Config(self.notification_file, self.notification_section)
@@ -21,6 +24,9 @@ class Notifications:
 
     async def on_message(self, message):
         if message.author == self.bot.user:
+            return
+
+        if message.author in self.ignore_list:
             return
 
         if self.bot.is_prefixed(message, message.content):
