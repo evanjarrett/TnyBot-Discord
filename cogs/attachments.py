@@ -3,6 +3,7 @@ import configparser
 import os
 import imghdr
 import shutil
+from pprint import pprint
 
 from urllib import request as urllib_request
 from urllib.error import HTTPError
@@ -87,9 +88,10 @@ class Attachments:
                 print("attachment found! Uploaded by {}".format(message.author.name))
                 for a in message.attachments:
                     url = a["url"]
-                    await self.download_image(url, dirs)
+                    proxy_url = a["proxy_url"]
+                    await self.download_image(url, dirs, proxy_url)
 
-    async def download_image(self, url, dirs):
+    async def download_image(self, url, dirs, proxy_url=None):
         parts = url.split("/")
         pic_name = parts[-1]
         if ".srt" in pic_name or ".html" in pic_name:
@@ -119,20 +121,10 @@ class Attachments:
 
         if not os.path.isfile(file_path):
             try:
-                urllib_request.urlretrieve(url, file_path)
-                print(file_path)
-            except HTTPError as e:
-                print(e.code)
+                await self.url_request(url, file_path, proxy_url)
+            except Exception as e:
+                pprint(e)
                 return
-            except UnicodeEncodeError:
-                # Special retry logic for IDN domains
-                try:
-                    url = "http://" + url.replace("http://", "").encode("idna").decode("utf-8")
-                    urllib_request.urlretrieve(url, file_path)
-                    print(file_path)
-                except HTTPError as e:
-                    print(e.code)
-                    return
             else:
                 self.has_curled = True
                 await asyncio.sleep(3)
@@ -157,6 +149,23 @@ class Attachments:
         if channel.id not in self.mergedChannels:
             dirs = dirs + channel_dir + "/"
         return dirs
+
+    async def url_request(self, url, file_path, proxy_url=None):
+        try:
+            urllib_request.urlretrieve(url, file_path)
+            print(file_path)
+        except HTTPError as e:
+            print(e.code)
+            if proxy_url is not None:
+                print("Trying proxy URL")
+                url = proxy_url
+                await self.url_request(url, file_path)
+            else:
+                raise e
+        except UnicodeEncodeError:
+            # Special retry logic for IDN domains
+            url = "http://" + url.replace("http://", "").encode("idna").decode("utf-8")
+            await self.url_request(url, file_path)
 
     @staticmethod
     def has_extension(file_path):
