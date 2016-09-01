@@ -26,7 +26,7 @@ class Notifications:
         if message.author == self.bot.user:
             return
 
-        if message.author in self.ignore_list:
+        if message.author.id in self.ignore_list:
             return
 
         if self.bot.is_prefixed(message, message.content):
