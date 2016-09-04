@@ -24,7 +24,7 @@ class Commands:
                    ]
         await self.bot.say(random.choice(choices))
 
-    @commands.command(pass_context=True)
+    @commands.command(aliases=["prune"], pass_context=True)
     @commands.has_any_role("whales", "admin")
     async def clear(self, ctx, amount=10):
         """Clears chat"""

@@ -1,7 +1,7 @@
 import configparser
 
 from basicbot import BasicBot
-from cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats
+from cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Roles
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
@@ -13,7 +13,8 @@ tnybot.add_cog(CustomCommands(tnybot))
 tnybot.add_cog(Notifications(tnybot))
 tnybot.add_cog(Grep(tnybot))
 tnybot.add_cog(Stats(tnybot))
-# Currently removed while I figure out why my background task is killing the bot
-# tnybot.add_cog(Reminders(tnybot, config["TimeZone"]))
+tnybot.add_cog(Roles(tnybot))
+tnybot.add_cog(Reminders(tnybot, config["TimeZone"]))
 
+#tnybot.run(config["OAuth"]["token"])
 tnybot.run(config["User"]["user"], config["User"]["pass"])

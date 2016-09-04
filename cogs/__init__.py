@@ -5,3 +5,4 @@ from .grep import Grep
 from .attachments import Attachments
 from .reminders import Reminders
 from .stats import Stats
+from .roles import Roles
