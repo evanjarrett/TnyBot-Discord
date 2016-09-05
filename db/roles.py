@@ -17,10 +17,11 @@ class RolesDB:
 
     async def create_table(self, server: discord.Server):
         """ Creates a new table for the server if it doesn't exist"""
-        self.connection.execute(
-            '''CREATE TABLE IF NOT EXISTS {0.id}
-            (role INT NOT NULL UNIQUE,
-             alias TEXT NOT NULL)'''.format(server))
+        q = '''CREATE TABLE IF NOT EXISTS `{0.id}`
+        (role       INT     NOT NULL UNIQUE,
+         alias      TEXT    NOT NULL,
+         is_primary INT     NOT NULL DEFAULT 0)'''.format(server)
+        self.connection.execute(q)
         self.connection.commit()
 
     async def sync(self, roles: List[discord.Role]):
@@ -33,7 +34,7 @@ class RolesDB:
         for r in roles:
             self.insert(r)
 
-    async def insert(self, role: discord.Role, alias=None):
+    async def insert(self, role: discord.Role, alias=None, is_primary=0):
         """ Inserts a new role into the table.
             If the alias is not specified, the role name will be used instead
         """
@@ -44,7 +45,7 @@ class RolesDB:
         if alias is None:
             alias = role.name
         self.connection.execute(
-            "INSERT INTO OR IGNORE {0.id} VALUES ({1.id}, {2})".format(server, role, alias))
+            "INSERT OR IGNORE INTO `{0.id}` VALUES ('{1.id}', '{2}', '{3}')".format(server, role, alias, is_primary))
         self.connection.commit()
 
     async def update(self, role: discord.Role, alias=None):
@@ -55,8 +56,43 @@ class RolesDB:
         if alias is None:
             alias = role.name
         self.connection.execute(
-            "UPDATE {0.id} SET alias = {1} WHERE role = {2.id}".format(server, alias, role))
+            "UPDATE `{0.id}` SET alias = '{1}' WHERE role = '{2.id}'".format(server, alias, role))
         self.connection.commit()
 
-    async def get(self, alias):
-        pass
+    async def get(self, server, alias, is_primary=0):
+        """ Gets the role info by its alias
+        """
+        cursor = self.connection.execute(
+            "SELECT role FROM `{0.id}` WHERE alias = '{1}' AND is_primary = '{2}'".format(server, alias,
+                is_primary))
+        return cursor.fetchone()[0]
+
+    async def getall(self, server):
+        """ Gets all the roles
+        """
+        cursor = self.connection.execute("SELECT role FROM `{0.id}`".format(server))
+        rows = cursor.fetchall()
+        ret_list = []
+        for r in rows:
+            ret_list.append(str(r[0]))
+        return ret_list
+
+    async def getallmain(self, server):
+        """ Gets the primary roles
+        """
+        cursor = self.connection.execute("SELECT role FROM `{0.id}` WHERE is_primary=1".format(server))
+        rows = cursor.fetchall()
+        ret_list = []
+        for r in rows:
+            ret_list.append(str(r[0]))
+        return ret_list
+
+    async def getallregular(self, server):
+        """ Gets all the regular roles
+        """
+        cursor = self.connection.execute("SELECT role FROM `{0.id}`WHERE is_primary=0".format(server))
+        rows = cursor.fetchall()
+        ret_list = []
+        for r in rows:
+            ret_list.append(str(r[0]))
+        return ret_list

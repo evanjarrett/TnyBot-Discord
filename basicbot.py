@@ -1,9 +1,11 @@
+from pprint import pprint
+
 from discord.ext import commands
 from discord.ext.commands import Bot, CheckFailure
 
 
 class BasicBot(Bot):
-    def __init__(self, command_prefix=commands.when_mentioned_or("#!"),
+    def __init__(self, command_prefix=commands.when_mentioned_or("!"),
             formatter=None,
             description="""Tnybot is a basic bot that includes custom commands and notifications""",
             pm_help=False, **options):
@@ -33,6 +35,7 @@ class BasicBot(Bot):
             self.dispatch("pin_removed", after)
 
     async def on_command_error(self, exception, ctx):
+        pprint(exception)
         if isinstance(exception, CheckFailure):
             print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
         else:

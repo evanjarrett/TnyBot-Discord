@@ -16,5 +16,5 @@ tnybot.add_cog(Stats(tnybot))
 tnybot.add_cog(Roles(tnybot))
 tnybot.add_cog(Reminders(tnybot, config["TimeZone"]))
 
-#tnybot.run(config["OAuth"]["token"])
-tnybot.run(config["User"]["user"], config["User"]["pass"])
+tnybot.run(config["OAuth"]["token"])
+#tnybot.run(config["User"]["user"], config["User"]["pass"])
