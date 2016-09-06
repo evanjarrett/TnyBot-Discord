@@ -1,7 +1,6 @@
 import sqlite3
-from typing import List
-
-import discord
+from typing import List, Tuple, Iterable
+from discord import Role, Server
 
 
 class RolesDB:
@@ -15,7 +14,7 @@ class RolesDB:
             print("closing the connection")
             self.connection.close()
 
-    async def create_table(self, server: discord.Server):
+    async def create_table(self, server: Server):
         """ Creates a new table for the server if it doesn't exist"""
         q = '''CREATE TABLE IF NOT EXISTS `{0.id}`
         (role       INT     NOT NULL UNIQUE,
@@ -24,7 +23,7 @@ class RolesDB:
         self.connection.execute(q)
         self.connection.commit()
 
-    async def sync(self, roles: List[discord.Role]):
+    async def sync(self, roles: Iterable[Role]):
         """ Syncs the roles with the server by adding any new entries"""
         if not roles:
             return
@@ -34,7 +33,7 @@ class RolesDB:
         for r in roles:
             self.insert(r)
 
-    async def insert(self, role: discord.Role, alias=None, is_primary=0):
+    async def insert(self, role: Role, alias: str = None, is_primary: int = 0):
         """ Inserts a new role into the table.
             If the alias is not specified, the role name will be used instead
         """
@@ -48,7 +47,28 @@ class RolesDB:
             "INSERT OR IGNORE INTO `{0.id}` VALUES ('{1.id}', '{2}', '{3}')".format(server, role, alias, is_primary))
         self.connection.commit()
 
-    async def update(self, role: discord.Role, alias=None):
+    async def bulkinsert(self, server: Server, rows: List[Tuple[Role, str, int]]):
+        """ Bulk inserts multiple rows into the table
+            Max rows allowed is 100.
+        """
+        if len(rows) > 100:
+            # TODO: raise some exception
+            return
+
+        query = "INSERT OR IGNORE INTO `{0.id}` VALUES ".format(server)
+        for row in rows:
+            role, alias, is_primary = row
+            if not role:
+                continue
+            if alias is None:
+                alias = role.name
+            query += "('{0.id}', '{1}', '{2}'),".format(role, alias, is_primary)
+
+        query = query.strip(",")
+        self.connection.execute(query)
+        self.connection.commit()
+
+    async def update(self, role: Role, alias: str = None):
         """ Updates the alias of a role
             If the alias is not specified, the role name will be used instead
         """
@@ -59,7 +79,7 @@ class RolesDB:
             "UPDATE `{0.id}` SET alias = '{1}' WHERE role = '{2.id}'".format(server, alias, role))
         self.connection.commit()
 
-    async def get(self, server, alias, is_primary=0):
+    async def get(self, server: Server, alias: str, is_primary: int = 0) -> str:
         """ Gets the role info by its alias
         """
         cursor = self.connection.execute(
@@ -67,7 +87,7 @@ class RolesDB:
                 is_primary))
         return cursor.fetchone()[0]
 
-    async def getall(self, server):
+    async def getall(self, server: Server) -> List:
         """ Gets all the roles
         """
         cursor = self.connection.execute("SELECT role FROM `{0.id}`".format(server))
@@ -77,7 +97,7 @@ class RolesDB:
             ret_list.append(str(r[0]))
         return ret_list
 
-    async def getallmain(self, server):
+    async def getallmain(self, server: Server) -> List:
         """ Gets the primary roles
         """
         cursor = self.connection.execute("SELECT role FROM `{0.id}` WHERE is_primary=1".format(server))
@@ -87,7 +107,7 @@ class RolesDB:
             ret_list.append(str(r[0]))
         return ret_list
 
-    async def getallregular(self, server):
+    async def getallregular(self, server: Server) -> List:
         """ Gets all the regular roles
         """
         cursor = self.connection.execute("SELECT role FROM `{0.id}`WHERE is_primary=0".format(server))
