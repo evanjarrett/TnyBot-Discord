@@ -1,5 +1,6 @@
 import sqlite3
-from typing import List, Tuple, Iterable
+from typing import List, Tuple
+
 from discord import Role, Server
 
 
@@ -23,7 +24,7 @@ class RolesDB:
         self.connection.execute(q)
         self.connection.commit()
 
-    async def sync(self, roles: Iterable[Role]):
+    async def sync(self, roles: List[Role]):
         """ Syncs the roles with the server by adding any new entries"""
         if not roles:
             return
@@ -85,7 +86,10 @@ class RolesDB:
         cursor = self.connection.execute(
             "SELECT role FROM `{0.id}` WHERE alias = '{1}' AND is_primary = '{2}'".format(server, alias,
                 is_primary))
-        return cursor.fetchone()[0]
+        one = cursor.fetchone()
+        if one is not None:
+            one = one[0]
+        return one
 
     async def getall(self, server: Server) -> List:
         """ Gets all the roles
