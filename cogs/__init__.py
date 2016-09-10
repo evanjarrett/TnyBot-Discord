@@ -6,3 +6,4 @@ from .attachments import Attachments
 from .reminders import Reminders
 from .stats import Stats
 from .roles import Roles
+from .logs import Logs

@@ -1,4 +1,4 @@
-class Stats:
+class Logs:
     _logs_dir = "res/logs"
 
     def __init__(self, bot):

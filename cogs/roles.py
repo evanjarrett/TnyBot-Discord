@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.converter import RoleConverter
 
-from db.roles import RolesDB
+from db import RolesDB
 
 
 class Roles:
@@ -19,9 +19,33 @@ class Roles:
         for s in servers:
             await self.roles_db.create_table(s)
 
-    @commands.command(pass_context=True, aliases=["biashelpadmin"])
+    @commands.group(pass_context=True, aliases=["biashelp"])
+    async def roleshelp(self, ctx):
+        """Shows the help information for self assigned roles
+        """
+        if ctx.invoked_subcommand is None:
+            role = "role"
+            plural = "s"
+            if "bias" in ctx.invoked_with:
+                role = "bias"
+                plural = "es"
+
+            msg = []
+            msg.append("```")
+            msg.append("Hello! I let you assign your own {1}{2}!")
+            msg.append("Use: {0}{1} to add the {1}{2} you want.")
+            msg.append("Example: {0}{1} lions, tigers, bears")
+            msg.append("Hint: You can also add them individually if you want...")
+            msg.append("")
+            msg.append("If you want to add a main {1}, you have to use {0}main{1}.")
+            msg.append("You can only have one of these, and it will be the prominent color.")
+            msg.append("Example: {0}main{1} robots")
+            msg.append("```")
+            await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
+
+    @roleshelp.command(pass_context=True, aliases=["mod"])
     @commands.has_any_role("Tnybot")
-    async def roleshelpadmin(self, ctx):
+    async def admin(self, ctx):
         """Shows the help information for creating self assigned roles
         """
         role = "role"
@@ -32,7 +56,8 @@ class Roles:
 
         msg = []
         msg.append("```")
-        msg.append("To get started, you need to create a list of {1}{2} members can add.")
+        msg.append("To get started, give me permission to manage roles.")
+        msg.append("Next, you need to create a list of {1}{2} members can add.")
         msg.append("Use: {0}set{1} Role=Alias, Role2=Alias2")
         msg.append("Example: {0}set{1} robots=robits, dogs=doge, lions, tigers, bears=beers")
         msg.append("")
@@ -40,28 +65,6 @@ class Roles:
         msg.append("The Member will be prompted if they want to swap {1}{2}.")
         msg.append("")
         msg.append("Hint: {1}{2}, and main{1}{2} can share the same alias.")
-        msg.append("```")
-        await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
-
-    @commands.command(pass_context=True, aliases=["biashelp"])
-    async def roleshelp(self, ctx):
-        """Shows the help information for self assigned roles
-        """
-        role = "role"
-        plural = "s"
-        if "bias" in ctx.invoked_with:
-            role = "bias"
-            plural = "es"
-
-        msg = []
-        msg.append("```")
-        msg.append("Hello! I let you assign your own {1}{2}!")
-        msg.append("Use: {0}{1} to add the {1}{2} you want.")
-        msg.append("Example: {0}{1} lions, tigers, bears")
-        msg.append("Hint: You can also add them individually if you want...")
-        msg.append("")
-        msg.append("If you want to add a main{1}, you have to use {0}main{1}.")
-        msg.append("Example: {0}main{1} robits")
         msg.append("```")
         await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
 
