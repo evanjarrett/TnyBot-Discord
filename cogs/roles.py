@@ -19,27 +19,75 @@ class Roles:
         for s in servers:
             await self.roles_db.create_table(s)
 
+    @commands.command(pass_context=True, aliases=["biashelpadmin"])
+    @commands.has_any_role("Tnybot")
+    async def roleshelpadmin(self, ctx):
+        """Shows the help information for creating self assigned roles
+        """
+        role = "role"
+        plural = "s"
+        if "bias" in ctx.invoked_with:
+            role = "bias"
+            plural = "es"
+
+        msg = []
+        msg.append("```")
+        msg.append("To get started, you need to create a list of {1}{2} members can add.")
+        msg.append("Use: {0}set{1} Role=Alias, Role2=Alias2")
+        msg.append("Example: {0}set{1} robots=robits, dogs=doge, lions, tigers, bears=beers")
+        msg.append("")
+        msg.append("If you want to enforce 1 {1} per user, then use {0}setmain{1}")
+        msg.append("The Member will be prompted if they want to swap {1}{2}.")
+        msg.append("")
+        msg.append("Hint: {1}{2}, and main{1}{2} can share the same alias.")
+        msg.append("```")
+        await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
+
+    @commands.command(pass_context=True, aliases=["biashelp"])
+    async def roleshelp(self, ctx):
+        """Shows the help information for self assigned roles
+        """
+        role = "role"
+        plural = "s"
+        if "bias" in ctx.invoked_with:
+            role = "bias"
+            plural = "es"
+
+        msg = []
+        msg.append("```")
+        msg.append("Hello! I let you assign your own {1}{2}!")
+        msg.append("Use: {0}{1} to add the {1}{2} you want.")
+        msg.append("Example: {0}{1} lions, tigers, bears")
+        msg.append("Hint: You can also add them individually if you want...")
+        msg.append("")
+        msg.append("If you want to add a main{1}, you have to use {0}main{1}.")
+        msg.append("Example: {0}main{1} robits")
+        msg.append("```")
+        await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
+
     @commands.command(pass_context=True, aliases=["setbias"])
-    async def setroles(self, ctx, *, roles):
+    @commands.has_any_role("Tnybot")
+    async def setrole(self, ctx, *, roles):
         rows = await self._parse_roles(ctx, roles)
         await self.roles_db.bulkinsert(ctx.message.server, rows)
         await self.bot.say("Done! Use listroles to check what you added")
 
     @commands.command(pass_context=True, aliases=["listbias"])
-    async def listroles(self, ctx):
+    async def listrole(self, ctx):
         server = ctx.message.server
         all_roles = await self.roles_db.getallregular(server)
         role_names = await self._format_roles(ctx, all_roles)
         await self.bot.say(role_names)
 
-    @commands.command(pass_context=True, aliases=["setmainbias", "addmainbias"])
-    async def setmainroles(self, ctx, *, roles):
+    @commands.command(pass_context=True, aliases=["setmainbias", "addmainbias", "addmainrole"])
+    @commands.has_any_role("Tnybot")
+    async def setmainrole(self, ctx, *, roles):
         rows = await self._parse_roles(ctx, roles, is_primary=1)
         await self.roles_db.bulkinsert(ctx.message.server, rows)
-        await self.bot.say("Done! Use listmainroles to check what you added")
+        await self.bot.say("Done! Use listmainrole to check what you added")
 
     @commands.command(pass_context=True, aliases=["listmainbias"])
-    async def listmainroles(self, ctx):
+    async def listmainrole(self, ctx):
         server = ctx.message.server
         all_roles = await self.roles_db.getallmain(server)
         role_names = await self._format_roles(ctx, all_roles)
@@ -83,30 +131,35 @@ class Roles:
             except Forbidden:
                 await self.bot.say("Oops, something happened, I don't have permission to give that role.")
 
-    @commands.command(pass_context=True, aliases=["iam", "bias", "setrole", "addrole"])
+    @commands.command(pass_context=True, aliases=["iam", "bias", "sub"])
     async def role(self, ctx, *, all_alias):
         """Add a role. A member can have any number of these roles
         """
         server = ctx.message.server
+        all_alias = all_alias.rstrip(", \t\n\r")
         alias_arr = all_alias.split(",")
-        for a in alias_arr:
-            alias = a.strip(" \t\n\r\"'")
+        members = await self._get_members_from_message(ctx.message)
+        for m in members:
+            roles_arr = []
+            for a in alias_arr:
+                alias = a.strip(" \t\n\r\"'")
 
-            role_id = await self.roles_db.get(server, alias)
-            if role_id is None:
-                await self.bot.say("That role isn't something I can add")
-                return
+                role_id = await self.roles_db.get(server, alias)
+                if role_id is None:
+                    await self.bot.say("{} isn't something I can add".format(a))
+                    continue
 
-            role = "<@&{}>".format(role_id)
-            role_conv = RoleConverter(ctx, role).convert()
+                role = "<@&{}>".format(role_id)
+                roles_arr.append(RoleConverter(ctx, role).convert())
 
-            members = await self._get_members_from_message(ctx.message)
-            for m in members:
-                try:
-                    await self.bot.add_roles(m, role_conv)
-                    await self.bot.say("Adding {0.mention} to `{1.name}`".format(m, role_conv))
-                except Forbidden:
-                    await self.bot.say("Oops, something happened, I don't have permission to give that role.")
+            try:
+                await self.bot.add_roles(m, *roles_arr)
+                say = "Adding {0.mention} to ".format(m)
+                for r in roles_arr:
+                    say += "`{0.name}` ".format(r)
+                await self.bot.say(say)
+            except Forbidden:
+                await self.bot.say("Oops, something happened, I don't have permission to give that role.")
 
     async def _format_roles(self, ctx: Context, all_roles: List) -> List[str]:
         role_names = []
@@ -117,6 +170,7 @@ class Roles:
         return role_names
 
     async def _parse_roles(self, ctx: Context, roles: str, is_primary: int = 0) -> List[Tuple]:
+        roles = roles.rstrip(", \t\n\r")
         roles_arr = roles.split(",")
         alias = None
         rows = []

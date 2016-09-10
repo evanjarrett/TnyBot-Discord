@@ -25,7 +25,7 @@ class Commands:
         await self.bot.say(random.choice(choices))
 
     @commands.command(aliases=["prune"], pass_context=True)
-    @commands.has_any_role("whales", "admin")
+    @commands.has_any_role("Tnybot")
     async def clear(self, ctx, amount=10):
         """Clears chat"""
         messages = self.bot.logs_from(ctx.message.channel, amount)
@@ -41,7 +41,7 @@ class Commands:
                 await asyncio.sleep(1)
 
     @commands.command()
-    @commands.has_any_role("whales", "admin")
+    @commands.has_any_role("Tnybot")
     async def playing(self, *, game=None):
         """Sets now playing status"""
         await self.bot.change_status(game=game if game is None else discord.Game(name=game))
