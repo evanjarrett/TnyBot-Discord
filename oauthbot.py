@@ -1,17 +1,16 @@
 import configparser
 
 from basicbot import BasicBot
-from cogs import Commands, Notifications, Grep, Stats, Roles
+from cogs import Commands, Notifications, Grep, Roles
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
 
-tnybot = BasicBot()
+oauthbot = BasicBot(command_prefix="!", description="""Bot built for discord's oauth bot api""")
 
-tnybot.add_cog(Commands(tnybot))
-tnybot.add_cog(Notifications(tnybot))
-tnybot.add_cog(Grep(tnybot))
-tnybot.add_cog(Stats(tnybot))
-tnybot.add_cog(Roles(tnybot))
+oauthbot.add_cog(Commands(oauthbot))
+oauthbot.add_cog(Notifications(oauthbot))
+oauthbot.add_cog(Grep(oauthbot))
+oauthbot.add_cog(Roles(oauthbot))
 
-tnybot.run(config["OAuth"]["token"])
+oauthbot.run(config["OAuth"]["token"])

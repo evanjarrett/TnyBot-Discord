@@ -5,7 +5,7 @@ from discord.ext.commands import Bot, CheckFailure
 
 
 class BasicBot(Bot):
-    def __init__(self, command_prefix=commands.when_mentioned_or("!"),
+    def __init__(self, command_prefix=commands.when_mentioned_or("#!"),
             formatter=None,
             description="""Tnybot is a basic bot that includes custom commands and notifications""",
             pm_help=False, **options):

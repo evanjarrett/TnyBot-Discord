@@ -6,7 +6,7 @@ from cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
 
-tnybot = BasicBot()
+tnybot = BasicBot(command_prefix="#!")
 
 tnybot.add_cog(Commands(tnybot))
 tnybot.add_cog(CustomCommands(tnybot))
