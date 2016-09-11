@@ -25,7 +25,7 @@ class Commands:
         await self.bot.say(random.choice(choices))
 
     @commands.command(aliases=["prune"], pass_context=True)
-    @commands.has_any_role("Tnybot")
+    @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, amount=10):
         """Clears chat"""
         messages = self.bot.logs_from(ctx.message.channel, amount)
