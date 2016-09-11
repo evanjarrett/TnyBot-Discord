@@ -44,7 +44,7 @@ class Roles:
             await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
 
     @roleshelp.command(pass_context=True, aliases=["mod"])
-    @commands.has_any_role("Tnybot")
+    @commands.has_permissions(manage_roles=True)
     async def admin(self, ctx):
         """Shows the help information for creating self assigned roles
         """
@@ -56,7 +56,7 @@ class Roles:
 
         msg = []
         msg.append("```")
-        msg.append("To get started, give me permission to manage roles.")
+        msg.append("To get started, give me permission to manage roles, and delete messages")
         msg.append("Next, you need to create a list of {1}{2} members can add.")
         msg.append("Use: {0}set{1} Role=Alias, Role2=Alias2")
         msg.append("Example: {0}set{1} robots=robits, dogs=doge, lions, tigers, bears=beers")
@@ -69,28 +69,36 @@ class Roles:
         await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
 
     @commands.command(pass_context=True, aliases=["setbias"])
-    @commands.has_any_role("Tnybot")
+    @commands.has_permissions(manage_roles=True)
     async def setrole(self, ctx, *, roles):
+        """Sets a role, or list of roles as self assigned roles
+        """
         rows = await self._parse_roles(ctx, roles)
         await self.roles_db.bulkinsert(ctx.message.server, rows)
         await self.bot.say("Done! Use listroles to check what you added")
 
     @commands.command(pass_context=True, aliases=["listbias"])
     async def listrole(self, ctx):
+        """Lists the roles created with setrole command
+        """
         server = ctx.message.server
         all_roles = await self.roles_db.getallregular(server)
         role_names = await self._format_roles(ctx, all_roles)
         await self.bot.say(role_names)
 
     @commands.command(pass_context=True, aliases=["setmainbias", "addmainbias", "addmainrole"])
-    @commands.has_any_role("Tnybot")
+    @commands.has_permissions(manage_roles=True)
     async def setmainrole(self, ctx, *, roles):
+        """Sets a role, or list of roles as self assigned main roles
+        """
         rows = await self._parse_roles(ctx, roles, is_primary=1)
         await self.roles_db.bulkinsert(ctx.message.server, rows)
         await self.bot.say("Done! Use listmainrole to check what you added")
 
     @commands.command(pass_context=True, aliases=["listmainbias"])
     async def listmainrole(self, ctx):
+        """Lists the roles created with setmainrole command
+        """
         server = ctx.message.server
         all_roles = await self.roles_db.getallmain(server)
         role_names = await self._format_roles(ctx, all_roles)
@@ -120,13 +128,18 @@ class Roles:
 
             for r in m.roles:
                 if r.id in main_roles:
-                    await self.bot.say(
+                    if r.id == role_conv.id:
+                        await self.bot.say("{0.mention} already has `{1.name}` as their main role".format(m, role_conv))
+                        continue
+
+                    bot_message = await self.bot.say(
                         "{0.mention} already has a main role, would you like to change it to `{1.name}`? Y/N".format(
                             m, role_conv))
                     reply = await self.bot.wait_for_message(timeout=5.0, author=message.author)
-                    if reply.content.lower() in ["yes", "y"]:
+                    if reply and reply.content.lower() in ["yes", "y"]:
                         await self.bot.remove_roles(m, r)
                     else:
+                        await self.bot.delete_message(bot_message)
                         continue
             try:
                 await self.bot.add_roles(m, role_conv)
@@ -145,8 +158,7 @@ class Roles:
         for m in members:
             roles_arr = []
             for a in alias_arr:
-                alias = a.strip(" \t\n\r\"'")
-
+                alias = a.replace(m.mention, "").strip(" \t\n\r\"'")
                 role_id = await self.roles_db.get(server, alias)
                 if role_id is None:
                     await self.bot.say("{} isn't something I can add".format(a))
@@ -156,6 +168,8 @@ class Roles:
                 roles_arr.append(RoleConverter(ctx, role).convert())
 
             try:
+                if not roles_arr:
+                    continue
                 await self.bot.add_roles(m, *roles_arr)
                 say = "Adding {0.mention} to ".format(m)
                 for r in roles_arr:
@@ -163,6 +177,27 @@ class Roles:
                 await self.bot.say(say)
             except Forbidden:
                 await self.bot.say("Oops, something happened, I don't have permission to give that role.")
+
+    @commands.command(pass_context=True, aliases=["clearbias"])
+    async def clearrole(self, ctx):
+        """Clears all self assigned roles from you, or the listed members
+        """
+        message = ctx.message
+        server = message.server
+        listed_roles = await self.roles_db.getall(server)
+        members = await self._get_members_from_message(message)
+        for m in members:
+            member_roles = m.roles
+            for r in m.roles:
+                if r.id not in listed_roles:
+                    member_roles.remove(r)
+            bot_message = await self.bot.say(
+                "This will clear all roles for: {0.mention}. Are you sure you want to do that? Y/N".format(m))
+            reply = await self.bot.wait_for_message(timeout=5.0, author=message.author)
+            if reply and reply.content.lower() in ["yes", "y"]:
+                await self.bot.remove_roles(m, *member_roles)
+            else:
+                await self.bot.delete_message(bot_message)
 
     async def _format_roles(self, ctx: Context, all_roles: List) -> List[str]:
         role_names = []
@@ -192,7 +227,11 @@ class Roles:
         return rows
 
     async def _get_members_from_message(self, msg: Message) -> List[Member]:
-        members = msg.mentions
+        ch = msg.channel
+        permissions = ch.permissions_for(msg.author)
+        members = []
+        if permissions.manage_roles is True:
+            members = msg.mentions
         if not members:
             members = [msg.author]
         return members
