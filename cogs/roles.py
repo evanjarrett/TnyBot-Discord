@@ -195,7 +195,10 @@ class Roles:
                 "This will clear all roles for: {0.mention}. Are you sure you want to do that? Y/N".format(m))
             reply = await self.bot.wait_for_message(timeout=5.0, author=message.author)
             if reply and reply.content.lower() in ["yes", "y"]:
-                await self.bot.remove_roles(m, *member_roles)
+                try:
+                    await self.bot.remove_roles(m, *member_roles)
+                except Forbidden:
+                    await self.bot.say("Oops, something happened, I don't have permission to clear your roles.")
             else:
                 await self.bot.delete_message(bot_message)
 
