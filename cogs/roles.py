@@ -19,6 +19,10 @@ class Roles:
         for s in servers:
             await self.roles_db.create_table(s)
 
+    async def on_server_join(self, server):
+        print("joining a new server {}".format(server.name))
+        await self.roles_db.create_table(server)
+
     @commands.group(pass_context=True, aliases=["biashelp"])
     async def roleshelp(self, ctx):
         """Shows the help information for self assigned roles
