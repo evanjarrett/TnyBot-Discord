@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from discord import Forbidden, Message, Member
+from discord import Forbidden, Message, Member, Role, Server
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.converter import RoleConverter
@@ -19,9 +19,13 @@ class Roles:
         for s in servers:
             await self.roles_db.create_table(s)
 
-    async def on_server_join(self, server):
+    async def on_server_join(self, server: Server):
         print("joining a new server {}".format(server.name))
         await self.roles_db.create_table(server)
+
+    async def on_server_role_delete(self, role: Role):
+        role_id = role.id
+        pass
 
     @commands.group(pass_context=True, aliases=["biashelp"])
     async def roleshelp(self, ctx):
@@ -81,7 +85,7 @@ class Roles:
         await self.roles_db.bulkinsert(ctx.message.server, rows)
         await self.bot.say("Done! Use listroles to check what you added")
 
-    @commands.command(pass_context=True, aliases=["listbias"])
+    @commands.command(pass_context=True, aliases=["listbias", "listbiases", "listroles"])
     async def listrole(self, ctx):
         """Lists the roles created with setrole command
         """
@@ -97,9 +101,9 @@ class Roles:
         """
         rows = await self._parse_roles(ctx, roles, is_primary=1)
         await self.roles_db.bulkinsert(ctx.message.server, rows)
-        await self.bot.say("Done! Use listmainrole to check what you added")
+        await self.bot.say("Done! Use listmainroles to check what you added")
 
-    @commands.command(pass_context=True, aliases=["listmainbias"])
+    @commands.command(pass_context=True, aliases=["listmainbias", "listmainbiases", "listmainroles"])
     async def listmainrole(self, ctx):
         """Lists the roles created with setmainrole command
         """
@@ -109,7 +113,7 @@ class Roles:
         await self.bot.say(role_names)
 
     @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "mainrole"])
-    async def primaryrole(self, ctx, alias):
+    async def primaryrole(self, ctx, *, alias):
         """Add a primary role. Only one of these roles can be added to a member
         """
         message = ctx.message
