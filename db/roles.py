@@ -24,16 +24,6 @@ class RolesDB:
         self.connection.execute(q)
         self.connection.commit()
 
-    async def sync(self, roles: List[Role]):
-        """ Syncs the roles with the server by adding any new entries"""
-        if not roles:
-            return
-
-        server = roles[0].server
-        self.create_table(server)
-        for r in roles:
-            self.insert(r)
-
     async def insert(self, role: Role, alias: str = None, is_primary: int = 0):
         """ Inserts a new role into the table.
             If the alias is not specified, the role name will be used instead
@@ -78,6 +68,21 @@ class RolesDB:
             alias = role.name
         self.connection.execute(
             "UPDATE `{0.id}` SET alias = '{1}' WHERE role = '{2.id}'".format(server, alias, role))
+        self.connection.commit()
+
+    async def delete(self, role: Role):
+        """ Delete a role from the table.
+        """
+        server = role.server
+        self.connection.execute(
+            "DELETE FROM `{0.id}` WHERE role = '{1.id}'".format(server, role))
+        self.connection.commit()
+
+    async def deletebyid(self, server: Server, role_id: str):
+        """ Delete a role from the table.
+        """
+        self.connection.execute(
+            "DELETE FROM `{0.id}` WHERE role = '{1}'".format(server, role_id))
         self.connection.commit()
 
     async def get(self, server: Server, alias: str, is_primary: int = 0) -> str:

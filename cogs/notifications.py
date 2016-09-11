@@ -36,7 +36,7 @@ class Notifications:
         server = message.server
         # foreach notification
         for n in self.config.get_all():
-            search = re.search(n, content)
+            search = re.search(n, content, re.IGNORECASE)
             if search is not None:
                 search = search.group(0)
                 # notification matched

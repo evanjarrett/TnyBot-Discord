@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from discord import Forbidden, Message, Member, Role, Server
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Context, BadArgument
 from discord.ext.commands.converter import RoleConverter
 
 from db import RolesDB
@@ -17,6 +17,7 @@ class Roles:
         print("listening in another class " + __name__)
         servers = self.bot.servers
         for s in servers:
+            # Create a table for those that don't have one
             await self.roles_db.create_table(s)
 
     async def on_server_join(self, server: Server):
@@ -24,8 +25,7 @@ class Roles:
         await self.roles_db.create_table(server)
 
     async def on_server_role_delete(self, role: Role):
-        role_id = role.id
-        pass
+        await self.roles_db.delete(role)
 
     @commands.group(pass_context=True, aliases=["biashelp"])
     async def roleshelp(self, ctx):
@@ -214,8 +214,15 @@ class Roles:
         role_names = []
         for role_id in all_roles:
             role = "<@&{}>".format(role_id)
-            role_conv = RoleConverter(ctx, role).convert()
-            role_names.append(role_conv.name)
+            try:
+                role_conv = RoleConverter(ctx, role).convert()
+                role_names.append(role_conv.name)
+            except BadArgument as e:
+                # Unable to convert this role, lets remove it from our database
+                msg = e.args[0]
+                print(msg)
+                await self.roles_db.deletebyid(ctx.message.server, role_id)
+
         return role_names
 
     async def _parse_roles(self, ctx: Context, roles: str, is_primary: int = 0) -> List[Tuple]:
