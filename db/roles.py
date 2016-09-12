@@ -35,7 +35,7 @@ class RolesDB:
         if alias is None:
             alias = role.name
         self.connection.execute(
-            "INSERT OR IGNORE INTO `{0.id}` VALUES ('{1.id}', '{2}', '{3}')".format(server, role, alias, is_primary))
+            "INSERT OR REPLACE INTO `{0.id}` VALUES ('{1.id}', '{2}', '{3}')".format(server, role, alias, is_primary))
         self.connection.commit()
 
     async def bulkinsert(self, server: Server, rows: List[Tuple[Role, str, int]]):
@@ -46,7 +46,7 @@ class RolesDB:
             # TODO: raise some exception
             return
 
-        query = "INSERT OR IGNORE INTO `{0.id}` VALUES ".format(server)
+        query = "INSERT OR REPLACE INTO `{0.id}` VALUES ".format(server)
         for row in rows:
             role, alias, is_primary = row
             if not role:
