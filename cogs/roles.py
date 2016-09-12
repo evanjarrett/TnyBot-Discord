@@ -124,8 +124,10 @@ class Roles:
             await self.bot.say("That role isn't something I can add")
             return
 
-        role = "<@&{}>".format(role_id)
-        role_conv = RoleConverter(ctx, role).convert()
+        role_conv = await self._role_convert(ctx, role_id)
+        if role_conv is None:
+            await self.bot.say("That role isn't something I can add")
+            return
 
         main_roles = await self.roles_db.getallmain(server)
 
@@ -172,8 +174,9 @@ class Roles:
                     await self.bot.say("{} isn't something I can add".format(a))
                     continue
 
-                role = "<@&{}>".format(role_id)
-                roles_arr.append(RoleConverter(ctx, role).convert())
+                role_conv = await self._role_convert(ctx, role_id)
+                if role_conv is not None:
+                    roles_arr.append(role_conv)
 
             try:
                 if not roles_arr:
@@ -213,17 +216,23 @@ class Roles:
     async def _format_roles(self, ctx: Context, all_roles: List) -> List[str]:
         role_names = []
         for role_id in all_roles:
-            role = "<@&{}>".format(role_id)
-            try:
-                role_conv = RoleConverter(ctx, role).convert()
+            role_conv = await self._role_convert(ctx, role_id)
+            if role_conv is not None:
                 role_names.append(role_conv.name)
-            except BadArgument as e:
-                # Unable to convert this role, lets remove it from our database
-                msg = e.args[0]
-                print(msg)
-                await self.roles_db.deletebyid(ctx.message.server, role_id)
 
         return role_names
+
+    async def _role_convert(self, ctx: Context, role_id: str):
+        role = "<@&{}>".format(role_id)
+        role_conv = None
+        try:
+            role_conv = RoleConverter(ctx, role).convert()
+        except BadArgument as e:
+            # Unable to convert this role, lets remove it from our database
+            msg = e.args[0]
+            print(msg)
+            await self.roles_db.deletebyid(ctx.message.server, role_id)
+        return role_conv
 
     async def _parse_roles(self, ctx: Context, roles: str, is_primary: int = 0) -> List[Tuple]:
         roles = roles.rstrip(", \t\n\r")
@@ -238,9 +247,10 @@ class Roles:
             else:
                 role = r.strip(" \t\n\r\"'")
 
-            role_conv = RoleConverter(ctx, role).convert()
-            if not role_conv:
-                await self.bot.say("Couldn't find `{}` on this server".format(role))
+            role_conv = await self._role_convert(ctx, role)
+            if role_conv is None:
+                await self.bot.say("Couldn't find role `{}` on this server".format(role))
+                continue
             rows.append((role_conv, alias, is_primary))
         return rows
 
