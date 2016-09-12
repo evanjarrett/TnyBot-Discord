@@ -92,7 +92,10 @@ class Roles:
         server = ctx.message.server
         all_roles = await self.roles_db.getallregular(server)
         role_names = await self._format_roles(ctx, all_roles)
-        await self.bot.say(role_names)
+        if not role_names:
+            await self.bot.say("There are no self assigning roles on this server")
+        else:
+            await self.bot.say(role_names)
 
     @commands.command(pass_context=True, aliases=["setmainbias", "addmainbias", "addmainrole"])
     @commands.has_permissions(manage_roles=True)
@@ -110,7 +113,10 @@ class Roles:
         server = ctx.message.server
         all_roles = await self.roles_db.getallmain(server)
         role_names = await self._format_roles(ctx, all_roles)
-        await self.bot.say(role_names)
+        if not role_names:
+            await self.bot.say("There are no self assigning roles on this server")
+        else:
+            await self.bot.say(role_names)
 
     @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "mainrole"])
     async def primaryrole(self, ctx, *, alias):
