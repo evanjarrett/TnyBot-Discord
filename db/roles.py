@@ -119,29 +119,32 @@ class RolesDB:
     async def getall(self, server: Server) -> List:
         """ Gets all the roles
         """
-        cursor = self.connection.execute("SELECT role FROM `{0.id}`".format(server))
-        rows = cursor.fetchall()
-        ret_list = []
-        for r in rows:
-            ret_list.append(str(r[0]))
-        return ret_list
+        return await self._getall(server, None)
 
     async def getallmain(self, server: Server) -> List:
         """ Gets the primary roles
         """
-        cursor = self.connection.execute("SELECT role FROM `{0.id}` WHERE is_primary=1".format(server))
-        rows = cursor.fetchall()
-        ret_list = []
-        for r in rows:
-            ret_list.append(str(r[0]))
-        return ret_list
+        return await self._getall(server, 1)
 
     async def getallregular(self, server: Server) -> List:
         """ Gets all the regular roles
         """
-        cursor = self.connection.execute("SELECT role FROM `{0.id}`WHERE is_primary=0".format(server))
+        return await self._getall(server, 0)
+
+    async def _getall(self, server: Server, is_primary: int = None) -> List:
+        """ Internal helper method to fetch role and alias
+        """
+        primary_in = "(0,1)"
+        if is_primary == 1:
+            primary_in = "(1)"
+
+        if is_primary == 0:
+            primary_in = "(0)"
+
+        cursor = self.connection.execute("SELECT role, alias FROM `{0.id}`WHERE is_primary IN {1}".format(server, primary_in))
         rows = cursor.fetchall()
         ret_list = []
         for r in rows:
-            ret_list.append(str(r[0]))
+            role, alias = r
+            ret_list.append((str(role), alias))
         return ret_list

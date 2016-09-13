@@ -98,7 +98,7 @@ class Roles:
         if not role_names:
             await self.bot.say("There are no self assigning roles on this server")
         else:
-            await self.bot.say(role_names)
+            await self.bot.say("\n".join(role_names))
 
     @commands.command(pass_context=True, aliases=["setmainbias", "addmainbias", "addmainrole"])
     @commands.has_permissions(manage_roles=True)
@@ -119,7 +119,7 @@ class Roles:
         if not role_names:
             await self.bot.say("There are no self assigning roles on this server")
         else:
-            await self.bot.say(role_names)
+            await self.bot.say("\n".join(role_names))
 
     @commands.command(pass_context=True, aliases=["delmainrole", "delmainbias", "delbias"])
     @commands.has_permissions(manage_roles=True)
@@ -147,7 +147,10 @@ class Roles:
             await self.bot.say("That role isn't something I can add")
             return
 
-        main_roles = await self.roles_db.getallmain(server)
+        db_roles = await self.roles_db.getallmain(server)
+        main_roles = []
+        for role_id, alias in db_roles:
+            main_roles.append(role_id)
 
         members = await self._get_members_from_message(message)
         for m in members:
@@ -213,7 +216,10 @@ class Roles:
         """
         message = ctx.message
         server = message.server
-        listed_roles = await self.roles_db.getall(server)
+        db_roles = await self.roles_db.getall(server)
+        listed_roles = []
+        for role_id, alias in db_roles:
+            listed_roles.append(role_id)
         members = await self._get_members_from_message(message)
         for m in members:
             member_roles = m.roles
@@ -231,12 +237,15 @@ class Roles:
             else:
                 await self.bot.delete_message(bot_message)
 
-    async def _format_roles(self, ctx: Context, all_roles: List) -> List[str]:
+    async def _format_roles(self, ctx: Context, all_roles: List[Tuple]) -> List[str]:
         role_names = []
-        for role_id in all_roles:
+        for role_id, alias in all_roles:
             role_conv = await self._role_convert(ctx, role_id)
             if role_conv is not None:
-                role_names.append(role_conv.name)
+                name = role_conv.name
+                if alias != name:
+                    name = "{0} -> {1}".format(name, alias)
+                role_names.append(name)
 
         return role_names
 

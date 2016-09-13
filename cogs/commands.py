@@ -81,6 +81,11 @@ class Commands:
             await asyncio.sleep(1)
             await self.bot.edit_message(message, ":eyes:")
 
+    @commands.command()
+    async def invite(self):
+        """Get Invite link for bot"""
+        await self.bot.say("https://tny.click/invite")
+
     @commands.group(pass_context=True)
     async def cool(self, ctx):
         """Says if a something is cool."""
