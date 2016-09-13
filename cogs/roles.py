@@ -128,7 +128,7 @@ class Roles:
         """
         rows = await self._parse_roles(ctx, roles, is_primary=1)
         await self.roles_db.bulkdelete(ctx.message.server, rows)
-        await self.bot.say("Done! Use listmainroles to check that it was removed")
+        await self.bot.say("Done!")
 
     @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "mainrole"])
     async def primaryrole(self, ctx, *, alias):
