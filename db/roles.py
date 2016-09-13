@@ -85,6 +85,26 @@ class RolesDB:
             "DELETE FROM `{0.id}` WHERE role = '{1}'".format(server, role_id))
         self.connection.commit()
 
+    async def bulkdelete(self, server: Server, rows: List[Tuple[Role]]):
+        """ Bulk delete multiple rows from the table
+            Max rows allowed is 10.
+        """
+        if len(rows) > 10:
+            # TODO: raise some exception
+            return
+
+        query = "DELETE FROM `{0.id}` WHERE role IN (".format(server)
+        for row in rows:
+            role = row[0]
+            if not role:
+                continue
+            query += "'{0.id}',".format(role)
+
+        query = query.strip(",")
+        query += ")"
+        self.connection.execute(query)
+        self.connection.commit()
+
     async def get(self, server: Server, alias: str, is_primary: int = 0) -> str:
         """ Gets the role info by its alias
         """

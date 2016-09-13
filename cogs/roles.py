@@ -64,7 +64,9 @@ class Roles:
 
         msg = []
         msg.append("```")
-        msg.append("To get started, give me permission to manage roles, and delete messages")
+        msg.append("To get started, give me permission to manage roles, and delete messages.")
+        msg.append("I should have been added with these roles, so just check for a `TnyBot` role.")
+        msg.append("")
         msg.append("Next, you need to create a list of {1}{2} members can add.")
         msg.append("Use: {0}set{1} Role=Alias, Role2=Alias2")
         msg.append("Example: {0}set{1} robots=robits, dogs=doge, lions, tigers, bears=beers")
@@ -73,6 +75,7 @@ class Roles:
         msg.append("The Member will be prompted if they want to swap {1}{2}.")
         msg.append("")
         msg.append("Hint: {1}{2}, and main{1}{2} can share the same alias.")
+        msg.append("To make it easier to add roles, you can allow @mentions and just mention each role you want to add")
         msg.append("```")
         await self.bot.say("\n".join(msg).format(ctx.prefix, role, plural))
 
@@ -117,6 +120,15 @@ class Roles:
             await self.bot.say("There are no self assigning roles on this server")
         else:
             await self.bot.say(role_names)
+
+    @commands.command(pass_context=True, aliases=["delmainrole", "delmainbias", "delbias"])
+    @commands.has_permissions(manage_roles=True)
+    async def delrole(self, ctx, *, roles):
+        """Deletes a self assigned role
+        """
+        rows = await self._parse_roles(ctx, roles, is_primary=1)
+        await self.roles_db.bulkdelete(ctx.message.server, rows)
+        await self.bot.say("Done! Use listmainroles to check that it was removed")
 
     @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "mainrole"])
     async def primaryrole(self, ctx, *, alias):
@@ -253,8 +265,12 @@ class Roles:
             else:
                 role = r.strip(" \t\n\r\"'")
 
-            role_conv = await self._role_convert(ctx, role)
-            if role_conv is None:
+            try:
+                role_conv = RoleConverter(ctx, role).convert()
+            except BadArgument as e:
+                # Unable to convert this role
+                msg = e.args[0]
+                print(msg)
                 await self.bot.say("Couldn't find role `{}` on this server".format(role))
                 continue
             rows.append((role_conv, alias, is_primary))
