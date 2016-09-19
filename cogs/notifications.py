@@ -43,20 +43,13 @@ class Notifications:
                 # foreach user listening to that notification
                 for user_id in self.config.get_as_list(n):
                     user = server.get_member(user_id)
-                    if user is not None and user != message.author:
-                        await self.bot.send_message(user,
-                            '`{} mentioned {} in {} | #{}:` {}'.format(message.author.name, search, message.server.name,
-                                message.channel.name, message.content))
+                    await self._send_message(user, message, search)
 
     async def on_message_pinned(self, message):
         server = message.server
         for user_id in self.config.get_as_list("pinnedMessages"):
             user = server.get_member(user_id)
-            if user is not None:
-                # Until we have a way to know who edited/pinned a message, it will say "Someone"
-                await self.bot.send_message(user,
-                    '`Someone pinned a message by {} in {} | #{}:` {}'.format(message.author.name, message.server.name,
-                        message.channel.name, message.content))
+            await self._send_message(user, message, is_pinned=True)
 
     async def on_pin_removed(self, message):
         pass
@@ -92,3 +85,16 @@ class Notifications:
                 notify_list.append("{0}. {1}".format(i, n))
         message = "\n".join(notify_list)
         await self.bot.send_message(user, message)
+
+    async def _send_message(self, user, message, search=None, is_pinned=False):
+        if user is None or user == message.author:
+            return
+        if is_pinned:
+            # Until we have a way to know who edited/pinned a message, it will say "Someone"
+            await self.bot.send_message(user,
+                '`Someone pinned a message by {0.author.name} in {0.server.name} | #{0.channel.name}:` {0.content}'
+                    .format(message))
+        else:
+            await self.bot.send_message(user,
+                '`{0.timestamp} - {0.author.name} mentioned {1} in {0.server.name} | #{0.channel.name}:` {0.content}'
+                    .format(message, search))
