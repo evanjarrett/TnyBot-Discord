@@ -141,7 +141,8 @@ class RolesDB:
         if is_primary == 0:
             primary_in = "(0)"
 
-        cursor = self.connection.execute("SELECT role, alias FROM `{0.id}`WHERE is_primary IN {1}".format(server, primary_in))
+        cursor = self.connection.execute(
+            "SELECT role, alias FROM `{0.id}`WHERE is_primary IN {1}".format(server, primary_in))
         rows = cursor.fetchall()
         ret_list = []
         for r in rows:

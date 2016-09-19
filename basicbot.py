@@ -1,4 +1,5 @@
 from pprint import pprint
+from time import time
 
 from discord.ext import commands
 from discord.ext.commands import Bot, CheckFailure
@@ -16,6 +17,7 @@ class BasicBot(Bot):
         print("Logged in as")
         print(self.user.name)
         print(self.user.id)
+        print(time())
         print("------------------------------------------------------------------------------------------------------")
 
     async def on_message(self, message):
@@ -40,6 +42,11 @@ class BasicBot(Bot):
             print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
         else:
             await self.on_error("on_command_error", exception, ctx)
+
+    async def close(self):
+        print("Closing client...")
+        print(time())
+        return await super().close()
 
     def is_prefixed(self, message, part):
         prefixes = self._get_prefix(message)
