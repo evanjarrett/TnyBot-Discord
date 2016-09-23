@@ -2,7 +2,7 @@ from pprint import pprint
 from time import time
 
 from discord.ext import commands
-from discord.ext.commands import Bot, CheckFailure
+from discord.ext.commands import Bot, CheckFailure, CommandNotFound
 
 
 class BasicBot(Bot):
@@ -40,6 +40,8 @@ class BasicBot(Bot):
         pprint(exception)
         if isinstance(exception, CheckFailure):
             print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
+        elif isinstance(exception, CommandNotFound):
+            print(exception.args[0])
         else:
             await self.on_error("on_command_error", exception, ctx)
 
@@ -48,7 +50,8 @@ class BasicBot(Bot):
         print(time())
         return await super().close()
 
-    def is_prefixed(self, message, part):
+    def is_prefixed(self, message):
+        part = message.content
         prefixes = self._get_prefix(message)
         if isinstance(prefixes, str):
             if part.startswith(prefixes):
@@ -58,7 +61,8 @@ class BasicBot(Bot):
                 if part.startswith(p):
                     return True
 
-    def trim_prefix(self, message, part):
+    def trim_prefix(self, message):
+        part = message.content
         prefixes = self._get_prefix(message)
         for p in prefixes:
             part = part.strip(p)

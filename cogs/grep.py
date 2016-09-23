@@ -14,6 +14,8 @@ class Grep:
         print("listening in another class " + __name__)
 
     async def on_command_error(self, exception, ctx):
+        if ctx.command is None:
+            return
         cog_name = ctx.command.cog_name
         if cog_name is not None and cog_name == "Grep":
             await self.bot.send_message(ctx.message.channel, "That isn't something I can search")

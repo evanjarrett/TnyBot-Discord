@@ -19,10 +19,11 @@ class CustomCommands:
         print("listening in another class " + __name__)
 
     async def on_message(self, message):
-        if not self.bot.is_prefixed(message, message.content):
+        if not self.bot.is_prefixed(message):
             return
 
-        name = self.bot.trim_prefix(message, message.content.split()[0])
+        name = self.bot.trim_prefix(message)
+        name = name.split()[0]
         if message.author != self.bot.user and name not in self.bot.commands.keys():
             try:
                 command = self.config.get(name)
