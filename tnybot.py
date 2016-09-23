@@ -1,12 +1,14 @@
 import configparser
 
+from discord.ext import commands
+
 from basicbot import BasicBot
 from cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Roles
 
 config = configparser.RawConfigParser()
 config.read("../tnybot_config")
 
-tnybot = BasicBot(command_prefix="#!")
+tnybot = BasicBot(command_prefix=commands.when_mentioned_or("#!"))
 
 tnybot.add_cog(Commands(tnybot))
 tnybot.add_cog(CustomCommands(tnybot))

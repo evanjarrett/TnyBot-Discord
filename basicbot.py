@@ -50,9 +50,13 @@ class BasicBot(Bot):
 
     def is_prefixed(self, message, part):
         prefixes = self._get_prefix(message)
-        for p in prefixes:
-            if part.startswith(p):
+        if isinstance(prefixes, str):
+            if part.startswith(prefixes):
                 return True
+        else:
+            for p in prefixes:
+                if part.startswith(p):
+                    return True
 
     def trim_prefix(self, message, part):
         prefixes = self._get_prefix(message)
