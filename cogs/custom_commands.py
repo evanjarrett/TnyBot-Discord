@@ -41,8 +41,8 @@ class CustomCommands:
             return
 
         command.replace("\n", "")
-        name = self.bot.trim_prefix(message, name)
-
+        name = self.bot.trim_prefix(message)
+        name = name.split()[0]
         if name in self.bot.commands.keys() or self.config.has(name):
             await self.bot.say("Command `{}` is already in the commands list.".format(name))
         else:
@@ -61,8 +61,8 @@ class CustomCommands:
             await self.bot.say("Please match the format `{}delete [command]`".format(self.bot.get_prefix(ctx)))
             return
 
-        name = self.bot.trim_prefix(message, name)
-
+        name = self.bot.trim_prefix(message)
+        name = name.split()[0]
         if self.config.delete(name):
             await self.bot.say("Deleted `{}`".format(name))
         else:

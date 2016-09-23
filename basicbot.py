@@ -26,7 +26,8 @@ class BasicBot(Bot):
             await self.process_commands(message)
 
         elif len(splits) > 0:
-            name = self.trim_prefix(message, splits[0])
+            name = self.trim_prefix(message)
+            name = name.split()[0]
             if name in self.commands.keys():
                 await self.process_commands(message)
 
@@ -61,8 +62,9 @@ class BasicBot(Bot):
                 if part.startswith(p):
                     return True
 
-    def trim_prefix(self, message):
-        part = message.content
+    def trim_prefix(self, message, part=None):
+        if part is None:
+            part = message.content
         prefixes = self._get_prefix(message)
         for p in prefixes:
             part = part.strip(p)
