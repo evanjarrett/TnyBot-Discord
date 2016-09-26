@@ -1,6 +1,7 @@
 from pprint import pprint
 from time import time
 
+from discord import Message
 from discord.ext import commands
 from discord.ext.commands import Bot, CheckFailure, CommandNotFound
 
@@ -26,8 +27,7 @@ class BasicBot(Bot):
             await self.process_commands(message)
 
         elif len(splits) > 0:
-            name = self.trim_prefix(message)
-            name = name.split()[0]
+            name = self.trim_prefix(message, message.content.split()[0])
             if name in self.commands.keys():
                 await self.process_commands(message)
 
@@ -62,7 +62,7 @@ class BasicBot(Bot):
                 if part.startswith(p):
                     return True
 
-    def trim_prefix(self, message, part=None):
+    def trim_prefix(self, message: Message, part=None):
         if part is None:
             part = message.content
         prefixes = self._get_prefix(message)
