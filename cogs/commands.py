@@ -73,6 +73,7 @@ class Commands:
         await self.bot.say(msg)
 
     @commands.command(pass_context=True)
+    @commands.has_permissions(manage_emojis=True)
     async def addemoji(self, ctx, name, url):
         """Add an emoji to this server based on the url"""
         server = ctx.message.server
