@@ -1,9 +1,8 @@
 import asyncio
 import random
-import requests
-import base64
 
 import discord
+import requests
 from discord.ext import commands
 
 
