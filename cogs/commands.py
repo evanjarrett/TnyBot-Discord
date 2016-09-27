@@ -1,5 +1,7 @@
 import asyncio
 import random
+import requests
+import base64
 
 import discord
 from discord.ext import commands
@@ -44,7 +46,7 @@ class Commands:
     @commands.has_any_role("Tnybot")
     async def playing(self, *, game=None):
         """Sets now playing status"""
-        await self.bot.change_status(game=game if game is None else discord.Game(name=game))
+        await self.bot.change_presence(game=game if game is None else discord.Game(name=game))
 
     @commands.command(no_pm=True)
     async def say(self, *, message=None):
@@ -70,6 +72,16 @@ class Commands:
         for e in server.emojis:
             msg = msg + str(e) + " "
         await self.bot.say(msg)
+
+    @commands.command(pass_context=True)
+    async def addemoji(self, ctx, name, url):
+        """Add an emoji to this server based on the url"""
+        server = ctx.message.server
+
+        response = requests.get(url)
+        image = response.content
+        emoji = await self.bot.create_custom_emoji(server, name=name, image=image)
+        await self.bot.say("Done: {}".format(emoji))
 
     @commands.command(aliases=["rolleyes", "eyes"])
     async def rollseyes(self):

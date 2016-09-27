@@ -12,7 +12,7 @@ class Notifications:
     undo_list = {}
 
     # TODO: make config
-    ignore_list = ["131723417060638721"]
+    ignore_list = ["131723417060638721", "129870315294687232"] #momo and kpop bot
 
     def __init__(self, bot):
         self.bot = bot
@@ -20,7 +20,7 @@ class Notifications:
 
     async def on_ready(self):
         print("listening in another class " + __name__)
-        await self.bot.change_status(game=discord.Game(name="Notification Bot"))
+        await self.bot.change_presence(game=discord.Game(name="Notification Bot"))
 
     async def on_message(self, message):
         if message.author == self.bot.user:
