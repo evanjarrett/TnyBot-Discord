@@ -21,16 +21,6 @@ class BasicBot(Bot):
         print(time())
         print("------------------------------------------------------------------------------------------------------")
 
-    async def on_message(self, message):
-        splits = message.content.split()
-        if splits and splits[0] == self.user.mention:
-            await self.process_commands(message)
-
-        elif len(splits) > 0:
-            name = self.trim_prefix(message, message.content.split()[0])
-            if name in self.commands.keys():
-                await self.process_commands(message)
-
     async def on_message_edit(self, before, after):
         if before.pinned is False and after.pinned is True:
             self.dispatch("message_pinned", after)
@@ -51,9 +41,9 @@ class BasicBot(Bot):
         print(time())
         return await super().close()
 
-    def is_prefixed(self, message):
+    async def is_prefixed(self, message):
         part = message.content
-        prefixes = self._get_prefix(message)
+        prefixes = await self._get_prefix(message)
         if isinstance(prefixes, str):
             if part.startswith(prefixes):
                 return True
@@ -62,10 +52,10 @@ class BasicBot(Bot):
                 if part.startswith(p):
                     return True
 
-    def trim_prefix(self, message: Message, part=None):
+    async def trim_prefix(self, message: Message, part=None):
         if part is None:
             part = message.content
-        prefixes = self._get_prefix(message)
+        prefixes = await self._get_prefix(message)
         for p in prefixes:
             part = part.strip(p)
         return part

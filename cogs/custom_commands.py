@@ -19,10 +19,10 @@ class CustomCommands:
         print("listening in another class " + __name__)
 
     async def on_message(self, message):
-        if not self.bot.is_prefixed(message):
+        if not await self.bot.is_prefixed(message):
             return
 
-        name = self.bot.trim_prefix(message, message.content.split()[0])
+        name = await self.bot.trim_prefix(message, message.content.split()[0])
         if message.author != self.bot.user and name not in self.bot.commands.keys():
             try:
                 command = self.config.get(name)
@@ -40,7 +40,7 @@ class CustomCommands:
             return
 
         command.replace("\n", "")
-        name = self.bot.trim_prefix(message, name)
+        name = await self.bot.trim_prefix(message, name)
         if name in self.bot.commands.keys() or self.config.has(name):
             await self.bot.say("Command `{}` is already in the commands list.".format(name))
         else:
@@ -59,7 +59,7 @@ class CustomCommands:
             await self.bot.say("Please match the format `{}delete [command]`".format(self.bot.get_prefix(ctx)))
             return
 
-        name = self.bot.trim_prefix(message, name)
+        name = await self.bot.trim_prefix(message, name)
         if self.config.delete(name):
             await self.bot.say("Deleted `{}`".format(name))
         else:
@@ -94,9 +94,3 @@ class CustomCommands:
         last_command = self.config.get_all()[-1]
         await self.bot.say(self.config.get(last_command))
 
-    # @commands.command(pass_context=True, no_pm=True)
-    # @commands.has_role("test")
-    # async def temp(self, ctx):
-    #     for r in ctx.message.author.roles:
-    #         print(r.name)
-    #     pass

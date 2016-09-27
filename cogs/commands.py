@@ -1,5 +1,6 @@
 import asyncio
 import random
+from pprint import pprint
 
 import discord
 import requests
@@ -77,7 +78,6 @@ class Commands:
     async def addemoji(self, ctx, name, url):
         """Add an emoji to this server based on the url"""
         server = ctx.message.server
-
         response = requests.get(url)
         image = response.content
         emoji = await self.bot.create_custom_emoji(server, name=name, image=image)

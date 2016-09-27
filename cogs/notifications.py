@@ -29,7 +29,7 @@ class Notifications:
         if message.author.id in self.ignore_list:
             return
 
-        if self.bot.is_prefixed(message):
+        if await self.bot.is_prefixed(message):
             return
 
         content = message.content
