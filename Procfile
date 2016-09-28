@@ -1,1 +1,1 @@
-web: python oauthbot.py
+worker: python oauthbot.py
