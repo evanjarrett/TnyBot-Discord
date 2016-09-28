@@ -3,3 +3,4 @@ discord.py
 pycurl
 parsedatetime
 pytz
+pygresql

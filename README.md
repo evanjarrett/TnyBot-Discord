@@ -1,8 +1,12 @@
-There are actually 2 bots in this repo.
+This repository is a collection of "bots" with various utilities
 
 The first is `tnyboy.py` which has most of the functionality.
 
 The second is `imagebot.py` which can be used to download all embedded images on specified discord channels.
+
+`oauthbot.py` is a sample of how to run an official discord bot with token.
+
+Lastly `heroku.py` is what is executed if you were to install this on a heroku instance. It requires a Conf Var named `TOKEN` with your bot's token to run. 
 
 In order to use the bots, have a look at [sample_config](https://github.com/00firestar00/TnyBot-Discord/blob/master/sample_config).
 

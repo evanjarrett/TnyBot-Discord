@@ -8,6 +8,6 @@ heroku = BasicBot(command_prefix="!", description="""Bot built for discord's oau
 heroku.add_cog(Commands(heroku))
 heroku.add_cog(Notifications(heroku))
 heroku.add_cog(Grep(heroku))
-heroku.add_cog(Roles(heroku))
+heroku.add_cog(Roles(heroku, os.environ["DATABASE_URL"]))
 
-heroku.run(os.environ['TOKEN'])
+heroku.run(os.environ["TOKEN"])

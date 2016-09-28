@@ -1,6 +1,5 @@
 import asyncio
 import random
-from pprint import pprint
 
 import discord
 import requests
@@ -41,12 +40,6 @@ class Commands:
                 count = 0
                 # Take a break to help avoid rate limit
                 await asyncio.sleep(1)
-
-    @commands.command()
-    @commands.has_any_role("Tnybot")
-    async def playing(self, *, game=None):
-        """Sets now playing status"""
-        await self.bot.change_presence(game=game if game is None else discord.Game(name=game))
 
     @commands.command(no_pm=True)
     async def say(self, *, message=None):

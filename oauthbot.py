@@ -11,6 +11,6 @@ oauthbot = BasicBot(command_prefix="!", description="""Bot built for discord's o
 oauthbot.add_cog(Commands(oauthbot))
 oauthbot.add_cog(Notifications(oauthbot))
 oauthbot.add_cog(Grep(oauthbot))
-oauthbot.add_cog(Roles(oauthbot))
+oauthbot.add_cog(Roles(oauthbot, config["Postgres"]["URL"]))
 
 oauthbot.run(config["OAuth"]["token"])
