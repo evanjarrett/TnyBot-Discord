@@ -1,1 +1,1 @@
-heroku run python oauthbot.py
+heroku run:detached python3.5 oauthbot.py
