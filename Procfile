@@ -1,1 +1,1 @@
-worker: python oauthbot.py
+worker: python heroku.py
