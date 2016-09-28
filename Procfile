@@ -1,1 +1,1 @@
-web: python oauthbot.py
+heroku run python oauthbot.py
