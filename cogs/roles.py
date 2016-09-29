@@ -5,13 +5,16 @@ from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 from discord.ext.commands.converter import RoleConverter
 
-from postgres import RolesDB
+from database import postgres, sqlite
 
 
 class Roles:
-    def __init__(self, bot, database_url):
+    def __init__(self, bot, database_url=None):
         self.bot = bot
-        self.roles_db = RolesDB(database_url)
+        if not database_url:
+            self.roles_db = sqlite.RolesDB()
+        else:
+            self.roles_db = postgres.RolesDB(database_url)
 
     async def on_ready(self):
         print("listening in another class " + __name__)

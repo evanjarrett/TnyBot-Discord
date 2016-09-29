@@ -2,11 +2,21 @@
 user = xxx@xxx.com
 pass = XXXXXXXXXXXXXXXXXXXXXXXXXX
 
+[OAuth]
+token = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[Postgres]
+url = postgres://username:mypostgres.hostname.com:5432/XXXXXXXXXX
+
 [TimeZone]
 tz = US/Pacific
 
 [Images]
 dir = /home/discord/tnybot
+
+[Ignore]
+user1 = 000000000000000000
+user2 = 000000000000000000
 
 [Channels]
 general = 000000000000000000000

@@ -6,13 +6,14 @@ from basicbot import BasicBot
 from cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Roles
 
 config = configparser.RawConfigParser()
-config.read("../tnybot_config")
+config_file = "../tnybot_config"
+config.read(config_file)
 
 tnybot = BasicBot(command_prefix=commands.when_mentioned_or("#!"))
 
 tnybot.add_cog(Commands(tnybot))
 tnybot.add_cog(CustomCommands(tnybot))
-tnybot.add_cog(Notifications(tnybot))
+tnybot.add_cog(Notifications(tnybot, config_file=config_file))
 tnybot.add_cog(Grep(tnybot))
 tnybot.add_cog(Stats(tnybot))
 tnybot.add_cog(Logs(tnybot))
