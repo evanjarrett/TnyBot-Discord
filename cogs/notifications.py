@@ -8,6 +8,8 @@ from database import postgres, sqlite
 
 
 class Notifications:
+    ignore_list = []
+
     def __init__(self, bot, *, config_file=None, database_url=None):
         self.bot = bot
         if not database_url:
@@ -20,7 +22,6 @@ class Notifications:
             config.read(config_file)
             ignore_config = config.items("Ignore")
             # Ignore List is in name = id format, but we only need the id
-            self.ignore_list = []
             for c in ignore_config:
                 self.ignore_list.append(c[1])
 
