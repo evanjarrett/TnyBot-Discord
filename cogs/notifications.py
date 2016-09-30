@@ -50,7 +50,7 @@ class Notifications:
                 # notification matched
                 # foreach user listening to that notification
                 for (user_id,) in await self.notif_db.getusers(n):
-                    user = server.get_member(user_id)
+                    user = server.get_member(str(user_id))
                     await self._send_message(user, message, search)
 
     async def on_message_pinned(self, message):
