@@ -67,6 +67,15 @@ class Commands:
         await self.bot.say(msg)
 
     @commands.command(pass_context=True)
+    async def listserveroles(self, ctx):
+        """Gets the roles for this server"""
+        server = ctx.message.server
+        msg = ""
+        for e in server.roles:
+            msg = msg + str(e) + "\n"
+        await self.bot.send_message(ctx.message.author, msg)
+
+    @commands.command(pass_context=True)
     @commands.has_permissions(manage_emojis=True)
     async def addemoji(self, ctx, name, url):
         """Add an emoji to this server based on the url"""

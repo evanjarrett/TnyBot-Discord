@@ -2,6 +2,7 @@ import configparser
 import random
 
 from discord.ext import commands
+from discord.ext.commands import CommandNotFound
 
 from utils import Config
 
@@ -30,6 +31,13 @@ class CustomCommands:
                 return
 
             await self.bot.send_message(message.channel, command)
+
+    async def on_command_error(self, exception, ctx):
+        if isinstance(exception, CommandNotFound):
+            if self.config.has(ctx.invoked_with):
+                return
+            else:
+                print(exception.args[0])
 
     @commands.command(pass_context=True, no_pm=True)
     async def add(self, ctx, name=None, *, command=None):
@@ -93,4 +101,3 @@ class CustomCommands:
         """Returns the last/latest command in the list"""
         last_command = self.config.get_all()[-1]
         await self.bot.say(self.config.get(last_command))
-

@@ -1,3 +1,4 @@
+import signal
 from pprint import pprint
 from time import time
 
@@ -12,6 +13,8 @@ class BasicBot(Bot):
             description="""Tnybot is a basic bot that includes custom commands and notifications""",
             pm_help=False, **options):
         super().__init__(command_prefix, formatter, description, pm_help, **options)
+
+        self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
 
     async def on_ready(self):
         print("------------------------------------------------------------------------------------------------------")
@@ -28,18 +31,24 @@ class BasicBot(Bot):
             self.dispatch("pin_removed", after)
 
     async def on_command_error(self, exception, ctx):
-        pprint(exception)
         if isinstance(exception, CheckFailure):
             print("{0} does not have permission to run `{1}`".format(ctx.message.author, ctx.command.name))
         elif isinstance(exception, CommandNotFound):
-            print(exception.args[0])
+            # This is handled in CustomCommands
+            pass
         else:
+            pprint(exception)
             await self.on_error("on_command_error", exception, ctx)
 
     async def close(self):
         print("Closing client...")
         print(time())
-        return await super().close()
+        await super().close()
+
+    def exit(self, ):
+        print("SIGTERM Closing client... ")
+        # This gets handled in the run() method
+        raise KeyboardInterrupt
 
     async def is_prefixed(self, message):
         part = message.content

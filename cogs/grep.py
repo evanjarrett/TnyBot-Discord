@@ -19,7 +19,7 @@ class Grep:
         cog_name = ctx.command.cog_name
         if cog_name is not None and cog_name == "Grep":
             await self.bot.send_message(ctx.message.channel, "That isn't something I can search")
-            await self.bot.send_message(ctx.message.channel, "Try searching messages,channels or members")
+            await self.bot.send_message(ctx.message.channel, "Try searching messages, channels or members")
 
     @commands.group(pass_context=True, no_pm=True)
     async def grep(self, ctx):
