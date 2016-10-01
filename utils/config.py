@@ -33,6 +33,7 @@ class Config:
         return self.config.options(self.section)
 
     def save(self, option, value):
+        self.config.read(self.file)
         self.config.set(self.section, option, value)
         self._write()
 
