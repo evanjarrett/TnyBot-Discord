@@ -7,7 +7,7 @@ from discord.ext import commands
 from parsedatetime import parsedatetime
 from pytz import timezone
 
-from database import postgres, sqlite
+from src.database import postgres, sqlite
 
 
 class Reminders:

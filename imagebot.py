@@ -1,7 +1,7 @@
 import configparser
 
 from basicbot import BasicBot
-from cogs import Attachments
+from src.cogs import Attachments
 
 config = configparser.RawConfigParser()
 config_file = "../tnybot_config"

@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from utils import Config
+from src.utils import Config
 
 
 class TestConfig(unittest.TestCase):

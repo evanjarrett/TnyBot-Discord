@@ -3,7 +3,7 @@ import configparser
 from discord.ext import commands
 
 from basicbot import BasicBot
-from cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Roles
+from src.cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Roles
 
 config = configparser.RawConfigParser()
 config_file = "../tnybot_config"

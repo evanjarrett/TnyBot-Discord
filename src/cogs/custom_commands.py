@@ -4,7 +4,7 @@ import random
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 
-from utils import Config
+from src.utils import Config
 
 
 class CustomCommands:

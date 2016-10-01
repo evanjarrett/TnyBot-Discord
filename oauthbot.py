@@ -1,7 +1,7 @@
 import configparser
 
 from basicbot import BasicBot
-from cogs import Commands, Notifications, Grep, Roles
+from src.cogs import Commands, Notifications, Grep, Roles
 
 config = configparser.RawConfigParser()
 config_file = "../tnybot_config"

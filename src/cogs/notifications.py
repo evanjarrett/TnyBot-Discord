@@ -4,7 +4,7 @@ import re
 import discord
 from discord.ext import commands
 
-from database import postgres, sqlite
+from src.database import postgres, sqlite
 
 
 class Notifications:

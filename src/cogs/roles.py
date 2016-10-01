@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 from discord.ext.commands.converter import RoleConverter
 
-from database import postgres, sqlite
+from src.database import postgres, sqlite
 
 
 class Roles:

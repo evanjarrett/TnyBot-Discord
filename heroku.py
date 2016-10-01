@@ -1,7 +1,7 @@
 import os
 
 from basicbot import BasicBot
-from cogs import Commands, Notifications, Grep, Roles
+from src.cogs import Commands, Notifications, Grep, Roles
 
 heroku = BasicBot(command_prefix="!", description="""Bot built for discord's oauth bot api""")
 
