@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/00firestar00/TnyBot-Discord.svg?branch=master)](https://travis-ci.org/00firestar00/TnyBot-Discord)
+
 This repository is a collection of "bots" with various utilities
 
 The first is `tnyboy.py` which has most of the functionality.
