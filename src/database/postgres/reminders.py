@@ -1,11 +1,10 @@
+from typing import List
 from urllib.parse import urlparse
 
 from pgdb import connect
 
 
 class RemindersDB:
-    _db_file = "res/reminders.db"
-
     def __init__(self, database_url):
         url = urlparse(database_url)
         self.connection = connect(
@@ -25,7 +24,7 @@ class RemindersDB:
     async def create_table(self):
         """ Creates a new table for the server if it doesn't exist"""
         q = '''CREATE TABLE IF NOT EXISTS reminders
-            (user_id    TEXT     NOT NULL,
+            (user_id    TEXT    NOT NULL,
             message     TEXT    NOT NULL,
             remind_date INT     NOT NULL)'''
         self.connection.execute(q)
@@ -45,7 +44,7 @@ class RemindersDB:
             "DELETE FROM reminders WHERE remind_date <= {}".format(dt + 60))
         self.connection.commit()
 
-    async def get(self, dt: float):
+    async def get(self, dt: float) -> List:
         """ Gets the role info by its alias
         """
         self.connection.execute(

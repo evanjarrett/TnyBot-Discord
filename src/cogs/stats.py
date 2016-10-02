@@ -7,9 +7,8 @@ from discord.ext import commands
 class Stats:
     _db_file = "res/stats.db"
 
-    def __init__(self, bot, tz="UTC"):
+    def __init__(self, bot):
         self.bot = bot
-        self.tz = tz
         self.connection = sqlite3.connect(self._db_file)
         self.connection.execute(
             '''CREATE TABLE IF NOT EXISTS stats

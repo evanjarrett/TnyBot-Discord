@@ -1,3 +1,6 @@
+from discord import Channel
+
+
 class Logs:
     _logs_dir = "res/logs"
 
@@ -12,6 +15,10 @@ class Logs:
         pass
 
     async def on_message_delete(self, message):
+        channel = message.channel
+        author = message.author
+        log_msg = "{0} deleted: '{1}' in #{2}".format(author.mention, message.content, channel.name)
+        self.log(log_msg, channel)
         pass
 
     async def on_message_edit(self, before, after):
@@ -56,13 +63,18 @@ class Logs:
     async def on_member_unban(self, server, user):
         pass
 
-    async def on_message_pinned(self, message):
+    async def on_pin_add(self, message):
         pass
 
-    async def on_pin_removed(self, message):
+    async def on_pin_remove(self, message):
         pass
 
-    def get_channel_log(self, channel):
+    def log(self, message: str, channel: Channel):
+        path = self._get_channel_log(channel)
+        with open(path, 'w') as f:
+            f.write(message)
+
+    def _get_channel_log(self, channel: Channel):
         server_dir = channel.server.name
         server_dir = server_dir.strip(".")
         channel = channel.name

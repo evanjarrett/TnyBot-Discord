@@ -85,16 +85,6 @@ class Commands:
         emoji = await self.bot.create_custom_emoji(server, name=name, image=image)
         await self.bot.say("Done: {}".format(emoji))
 
-    @commands.command(aliases=["rolleyes", "eyes"])
-    async def rollseyes(self):
-        """Rolls eyes"""
-        message = await self.bot.say(":eyes:")
-        for x in range(0, 6):
-            await asyncio.sleep(1)
-            await self.bot.edit_message(message, "<:flippedEyes:217116949895708672>")
-            await asyncio.sleep(1)
-            await self.bot.edit_message(message, ":eyes:")
-
     @commands.command()
     async def invite(self):
         """Get Invite link for bot"""

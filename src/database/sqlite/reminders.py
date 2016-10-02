@@ -1,4 +1,5 @@
 import sqlite3
+from typing import List
 
 
 class RemindersDB:
@@ -35,7 +36,7 @@ class RemindersDB:
             "DELETE FROM reminders WHERE remind_date <= {}".format(dt + 60))
         self.connection.commit()
 
-    async def get(self, dt: float):
+    async def get(self, dt: float) -> List:
         """ Gets the role info by its alias
         """
         cursor = self.connection.execute(

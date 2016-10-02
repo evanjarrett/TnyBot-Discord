@@ -26,9 +26,9 @@ class BasicBot(Bot):
 
     async def on_message_edit(self, before, after):
         if before.pinned is False and after.pinned is True:
-            self.dispatch("message_pinned", after)
+            self.dispatch("pin_add", after)
         if before.pinned is True and after.pinned is False:
-            self.dispatch("pin_removed", after)
+            self.dispatch("pin_remove", after)
 
     async def on_command_error(self, exception, ctx):
         if isinstance(exception, CheckFailure):

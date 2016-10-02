@@ -53,13 +53,13 @@ class Notifications:
                     user = server.get_member(str(user_id))
                     await self._send_message(user, message, search)
 
-    async def on_message_pinned(self, message):
+    async def on_pin_add(self, message):
         server = message.server
         for user_id in await self.notif_db.getusers("pinnedMessages"):
             user = server.get_member(user_id)
             await self._send_message(user, message, is_pinned=True)
 
-    async def on_pin_removed(self, message):
+    async def on_pin_remove(self, message):
         pass
 
     @commands.command(aliases=["notification"], pass_context=True)
