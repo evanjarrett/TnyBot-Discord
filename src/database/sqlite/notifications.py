@@ -106,7 +106,7 @@ class NotificationsDB:
         """
         if not self.user_cache:
             cursor = self.connection.execute(
-                "SELECT user_id FROM notifications WHERE notification = '{}'".format(notification))
+                "SELECT user_id FROM `notifications` WHERE notification = '{}'".format(notification))
             self.user_cache = cursor.fetchall()
         return self.user_cache
 
@@ -114,5 +114,5 @@ class NotificationsDB:
         """ Gets all notifications for a user
         """
         cursor = self.connection.execute(
-            "SELECT notification FROM notifications WHERE user_id = '{0.id}'".format(user))
+            "SELECT notification FROM `notifications` WHERE user_id = '{0.id}'".format(user))
         return cursor.fetchall()

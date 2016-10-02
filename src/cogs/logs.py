@@ -1,3 +1,5 @@
+import os
+
 from discord import Channel
 
 
@@ -17,7 +19,7 @@ class Logs:
     async def on_message_delete(self, message):
         channel = message.channel
         author = message.author
-        log_msg = "{0} deleted: '{1}' in #{2}".format(author.mention, message.content, channel.name)
+        log_msg = "{0} deleted: '{1}' in #{2}".format(author.name, message.content, channel.name)
         self.log(log_msg, channel)
         pass
 
@@ -71,11 +73,14 @@ class Logs:
 
     def log(self, message: str, channel: Channel):
         path = self._get_channel_log(channel)
-        with open(path, "w+") as f:
-            f.write(message)
+        with open(path, "a+") as f:
+            f.write(message + "\n")
 
     def _get_channel_log(self, channel: Channel):
         server_dir = channel.server.name
         server_dir = server_dir.strip(".")
         channel = channel.name
-        return self._logs_dir + "/" + server_dir + "/" + channel + ".log"
+        path = self._logs_dir + "/" + server_dir
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path + "/" + channel + ".log"
