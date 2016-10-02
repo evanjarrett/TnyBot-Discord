@@ -71,7 +71,7 @@ class Logs:
 
     def log(self, message: str, channel: Channel):
         path = self._get_channel_log(channel)
-        with open(path, 'w') as f:
+        with open(path, "w+") as f:
             f.write(message)
 
     def _get_channel_log(self, channel: Channel):
