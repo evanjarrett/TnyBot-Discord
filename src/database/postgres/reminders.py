@@ -1,7 +1,7 @@
 from typing import List
 from urllib.parse import urlparse
 
-from pgdb import connect
+from psycopg2 import connect
 
 
 class RemindersDB:

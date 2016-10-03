@@ -2,7 +2,7 @@ from typing import List, Tuple
 from urllib.parse import urlparse
 
 from discord import User
-from pgdb import connect
+from psycopg2 import connect
 
 
 def invalidate_cache(func):

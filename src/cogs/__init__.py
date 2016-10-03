@@ -7,3 +7,4 @@ from .reminders import Reminders
 from .stats import Stats
 from .roles import Roles
 from .logs import Logs
+from .greetings import Greetings

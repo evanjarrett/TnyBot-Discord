@@ -21,6 +21,7 @@ class NotificationsDB:
 
     def __init__(self):
         self.connection = sqlite3.connect(self._db_file)
+        self.cursor = self.connection.cursor()
 
     def __del__(self):
         if self.connection is not None:
@@ -31,9 +32,9 @@ class NotificationsDB:
         """ Creates a new table for notifications if it doesn't exist"""
         q = '''CREATE TABLE IF NOT EXISTS `notifications`
         (user_id        INT    NOT NULL,
-         notification   TEXT    NOT NULL,
+         notification   TEXT   NOT NULL,
          UNIQUE(user_id, notification))'''
-        self.connection.execute(q)
+        self.cursor.execute(q)
         self.connection.commit()
 
     @invalidate_cache
@@ -44,7 +45,7 @@ class NotificationsDB:
             # TODO: raise some exception
             return
 
-        self.connection.execute(
+        self.cursor.execute(
             "INSERT OR IGNORE INTO `notifications` VALUES ('{0.id}', '{1}')".format(user, notification))
         self.connection.commit()
 
@@ -65,14 +66,14 @@ class NotificationsDB:
             query += "('{0.id}', '{1}'),".format(user, notification)
 
         query = query.strip(",")
-        self.connection.execute(query)
+        self.cursor.execute(query)
         self.connection.commit()
 
     @invalidate_cache
     async def delete(self, user: User, notification: str):
         """ Delete a notification from the table.
         """
-        self.connection.execute(
+        self.cursor.execute(
             "DELETE FROM `notifications` WHERE user_id = '{0.id}' AND notification='{1}'".format(user, notification))
         self.connection.commit()
 
@@ -80,7 +81,7 @@ class NotificationsDB:
     async def deletebyid(self, user_id: str, notification: str):
         """ Delete a notification from the table.
         """
-        self.connection.execute(
+        self.cursor.execute(
             "DELETE FROM `notifications` WHERE user_id = '{0}' AND notification='{1}'".format(user_id, notification))
         self.connection.commit()
 
@@ -88,7 +89,7 @@ class NotificationsDB:
     async def deleteall(self, user: User):
         """ Delete all notifications from the table for a particular user
         """
-        self.connection.execute(
+        self.cursor.execute(
             "DELETE FROM `notifications` WHERE user_id = '{0.id}'".format(user))
         self.connection.commit()
 
@@ -96,23 +97,23 @@ class NotificationsDB:
         """ Get all unique notifications
         """
         if not self.notif_cache:
-            cursor = self.connection.execute(
+            self.cursor.execute(
                 "SELECT notification FROM `notifications` GROUP BY notification")
-            self.notif_cache = cursor.fetchall()
+            self.notif_cache = self.cursor.fetchall()
         return self.notif_cache
 
     async def getusers(self, notification: str) -> List:
         """ Gets all users of a notifications
         """
         if not self.user_cache:
-            cursor = self.connection.execute(
+            self.cursor.execute(
                 "SELECT user_id FROM `notifications` WHERE notification = '{}'".format(notification))
-            self.user_cache = cursor.fetchall()
+            self.user_cache = self.cursor.fetchall()
         return self.user_cache
 
     async def getnotifications(self, user: User) -> List:
         """ Gets all notifications for a user
         """
-        cursor = self.connection.execute(
+        self.cursor.execute(
             "SELECT notification FROM `notifications` WHERE user_id = '{0.id}'".format(user))
-        return cursor.fetchall()
+        return self.cursor.fetchall()
