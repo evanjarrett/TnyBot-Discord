@@ -1,16 +1,18 @@
+import re
 import sqlite3
+from enum import Enum
 from urllib.parse import urlparse
 
 import psycopg2
 
 
 class Database:
-    db_file = "res/database.db"
+    _db_file = "res/database.db"
 
     def __init__(self, database_url=None):
         url = urlparse(database_url)
         if database_url is None:
-            self.connection = sqlite3.connect(self.db_file)
+            self.connection = sqlite3.connect(self._db_file)
         else:
             self.connection = psycopg2.connect(
                 database=url.path[1:],
@@ -26,17 +28,33 @@ class Database:
             print("closing the connection")
             self.connection.close()
 
-    async def create_table(self):
-        pass
 
-    async def insert(self):
-        pass
+class SQLType(Enum):
+    postgres = 1
+    sqlite = 2
 
-    async def update(self):
-        pass
 
-    async def delete(self):
-        pass
+class Query:
+    def __init__(self, query: str, sql_type: SQLType = SQLType.postgres):
+        self.query = query
+        self.sql_type = sql_type
 
-    async def get(self):
-        pass
+    def __str__(self):
+        if self.sql_type is SQLType.sqlite:
+            return self._convert(self.query)
+        return self.query
+
+    @staticmethod
+    def _convert(query):
+        """
+        Converts a query from pyformat to named format
+        """
+        pyformat = "%\((\w+)\)s"
+        temp_query = query
+        regex = re.compile(pyformat)
+        for match in re.finditer(regex, query):
+            var_name = match.group(1)
+            old = "%({0})s".format(var_name)
+            new = ":{0}".format(var_name)
+            temp_query = temp_query.replace(old, new)
+        return temp_query

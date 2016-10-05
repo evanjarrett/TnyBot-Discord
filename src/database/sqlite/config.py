@@ -1,20 +1,12 @@
-import sqlite3
 from typing import List
 
 from discord import Server
 
+from src.database.database import Database
 
-class ConfigDB:
+
+class ConfigDB(Database):
     _db_file = "res/config.db"
-
-    def __init__(self):
-        self.connection = sqlite3.connect(self._db_file)
-        self.cursor = self.connection.cursor()
-
-    def __del__(self):
-        if self.connection is not None:
-            print("closing the connection")
-            self.connection.close()
 
     async def create_table(self):
         """ Creates a new table for if it doesn't exist"""

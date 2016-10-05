@@ -1,26 +1,11 @@
 from typing import List
-from urllib.parse import urlparse
 
 from discord import Server
-from psycopg2 import connect
+
+from src.database.database import Database
 
 
-class ConfigDB:
-    def __init__(self, database_url):
-        url = urlparse(database_url)
-        self.connection = connect(
-            database=url.path[1:],
-            user=url.username,
-            password=url.password,
-            host=url.hostname,
-            port=url.port
-        )
-        self.cursor = self.connection.cursor()
-
-    def __del__(self):
-        if self.connection is not None:
-            print("closing the connection")
-            self.connection.close()
+class ConfigDB(Database):
 
     async def create_table(self):
         """ Creates a new table for if it doesn't exist"""
