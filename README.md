@@ -20,3 +20,4 @@ This can be quickly edited in the associated py files for now.
 If you want to build your own bot, you can add or remove the Cogs from TnyBot as required.
 Again, I'll make this more configurable in the future.
 
+this is a test for the commit
