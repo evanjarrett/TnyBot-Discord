@@ -5,4 +5,4 @@ install: "pip install -r requirements.txt"
 script:
   - python -m unittest discover tests
 notifications:
-  webhooks: https://tny.click/travis.php
+  webhooks: https://tny.site/travis/
