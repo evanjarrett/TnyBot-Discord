@@ -1,8 +1,8 @@
 from typing import List, Tuple
-from urllib.parse import urlparse
 
 from discord import User
-from psycopg2 import connect
+
+from .database import Database, SQLType
 
 
 def invalidate_cache(func):
@@ -14,29 +14,13 @@ def invalidate_cache(func):
     return decorator
 
 
-class NotificationsDB:
+class NotificationsDB(Database):
     user_cache = []
     notif_cache = []
 
-    def __init__(self, database_url):
-        url = urlparse(database_url)
-        self.connection = connect(
-            database=url.path[1:],
-            user=url.username,
-            password=url.password,
-            host=url.hostname,
-            port=url.port
-        )
-        self.cursor = self.connection.cursor()
-
-    def __del__(self):
-        if self.connection is not None:
-            print("closing the connection")
-            self.connection.close()
-
     async def create_table(self):
         """ Creates a new table for notifications if it doesn't exist"""
-        q = '''CREATE TABLE IF NOT EXISTS "notifications"
+        q = '''CREATE TABLE IF NOT EXISTS notifications
         (user_id        TEXT    NOT NULL,
          notification   TEXT    NOT NULL,
          primary key (user_id, notification))'''
@@ -47,16 +31,19 @@ class NotificationsDB:
     async def insert(self, user: User, notification: str):
         """ Inserts a new notification into the table.
         """
+        if self.sql_type is SQLType.sqlite:
+            return await self._insert_lite(user, notification)
         if not user or not notification:
             # TODO: raise some exception
             return
 
         self.cursor.execute(
-            "INSERT INTO notifications VALUES ('{0.id}', '{1}') ON CONFLICT DO NOTHING".format(user, notification))
+            self.query("INSERT INTO notifications VALUES (%(user)s, %(notification)s) ON CONFLICT DO NOTHING"),
+            {"user": user.id, "notification": notification})
         self.connection.commit()
 
     @invalidate_cache
-    async def bulkinsert(self, rows: List[Tuple[User, str]]):
+    async def bulk_insert(self, rows: List[Tuple[User, str]]):
         """ Bulk inserts multiple rows into the table (Really just uses insert...)
             Max rows allowed is 100.
         """
@@ -73,46 +60,63 @@ class NotificationsDB:
         """ Delete a notification from the table.
         """
         self.cursor.execute(
-            "DELETE FROM notifications WHERE user_id = '{0.id}' AND notification='{1}'".format(user, notification))
+            self.query("DELETE FROM notifications WHERE user_id = %(user)s AND notification = %(notification)s"),
+            {"user": user.id, "notification": notification})
         self.connection.commit()
 
     @invalidate_cache
-    async def deletebyid(self, user_id: str, notification: str):
+    async def delete_by_id(self, user_id: str, notification: str):
         """ Delete a notification from the table.
         """
         self.cursor.execute(
-            "DELETE FROM notifications WHERE user_id = '{0}' AND notification='{1}'".format(user_id, notification))
+            self.query("DELETE FROM notifications WHERE user_id = %(user)s AND notification = %(notification)s"),
+            {"user": user_id, "notification": notification})
         self.connection.commit()
 
     @invalidate_cache
-    async def deleteall(self, user: User):
+    async def delete_all(self, user: User):
         """ Delete all notifications from the table for a particular user
         """
         self.cursor.execute(
-            "DELETE FROM notifications WHERE user_id = '{0.id}'".format(user))
+            self.query("DELETE FROM notifications WHERE user_id = %(user)s"),
+            {"user": user.id})
         self.connection.commit()
 
-    async def getallnotifications(self) -> List:
+    async def get_all_notifications(self) -> List:
         """ Get all unique notifications
         """
         if not self.notif_cache:
             self.cursor.execute(
-                "SELECT notification FROM notifications GROUP BY notification")
+                self.query("SELECT notification FROM notifications GROUP BY notification"))
             self.notif_cache = self.cursor.fetchall()
         return self.notif_cache
 
-    async def getusers(self, notification: str) -> List:
+    async def get_users(self, notification: str) -> List:
         """ Gets all users of a notifications
         """
         if not self.user_cache:
             self.cursor.execute(
-                "SELECT user_id FROM notifications WHERE notification = '{}'".format(notification))
+                self.query("SELECT user_id FROM notifications WHERE notification = %(notification)s"),
+                {"notification": notification})
             self.user_cache = self.cursor.fetchall()
         return self.user_cache
 
-    async def getnotifications(self, user: User) -> List:
+    async def get_notifications(self, user: User) -> List:
         """ Gets all notifications for a user
         """
         self.cursor.execute(
-            "SELECT notification FROM notifications WHERE user_id = '{0.id}'".format(user))
+            self.query("SELECT notification FROM notifications WHERE user_id = %(user)s"),
+            {"user": user.id})
         return self.cursor.fetchall()
+
+    async def _insert_lite(self, user: User, notification: str):
+        """ Inserts a new notification into the table.
+        """
+        if not user or not notification:
+            # TODO: raise some exception
+            return
+
+        self.cursor.execute(
+            self.query("INSERT OR IGNORE INTO notifications VALUES (%(user)s, %(notification)s)"),
+            {"user": user.id, "notification": notification})
+        self.connection.commit()

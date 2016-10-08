@@ -4,18 +4,15 @@ import re
 import discord
 from discord.ext import commands
 
-from src.database import postgres, sqlite
+from src.database import NotificationsDB
 
 
 class Notifications:
     ignore_list = []
 
-    def __init__(self, bot, *, config_file=None, database_url=None):
+    def __init__(self, bot, *, config_file=None, db_url=None):
+        self.notif_db = NotificationsDB("res/notifications.db", db_url)
         self.bot = bot
-        if not database_url:
-            self.notif_db = sqlite.NotificationsDB()
-        else:
-            self.notif_db = postgres.NotificationsDB(database_url)
 
         if config_file is not None:
             config = configparser.RawConfigParser()
@@ -43,19 +40,19 @@ class Notifications:
         content = message.content
         server = message.server
         # foreach notification
-        for (n,) in await self.notif_db.getallnotifications():
+        for (n,) in await self.notif_db.get_all_notifications():
             search = re.search(n, content, re.IGNORECASE)
             if search is not None:
                 search = search.group(0)
                 # notification matched
                 # foreach user listening to that notification
-                for (user_id,) in await self.notif_db.getusers(n):
+                for (user_id,) in await self.notif_db.get_users(n):
                     user = server.get_member(str(user_id))
                     await self._send_message(user, message, search)
 
     async def on_pin_add(self, message):
         server = message.server
-        for user_id in await self.notif_db.getusers("pinnedMessages"):
+        for user_id in await self.notif_db.get_users("pinnedMessages"):
             user = server.get_member(user_id)
             await self._send_message(user, message, is_pinned=True)
 
@@ -88,7 +85,7 @@ class Notifications:
         """Sends you a PM with a list of notifications"""
         notify_list = []
         user = ctx.message.author
-        notifs = await self.notif_db.getnotifications(user)
+        notifs = await self.notif_db.get_notifications(user)
         for i, (n,) in enumerate(notifs):
             notify_list.append("{0}. {1}".format(i, n))
         message = "\n".join(notify_list)

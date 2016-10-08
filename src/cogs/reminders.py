@@ -7,17 +7,14 @@ from discord.ext import commands
 from parsedatetime import parsedatetime
 from pytz import timezone
 
-from src.database import postgres, sqlite
+from src.database import RemindersDB
 
 
 class Reminders:
-    def __init__(self, bot, tz="UTC", database_url=None):
+    def __init__(self, bot, tz="UTC", db_url=None):
         self.bot = bot
         self.tz = tz
-        if not database_url:
-            self.reminder_db = sqlite.RemindersDB()
-        else:
-            self.reminder_db = postgres.RemindersDB(database_url)
+        self.reminder_db = RemindersDB("res/reminders.db", db_url)
         self.bot.loop.create_task(self.background())
 
     async def background(self):

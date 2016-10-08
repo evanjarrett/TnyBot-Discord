@@ -6,13 +6,17 @@ from urllib.parse import urlparse
 import psycopg2
 
 
-class Database:
-    _db_file = "res/database.db"
+class SQLType(Enum):
+    postgres = 1
+    sqlite = 2
 
-    def __init__(self, database_url=None):
-        url = urlparse(database_url)
-        if database_url is None:
-            self.connection = sqlite3.connect(self._db_file)
+
+class Database:
+    def __init__(self, db_file=None, db_url=None):
+        url = urlparse(db_url)
+        if db_url is None and db_file is not None:
+            self.connection = sqlite3.connect(db_file)
+            self.sql_type = SQLType.sqlite
         else:
             self.connection = psycopg2.connect(
                 database=url.path[1:],
@@ -21,6 +25,8 @@ class Database:
                 host=url.hostname,
                 port=url.port
             )
+            self.sql_type = SQLType.postgres
+
         self.cursor = self.connection.cursor()
 
     def __del__(self):
@@ -28,24 +34,13 @@ class Database:
             print("closing the connection")
             self.connection.close()
 
-
-class SQLType(Enum):
-    postgres = 1
-    sqlite = 2
-
-
-class Query:
-    def __init__(self, query: str, sql_type: SQLType = SQLType.postgres):
-        self.query = query
-        self.sql_type = sql_type
-
-    def __str__(self):
+    def query(self, query: str) -> str:
         if self.sql_type is SQLType.sqlite:
-            return self._convert(self.query)
-        return self.query
+            query = self._convert(query)
+        return query
 
     @staticmethod
-    def _convert(query):
+    def _convert(query: str) -> str:
         """
         Converts a query from pyformat to named format
         """

@@ -13,14 +13,6 @@ class Grep:
     async def on_ready(self):
         print("listening in another class " + __name__)
 
-    async def on_command_error(self, exception, ctx):
-        if ctx.command is None:
-            return
-        cog_name = ctx.command.cog_name
-        if cog_name is not None and cog_name == "Grep":
-            await self.bot.send_message(ctx.message.channel, "That isn't something I can search")
-            await self.bot.send_message(ctx.message.channel, "Try searching messages, channels or members")
-
     @commands.group(pass_context=True, no_pm=True)
     async def grep(self, ctx):
         """
@@ -37,6 +29,11 @@ class Grep:
 
         if ctx.invoked_subcommand is None:
             await self.issue_command(ctx)
+
+    @grep.error
+    async def on_grep_error(self, exception, ctx):
+        await self.bot.send_message(ctx.message.channel, "That isn't something I can search")
+        await self.bot.send_message(ctx.message.channel, "Try searching messages, channels or members")
 
     @grep.command(name="-i", pass_context=True, no_pm=True)
     async def _ignore(self, ctx):

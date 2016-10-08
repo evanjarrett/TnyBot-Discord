@@ -1,17 +1,13 @@
 from discord.ext import commands
 
-from src.database import postgres
-from src.database import sqlite
+from src.database import ConfigDB
 
 
 class Greetings:
     _default_greeting = "Welcome {member}!"
 
-    def __init__(self, bot, *, database_url=None):
-        if not database_url:
-            self.config_db = sqlite.ConfigDB()
-        else:
-            self.config_db = postgres.ConfigDB(database_url)
+    def __init__(self, bot, *, db_url=None):
+        self.config_db = ConfigDB("res/config.db", db_url)
         self.bot = bot
 
     async def on_ready(self):
