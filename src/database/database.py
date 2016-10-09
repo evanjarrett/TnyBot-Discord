@@ -12,10 +12,10 @@ class SQLType(Enum):
 
 
 class Database:
-    def __init__(self, db_file=None, db_url=None):
+    def __init__(self, db_file=None, db_url=None, **kwargs):
         url = urlparse(db_url)
         if db_url is None and db_file is not None:
-            self.connection = sqlite3.connect(db_file)
+            self.connection = sqlite3.connect(db_file, **kwargs)
             self.sql_type = SQLType.sqlite
         else:
             self.connection = psycopg2.connect(
@@ -31,7 +31,6 @@ class Database:
 
     def __del__(self):
         if self.connection is not None:
-            print("closing the connection")
             self.connection.close()
 
     def query(self, query: str) -> str:
