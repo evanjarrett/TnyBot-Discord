@@ -38,6 +38,13 @@ class Database:
             query = self._convert(query)
         return query
 
+    def table(self, table: str):
+        if self.sql_type is SQLType.sqlite:
+            return "`{0}`".format(table)
+
+        if self.sql_type is SQLType.postgres:
+            return "\"{0}\"".format(table)
+
     @staticmethod
     def _convert(query: str) -> str:
         """

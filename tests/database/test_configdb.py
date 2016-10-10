@@ -1,14 +1,7 @@
 import sqlite3
 
-from discord import Server
-
 from src.database import ConfigDB
-from tests import AsyncTestCase
-
-
-class MockServer(Server):
-    def __init__(self):
-        super().__init__(id="12345")
+from tests import AsyncTestCase, MockServer
 
 
 class TestConfigDB(AsyncTestCase):
@@ -61,9 +54,9 @@ class TestConfigDB(AsyncTestCase):
         await self.config_db.insert(MockServer(), "awesome", "wow this is cool")
 
         result = await self.config_db.get_all(MockServer())
-        self.assertIn(('mykey', 'mytestvalue'), result)
-        self.assertIn(('key2', 'anothervalue'), result)
-        self.assertIn(('awesome', 'wow this is cool'), result)
+        self.assertIn(("mykey", "mytestvalue"), result)
+        self.assertIn(("key2", "anothervalue"), result)
+        self.assertIn(("awesome", "wow this is cool"), result)
 
     async def _setup(self):
         await self.config_db.create_table()

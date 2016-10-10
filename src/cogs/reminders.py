@@ -41,7 +41,7 @@ class Reminders:
         dt = cal.parseDT(datetimeString=date, tzinfo=timezone(self.tz))[0]
         date = dt.astimezone(timezone('UTC')).timestamp()
         await self.bot.say("Ok I will message you about '{}' on {}".format(message, date))
-        await self.reminder_db.insert(ctx.message.author.id, date, message)
+        await self.reminder_db.insert(ctx.message.author, date, message)
 
     async def check_db(self):
         dt = time.time()

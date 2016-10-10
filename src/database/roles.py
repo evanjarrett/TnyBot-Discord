@@ -158,8 +158,4 @@ class RolesDB(Database):
         self.connection.commit()
 
     def _table(self, server: Server):
-        if self.sql_type is SQLType.sqlite:
-            return "`{0.id}`".format(server)
-
-        if self.sql_type is SQLType.postgres:
-            return "\"{0.id}\"".format(server)
+        return self.table(server.id)
