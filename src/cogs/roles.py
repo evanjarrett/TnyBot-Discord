@@ -88,7 +88,7 @@ class Roles:
         await self.roles_db.bulk_insert(rows)
         await self.bot.say("Done! Use listroles to check what you added")
 
-    @commands.command(pass_context=True, aliases=["listbias", "listbiases", "listroles"])
+    @commands.command(pass_context=True, aliases=["listbias", "listbiases", "listroles", "lsar"])
     async def listrole(self, ctx):
         """Lists the roles created with setrole command
         """
@@ -121,7 +121,7 @@ class Roles:
         else:
             await self.bot.say("\n".join(role_names))
 
-    @commands.command(pass_context=True, aliases=["delmainrole", "delmainbias", "delbias"])
+    @commands.command(pass_context=True, aliases=["delmainrole", "delmainbias", "delbias", "rsar"])
     @commands.has_permissions(manage_roles=True)
     async def delrole(self, ctx, *, roles):
         """Deletes a self assigned role
