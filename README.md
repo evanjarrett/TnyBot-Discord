@@ -1,8 +1,9 @@
 [![Build Status](https://travis-ci.org/00firestar00/TnyBot-Discord.svg?branch=master)](https://travis-ci.org/00firestar00/TnyBot-Discord)
+[![Discord](https://discordapp.com/api/guilds/231979788275810306/widget.png)](https://discord.gg/fqmCJJQ)
 
 This repository is a collection of "bots" with various utilities
 
-The first is `tnyboy.py` which has most of the functionality.
+The first is `tnybot.py` which has most of the functionality.
 
 The second is `imagebot.py` which can be used to download all embedded images on specified discord channels.
 

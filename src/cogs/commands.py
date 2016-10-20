@@ -55,7 +55,7 @@ class Commands:
     @commands.command()
     async def joined(self, member: discord.Member):
         """Says when a member joined."""
-        await self.bot.say("{0.name} joined in {0.joined_at}".format(member))
+        await self.bot.say("{0.name} joined on {0.joined_at}".format(member))
 
     @commands.command(aliases=["emojis"], pass_context=True)
     async def emoji(self, ctx):

@@ -130,8 +130,8 @@ class Roles:
         await self.roles_db.bulk_delete(rows)
         await self.bot.say("Done!")
 
-    @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "mainrole"])
-    async def primaryrole(self, ctx, *, alias):
+    @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "primaryrole"])
+    async def mainrole(self, ctx, *, alias):
         """Add a primary role. Only one of these roles can be added to a member
         """
         message = ctx.message
