@@ -9,7 +9,7 @@ from src.database import RolesDB
 
 
 class Roles:
-    def __init__(self, bot, db_url=None):
+    def __init__(self, bot, *, db_url=None):
         self.bot = bot
         self.roles_db = RolesDB(db_url)
 
