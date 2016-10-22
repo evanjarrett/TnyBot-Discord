@@ -8,3 +8,7 @@ notifications:
   webhooks: https://tny.site/travis/
 notifications:
   email: false
+before_install:
+  - sudo apt-add-repository -y ppa:travis-ci/sqlite3
+  - sudo apt-get -y update
+  - sudo apt-get -y install sqlite3=3.7.15.1-1~travis1
