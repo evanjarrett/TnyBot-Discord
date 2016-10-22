@@ -2,8 +2,10 @@ import sqlite3
 
 import unittest
 
+from tests import AsyncTestCase
 
-class TestConfigDB(unittest.TestCase):
+
+class TestConfigDB(AsyncTestCase):
     def setUp(self):
         # Make our own connection to test things.
         # noinspection PyArgumentList
@@ -14,7 +16,7 @@ class TestConfigDB(unittest.TestCase):
     def tearDown(self):
         self.connection.close()
 
-    def test_this_database(self):
+    async def test_this_database(self):
         q = '''CREATE TABLE IF NOT EXISTS reminders
             (user_id    TEXT    NOT NULL,
             message     TEXT    NOT NULL,
