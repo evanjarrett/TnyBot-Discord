@@ -3,7 +3,7 @@ python:
   - "3.5"
 install: "pip install -r requirements.txt"
 script:
-  - python -m unittest tests/database/test_doesthiswork.py
+  - python -m unittest discover tests
 notifications:
   webhooks: https://tny.site/travis/
 notifications:
