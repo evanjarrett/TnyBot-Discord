@@ -6,6 +6,3 @@ script:
   - python -m unittest discover tests
 notifications:
   webhooks: https://tny.site/travis/
-services: sqlite3
-env:
-  - DB=sqlite
