@@ -6,7 +6,6 @@ script:
   - python -m unittest discover tests
 notifications:
   webhooks: https://tny.site/travis/
-notifications:
   email: false
 before_install:
   - sudo apt-add-repository -y ppa:travis-ci/sqlite3
