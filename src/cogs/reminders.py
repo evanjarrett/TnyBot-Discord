@@ -18,6 +18,7 @@ class Reminders:
         self.bot.loop.create_task(self.background())
 
     async def background(self):
+        print("Running background task")
         await self.bot.wait_until_ready()
         # We want to run this in a separate process, since on_ready could be called multiple times
         while not self.bot.is_closed:
@@ -41,9 +42,10 @@ class Reminders:
         dt = cal.parseDT(datetimeString=date, tzinfo=timezone(self.tz))[0]
         date = dt.astimezone(timezone('UTC')).timestamp()
         await self.bot.say("Ok I will message you about '{}' on {}".format(message, date))
-        await self.reminder_db.insert(ctx.message.author, date, message)
+        await self.reminder_db.insert(ctx.message.author, message, date)
 
     async def check_db(self):
+        print("checking db")
         dt = time.time()
         for user_id, message, date in await self.reminder_db.get(dt):
             user = None
