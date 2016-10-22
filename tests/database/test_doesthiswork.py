@@ -9,12 +9,12 @@ class TestConfigDB(unittest.TestCase):
     def setUp(self):
         # Make our own connection to test things.
         # noinspection PyArgumentList
-        self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
+        self.connection = sqlite3.connect("file:memdb1?mode=memory&cache=shared", uri=True)
         self.cursor = self.connection.cursor()
         self.connection.commit()
 
         # noinspection PyArgumentList
-        self.connection2 = sqlite3.connect("file::memory:?cache=shared", uri=True)
+        self.connection2 = sqlite3.connect("file:memdb1?mode=memory&cache=shared", uri=True)
         self.cursor2 = self.connection2.cursor()
         self.connection2.commit()
 
