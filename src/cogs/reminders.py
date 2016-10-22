@@ -34,7 +34,12 @@ class Reminders:
 
     @commands.command(aliases=["reminder", "remind"], pass_context=True)
     async def remindme(self, ctx, *, date):
-        """Creates a reminder. You will receive a PM when the reminder is done."""
+        """ Creates a reminder. You will receive a PM when the reminder is done.
+            The message you want to be reminded of should be in "quotes"
+
+            examples: !remindme 5 min "about this thing"
+                      !reminder "about this thing" 1 hour
+        """
         message = self.get_quoted_message(ctx)
         date = date.split("\"")[0]
 
