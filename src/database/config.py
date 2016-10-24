@@ -5,6 +5,7 @@ from discord import Server
 from .database import Database, SQLType
 
 
+# TODO: Might be good to add caching, but these shouldn't be hit often
 class ConfigDB(Database):
     async def create_table(self):
         """ Creates a new table for if it doesn't exist

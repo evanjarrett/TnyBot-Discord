@@ -16,7 +16,7 @@ class Attachments:
         self.bot = bot
 
         opener = urllib_request.build_opener()
-        opener.addheaders = [("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Tnybot/1.0 Chrome/53.0")]
+        opener.addheaders = [("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Tnybot/1.0 Chrome/55.0")]
         urllib_request.install_opener(opener)
 
         config = configparser.RawConfigParser()

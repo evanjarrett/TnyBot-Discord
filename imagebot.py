@@ -1,6 +1,6 @@
 import configparser
 
-from basicbot import BasicBot
+from src.basicbot import BasicBot
 from src.cogs import Attachments
 
 config = configparser.RawConfigParser()

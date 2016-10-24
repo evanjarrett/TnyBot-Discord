@@ -2,9 +2,8 @@ import configparser
 
 from discord.ext import commands
 
-from basicbot import BasicBot
-from src.cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Roles
-from src.cogs import Greetings
+from src.basicbot import BasicBot
+from src.cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Greetings
 
 config = configparser.RawConfigParser()
 config_file = "../tnybot_config"
@@ -18,7 +17,7 @@ tnybot.add_cog(Notifications(tnybot, config_file=config_file, db_url=config["Pos
 tnybot.add_cog(Grep(tnybot))
 tnybot.add_cog(Stats(tnybot))
 tnybot.add_cog(Logs(tnybot))
-#tnybot.add_cog(Greetings(tnybot))
-#tnybot.add_cog(Roles(tnybot, db_url=config["Postgres"]["URL"]))
+tnybot.add_cog(Greetings(tnybot))
+# tnybot.add_cog(Roles(tnybot, db_url=config["Postgres"]["URL"]))
 tnybot.add_cog(Reminders(tnybot, config["TimeZone"]["tz"]))
 tnybot.run(config["User"]["user"], config["User"]["pass"])

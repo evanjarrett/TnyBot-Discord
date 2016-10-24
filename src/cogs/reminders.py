@@ -18,7 +18,7 @@ class Reminders:
         self.bot.loop.create_task(self.background())
 
     async def background(self):
-        print("Running background task" + __name__)
+        print("Running background task " + __name__)
         await self.bot.wait_until_ready()
         # We want to run this in a separate process, since on_ready could be called multiple times
         while not self.bot.is_closed:
@@ -38,15 +38,17 @@ class Reminders:
             The message you want to be reminded of should be in "quotes"
 
             examples: !remindme 5 min "about this thing"
-                      !reminder "about this thing" 1 hour
+                      !remindme "about this thing" 1 hour
         """
         message = self.get_quoted_message(ctx)
         date = date.split("\"")[0]
 
         cal = parsedatetime.Calendar()
         dt = cal.parseDT(datetimeString=date, tzinfo=timezone(self.tz))[0]
-        date = dt.astimezone(timezone('UTC')).timestamp()
-        await self.bot.say("Ok I will message you about '{}' on {}".format(message, date))
+        dt = dt.astimezone(timezone('UTC'))
+        date = dt.timestamp()
+        await self.bot.say(
+            "Ok I will message you about '{}' on {}".format(message, dt.strftime('%Y-%m-%d %H:%M:%S %Z')))
         await self.reminder_db.insert(ctx.message.author, message, date)
 
     async def check_db(self):
@@ -57,7 +59,8 @@ class Reminders:
                 user = server.get_member(str(user_id))
                 if isinstance(user, discord.User):
                     break
-            await self.bot.send_message(user, "Hey you told me to remind you about `{}` at this time.".format(message))
+            await self.bot.send_message(user,
+                "Hey you told me to remind you about `{}` at this time.".format(message))
         await self.reminder_db.delete(dt)
 
     @staticmethod

@@ -11,7 +11,7 @@ from src.database import RolesDB
 class Roles:
     def __init__(self, bot, *, db_url=None):
         self.bot = bot
-        self.roles_db = RolesDB(db_url)
+        self.roles_db = RolesDB("res/roles.db", db_url)
 
     async def on_ready(self):
         print("listening in another class " + __name__)

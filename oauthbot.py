@@ -1,6 +1,6 @@
 import configparser
 
-from basicbot import BasicBot
+from src.basicbot import BasicBot
 from src.cogs import Commands, Notifications, Grep, Roles
 
 config = configparser.RawConfigParser()
@@ -12,6 +12,6 @@ oauthbot = BasicBot(command_prefix="!", description="""Bot built for discord's o
 oauthbot.add_cog(Commands(oauthbot))
 oauthbot.add_cog(Notifications(oauthbot, config_file=config_file))
 oauthbot.add_cog(Grep(oauthbot))
-oauthbot.add_cog(Roles(oauthbot, config["Postgres"]["URL"]))
+oauthbot.add_cog(Roles(oauthbot, db_url=config["Postgres"]["URL"]))
 
 oauthbot.run(config["OAuth"]["token"])
