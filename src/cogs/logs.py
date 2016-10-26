@@ -19,7 +19,7 @@ class Logs:
     async def on_message_delete(self, message):
         channel = message.channel
         author = message.author
-        log_msg = "{0} deleted: '{1}' in #{2}".format(author.name, message.content, channel.name)
+        log_msg = "deleted: '{1}' from: {0} in #{2}".format(author.name, message.content, channel.name)
         self.log(log_msg, channel)
         pass
 
