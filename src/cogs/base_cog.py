@@ -17,5 +17,5 @@ class BaseDBCog(BaseCog):
         self.database = database
 
     async def on_ready(self):
-        super().on_ready()
-        self.database.create_table()
+        await super().on_ready()
+        await self.database.create_table()

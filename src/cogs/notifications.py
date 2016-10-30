@@ -23,9 +23,8 @@ class Notifications(BaseDBCog):
                 self.ignore_list.append(c[1])
 
     async def on_ready(self):
-        print("listening in another class " + __name__)
+        await super().on_ready()
         await self.bot.change_presence(game=discord.Game(name="Notification Bot"))
-        await self.database.create_table()
 
     async def on_message(self, message):
         if message.author == self.bot.user:
