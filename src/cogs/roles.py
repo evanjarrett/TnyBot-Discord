@@ -1,31 +1,20 @@
 from typing import List, Tuple
 
-from discord import Forbidden, Message, Member, Role, Server
+from discord import Forbidden, Message, Member, Role
 from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 from discord.ext.commands.converter import RoleConverter
 
+from src.cogs.base_cog import BaseDBCog
 from src.database import RolesDB
 
 
-class Roles:
+class Roles(BaseDBCog):
     def __init__(self, bot, *, db_url=None):
-        self.bot = bot
-        self.roles_db = RolesDB("res/roles.db", db_url)
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
-        servers = self.bot.servers
-        for s in servers:
-            # Create a table for those that don't have one
-            await self.roles_db.create_table(s)
-
-    async def on_server_join(self, server: Server):
-        print("joining a new server {}".format(server.name))
-        await self.roles_db.create_table(server)
+        super().__init__(bot, RolesDB("res/roles.db", db_url))
 
     async def on_server_role_delete(self, role: Role):
-        await self.roles_db.delete(role)
+        await self.database.delete(role)
 
     @commands.group(pass_context=True, aliases=["biashelp"])
     async def roleshelp(self, ctx):
@@ -85,7 +74,7 @@ class Roles:
         """Sets a role, or list of roles as self assigned roles
         """
         rows = await self._parse_roles(ctx, roles)
-        await self.roles_db.bulk_insert(rows)
+        await self.database.bulk_insert(rows)
         await self.bot.say("Done! Use listroles to check what you added")
 
     @commands.command(pass_context=True, aliases=["listbias", "listbiases", "listroles", "lsar"])
@@ -93,7 +82,7 @@ class Roles:
         """Lists the roles created with setrole command
         """
         server = ctx.message.server
-        all_roles = await self.roles_db.get_all_regular(server)
+        all_roles = await self.database.get_all_regular(server)
         role_names = await self._format_roles(ctx, all_roles)
         if not role_names:
             await self.bot.say("There are no self assigning roles on this server")
@@ -106,7 +95,7 @@ class Roles:
         """Sets a role, or list of roles as self assigned main roles
         """
         rows = await self._parse_roles(ctx, roles, is_primary=1)
-        await self.roles_db.bulk_insert(rows)
+        await self.database.bulk_insert(rows)
         await self.bot.say("Done! Use listmainroles to check what you added")
 
     @commands.command(pass_context=True, aliases=["listmainbias", "listmainbiases", "listmainroles"])
@@ -114,7 +103,7 @@ class Roles:
         """Lists the roles created with setmainrole command
         """
         server = ctx.message.server
-        all_roles = await self.roles_db.get_all_main(server)
+        all_roles = await self.database.get_all_main(server)
         role_names = await self._format_roles(ctx, all_roles)
         if not role_names:
             await self.bot.say("There are no self assigning roles on this server")
@@ -127,7 +116,7 @@ class Roles:
         """Deletes a self assigned role
         """
         rows = await self._parse_roles(ctx, roles, is_primary=1)
-        await self.roles_db.bulk_delete(rows)
+        await self.database.bulk_delete(rows)
         await self.bot.say("Done!")
 
     @commands.command(pass_context=True, aliases=["mainbias", "primary", "toprole", "main", "primaryrole"])
@@ -137,7 +126,7 @@ class Roles:
         message = ctx.message
         server = message.server
 
-        role_id = await self.roles_db.get(server, alias, is_primary=1)
+        role_id = await self.database.get(server, alias, is_primary=1)
         if role_id is None:
             await self.bot.say("That role isn't something I can add")
             return
@@ -147,7 +136,7 @@ class Roles:
             await self.bot.say("That role isn't something I can add")
             return
 
-        db_roles = await self.roles_db.get_all_main(server)
+        db_roles = await self.database.get_all_main(server)
         main_roles = []
         for role_id, alias in db_roles:
             main_roles.append(role_id)
@@ -190,7 +179,7 @@ class Roles:
             roles_arr = []
             for a in alias_arr:
                 alias = a.replace(m.mention, "").strip(" \t\n\r\"'")
-                role_id = await self.roles_db.get(server, alias)
+                role_id = await self.database.get(server, alias)
                 if role_id is None:
                     await self.bot.say("{} isn't something I can add".format(a))
                     continue
@@ -216,7 +205,7 @@ class Roles:
         """
         message = ctx.message
         server = message.server
-        db_roles = await self.roles_db.get_all(server)
+        db_roles = await self.database.get_all(server)
         listed_roles = []
         for role_id, alias in db_roles:
             listed_roles.append(role_id)
@@ -258,7 +247,7 @@ class Roles:
             # Unable to convert this role, lets remove it from our database
             msg = e.args[0]
             print(msg)
-            await self.roles_db.delete_by_id(ctx.message.server, role_id)
+            await self.database.delete_by_id(ctx.message.server, role_id)
         return role_conv
 
     async def _parse_roles(self, ctx: Context, roles: str, is_primary: int = 0) -> List[Tuple]:

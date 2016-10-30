@@ -1,7 +1,7 @@
 import sqlite3
 
 from src.database import RolesDB
-from tests import AsyncTestCase, MockUser, MockServer, MockRole
+from tests import AsyncTestCase, MockServer, MockRole
 
 
 class TestRolesDB(AsyncTestCase):
@@ -12,7 +12,7 @@ class TestRolesDB(AsyncTestCase):
         # noinspection PyArgumentList
         self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
         self.cursor = self.connection.cursor()
-        self.cursor.execute("DROP TABLE IF EXISTS `{}`".format(self.server.id))
+        self.cursor.execute("DROP TABLE IF EXISTS roles")
         self.connection.commit()
 
         self.roles_db = RolesDB("file::memory:?cache=shared", uri=True)
@@ -21,8 +21,8 @@ class TestRolesDB(AsyncTestCase):
         self.connection.close()
 
     async def test_create_table(self):
-        await self.roles_db.create_table(self.server)
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='{}'".format(self.server.id))
+        await self.roles_db.create_table()
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='roles'")
         result = self.cursor.fetchone()
         self.assertIsNotNone(result)
 
@@ -36,26 +36,26 @@ class TestRolesDB(AsyncTestCase):
             (MockRole(id="22222"), "my role", 0),
             (MockRole(id="33333"), "타이니 봇", 0)])
 
-        self.cursor.execute("SELECT role,alias,is_primary from {}".format(self._get_table()))
+        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchall()
-        self.assertIn(("11111", "another", 0), result)
-        self.assertIn(("22222", "my role", 0), result)
-        self.assertIn(("33333", "타이니 봇", 0), result)
+        self.assertIn(("11111", "another", "12345", 0), result)
+        self.assertIn(("22222", "my role", "12345", 0), result)
+        self.assertIn(("33333", "타이니 봇", "12345", 0), result)
 
     async def test_update(self):
         await self._setup()
         role = MockRole()
         await self.roles_db.update(role, "Role Alias")
 
-        self.cursor.execute("SELECT role,alias,is_primary from {}".format(self._get_table()))
+        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchone()
-        self.assertTupleEqual((role.id, "Role Alias", 0), result)
+        self.assertTupleEqual((role.id, "Role Alias", "12345", 0), result)
 
     async def test_delete(self):
         await self._setup()
         await self.roles_db.delete(MockRole())
 
-        self.cursor.execute("SELECT role,alias,is_primary from {}".format(self._get_table()))
+        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchone()
         self.assertIsNone(result)
 
@@ -63,7 +63,7 @@ class TestRolesDB(AsyncTestCase):
         await self._setup()
         await self.roles_db.delete_by_id(self.server, MockRole().id)
 
-        self.cursor.execute("SELECT role,alias,is_primary from {}".format(self._get_table()))
+        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchone()
         self.assertIsNone(result)
 
@@ -80,7 +80,7 @@ class TestRolesDB(AsyncTestCase):
             (role3, "타이니 봇", 0)])
         await self.roles_db.bulk_delete([(role1,), (role2,), (role3,), (role4,)])
 
-        self.cursor.execute("SELECT role,alias,is_primary from {}".format(self._get_table()))
+        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchone()
         self.assertIsNone(result)
 
@@ -141,12 +141,12 @@ class TestRolesDB(AsyncTestCase):
         self.assertNotIn((role2.id, "my role"), result)
 
     async def _setup(self):
-        await self.roles_db.create_table(self.server)
+        await self.roles_db.create_table()
         await self.roles_db.insert(MockRole(), "testing")
 
-        self.cursor.execute("SELECT role, alias, is_primary from {}".format(self._get_table()))
+        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchone()
-        self.assertTupleEqual(("12345", "testing", 0), result)
+        self.assertTupleEqual(("12345", "testing", "12345", 0), result)
 
     def _get_table(self):
         return self.roles_db.table(self.server.id)

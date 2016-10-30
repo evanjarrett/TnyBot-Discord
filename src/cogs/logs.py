@@ -6,12 +6,6 @@ from discord import Channel
 class Logs:
     _logs_dir = "res/logs"
 
-    def __init__(self, bot):
-        self.bot = bot
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
-
     async def on_message(self, message):
         # If you thought I would log this you're crazy...
         pass

@@ -5,14 +5,10 @@ import discord
 import requests
 from discord.ext import commands
 
+from src.cogs import BaseCog
 
-class Commands:
-    def __init__(self, bot):
-        self.bot = bot
 
-    async def on_ready(self):
-        print("listening in another class " + __name__)
-
+class Commands(BaseCog):
     @commands.command(aliases=["hi", "sup", "안녕"])
     async def hello(self):
         """Returns a random hello phrase"""

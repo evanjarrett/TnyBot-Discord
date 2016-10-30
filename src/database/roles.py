@@ -6,13 +6,15 @@ from .database import Database, SQLType
 
 
 class RolesDB(Database):
-    async def create_table(self, server: Server):
+    async def create_table(self):
         """ Creates a new table for the server if it doesn't exist
         """
-        q = '''CREATE TABLE IF NOT EXISTS {0}
-        (role       TEXT    NOT NULL PRIMARY KEY,
+        q = '''CREATE TABLE IF NOT EXISTS roles
+        (role       TEXT    NOT NULL,
          alias      TEXT    NOT NULL,
-         is_primary INT     NOT NULL DEFAULT 0)'''.format(self._table(server))
+         server_id  TEXT    NOT NULL,
+         is_primary INT     NOT NULL DEFAULT 0,
+         primary key (role, server_id))'''
         self.cursor.execute(q)
         self.connection.commit()
 
@@ -31,10 +33,10 @@ class RolesDB(Database):
             alias = role.name
         self.cursor.execute(
             self.query(
-                '''INSERT INTO {0} VALUES (%(role)s, %(alias)s, %(primary)s)
+                '''INSERT INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)
                     ON CONFLICT(role)
                     DO UPDATE SET alias = %(alias)s''').format(self._table(server)),
-            {"role": role.id, "alias": alias, "primary": is_primary})
+            {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
         self.connection.commit()
 
     async def bulk_insert(self, rows: List[Tuple[Role, str, int]]):
@@ -57,8 +59,8 @@ class RolesDB(Database):
         if alias is None:
             alias = role.name
         self.cursor.execute(
-            self.query("UPDATE {0} SET alias =  %(alias)s WHERE role = %(role)s").format(self._table(server)),
-            {"role": role.id, "alias": alias})
+            self.query("UPDATE roles SET alias = %(alias)s WHERE role = %(role)s AND server_id = %(server)s"),
+            {"role": role.id, "server": server.id, "alias": alias})
         self.connection.commit()
 
     async def delete(self, role: Role):
@@ -67,8 +69,8 @@ class RolesDB(Database):
         server = role.server
         self.cursor.execute(
             self.query(
-                "DELETE FROM {0} WHERE role = %(role)s").format(self._table(server)),
-            {"role": role.id})
+                "DELETE FROM roles WHERE role = %(role)s AND server_id = %(server)s"),
+            {"role": role.id, "server": server.id})
         self.connection.commit()
 
     async def delete_by_id(self, server: Server, role_id: str):
@@ -76,8 +78,8 @@ class RolesDB(Database):
         """
         self.cursor.execute(
             self.query(
-                "DELETE FROM {0} WHERE role = %(role)s").format(self._table(server)),
-            {"role": role_id})
+                "DELETE FROM roles WHERE role = %(role)s AND server_id = %(server)s"),
+            {"role": role_id, "server": server.id})
         self.connection.commit()
 
     async def bulk_delete(self, rows: List[Tuple[Role]]):
@@ -99,9 +101,9 @@ class RolesDB(Database):
         """
         self.cursor.execute(
             self.query(
-                "SELECT role FROM {0} WHERE alias = %(alias)s AND is_primary = %(primary)s"
-            ).format(self._table(server)),
-            {"alias": alias, "primary": is_primary})
+                "SELECT role FROM roles WHERE alias = %(alias)s AND is_primary = %(primary)s AND server_id = %(server)s"
+            ),
+            {"alias": alias, "primary": is_primary, "server": server.id})
         one = self.cursor.fetchone()
         if one is not None:
             one = one[0]
@@ -133,7 +135,9 @@ class RolesDB(Database):
             primary_in = "(0)"
 
         self.cursor.execute(
-            "SELECT role, alias FROM {0} WHERE is_primary IN {1}".format(self._table(server), primary_in))
+            self.query(
+                "SELECT role, alias FROM roles WHERE is_primary IN {0} AND server_id = %(server)s".format(primary_in)),
+            {"server": server.id})
         rows = self.cursor.fetchall()
         ret_list = []
         for r in rows:
@@ -153,8 +157,8 @@ class RolesDB(Database):
             alias = role.name
         self.cursor.execute(
             self.query(
-                "INSERT OR REPLACE INTO {0} VALUES (%(role)s, %(alias)s, %(primary)s)").format(self._table(server)),
-            {"role": role.id, "alias": alias, "primary": is_primary})
+                "INSERT OR REPLACE INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)"),
+            {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
         self.connection.commit()
 
     def _table(self, server: Server):

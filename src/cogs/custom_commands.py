@@ -1,23 +1,15 @@
-import configparser
-import random
-
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 
-from src.utils import Config
+from src.cogs.base_cog import BaseDBCog
+from src.database import CommandsDB
 
 
-class CustomCommands:
-    commands_file = "res/commands.txt"  # txt because Windows is dumb
-    commands_section = "Commands"
-    undo_list = {}
+class CustomCommands(BaseDBCog):
+    _undo_list = {}
 
-    def __init__(self, bot):
-        self.bot = bot
-        self.config = Config(self.commands_file, self.commands_section)
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
+    def __init__(self, bot, *, db_url=None):
+        super().__init__(bot, CommandsDB("res/commands.db", db_url))
 
     async def on_message(self, message):
         if not await self.bot.is_prefixed(message):
@@ -25,16 +17,13 @@ class CustomCommands:
 
         name = await self.bot.trim_prefix(message, message.content.split()[0])
         if message.author != self.bot.user and name not in self.bot.commands.keys():
-            try:
-                command = self.config.get(name)
-            except configparser.NoOptionError:
-                return
-
-            await self.bot.send_message(message.channel, command)
+            if await self.database.has(name):
+                command = await self.database.get(name)
+                await self.bot.send_message(message.channel, command)
 
     async def on_command_error(self, exception, ctx):
         if isinstance(exception, CommandNotFound):
-            if self.config.has(ctx.invoked_with):
+            if await self.database.has(ctx.invoked_with):
                 return
             else:
                 print(exception.args[0])
@@ -49,15 +38,15 @@ class CustomCommands:
 
         command.replace("\n", "")
         name = await self.bot.trim_prefix(message, name)
-        if name in self.bot.commands.keys() or self.config.has(name):
+        if name in self.bot.commands.keys() or await self.database.has(name):
             await self.bot.say("Command `{}` is already in the commands list.".format(name))
         else:
-            self.config.save(name, command)
-            await self.bot.say(
-                "Added `{0}` to the commands list. `{1}undo` if you made an error".format(name,
-                    self.bot.get_prefix(ctx)))
-            self.undo_list[message.author] = name
-            print("{0} | added by: {1}".format(name, message.author.name))
+            if await self.database.insert(name, command, message.server):
+                await self.bot.say(
+                    "Added `{0}` to the commands list. `{1}undo` if you made an error".format(name,
+                        self.bot.get_prefix(ctx)))
+                self._undo_list[message.author] = name
+                print("{0} | added by: {1}".format(name, message.author.name))
 
     @commands.command(pass_context=True, no_pm=True)
     async def delete(self, ctx, name=None):
@@ -68,7 +57,7 @@ class CustomCommands:
             return
 
         name = await self.bot.trim_prefix(message, name)
-        if self.config.delete(name):
+        if await self.database.delete(name):
             await self.bot.say("Deleted `{}`".format(name))
         else:
             await self.bot.say("Couldn't find `{}`".format(name))
@@ -79,25 +68,13 @@ class CustomCommands:
         message = ctx.message
         author = message.author
 
-        if author in self.undo_list:
-            name = self.undo_list[author]
-            if self.config.delete(name):
+        if author in self._undo_list:
+            name = self._undo_list[author]
+            if await self.database.delete(name):
                 await self.bot.say("Undid `{}`".format(name))
             else:
                 await self.bot.say("Couldn't find `{}`".format(name))
 
-            del self.undo_list[author]
+            del self._undo_list[author]
         else:
             await self.bot.say("No new command was added recently.")
-
-    @commands.command(no_pm=True)
-    async def random(self):
-        """Returns a random command from the list"""
-        random_command = random.choice(self.config.get_all())
-        await self.bot.say(self.config.get(random_command))
-
-    @commands.command(aliases=["latest"], no_pm=True)
-    async def last(self):
-        """Returns the last/latest command in the list"""
-        last_command = self.config.get_all()[-1]
-        await self.bot.say(self.config.get(last_command))

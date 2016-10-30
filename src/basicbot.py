@@ -45,7 +45,7 @@ class BasicBot(Bot):
         print(time())
         await super().close()
 
-    def exit(self, ):
+    def exit(self):
         print("SIGTERM Closing client... ")
         # This gets handled in the run() method
         raise KeyboardInterrupt
@@ -66,7 +66,8 @@ class BasicBot(Bot):
             part = message.content
         prefixes = await self._get_prefix(message)
         for p in prefixes:
-            part = part.strip(p)
+            if part.startswith(p):
+                part = part[len(p):]
         return part
 
     def get_prefix(self, ctx):

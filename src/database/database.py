@@ -45,6 +45,9 @@ class Database:
         if self.sql_type is SQLType.postgres:
             return "\"{0}\"".format(table)
 
+    async def create_table(self):
+        pass
+
     @staticmethod
     def _convert(query: str) -> str:
         """

@@ -2,16 +2,12 @@ import re
 
 from discord.ext import commands
 
+from src.cogs import BaseCog
 
-class Grep:
+
+class Grep(BaseCog):
     ignore_case = False
     count = False
-
-    def __init__(self, bot):
-        self.bot = bot
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
 
     @commands.group(pass_context=True, no_pm=True)
     async def grep(self, ctx):

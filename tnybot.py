@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from src.basicbot import BasicBot
 from src.cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Greetings
+from src.cogs import Reaction
 
 config = configparser.RawConfigParser()
 config_file = "../tnybot_config"
@@ -11,6 +12,7 @@ config.read(config_file)
 
 tnybot = BasicBot(command_prefix=commands.when_mentioned_or("#!"))
 
+tnybot.add_cog(Reaction(tnybot))
 tnybot.add_cog(Commands(tnybot))
 tnybot.add_cog(CustomCommands(tnybot))
 tnybot.add_cog(Greetings(tnybot))

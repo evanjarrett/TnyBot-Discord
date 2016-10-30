@@ -7,14 +7,14 @@ from discord.ext import commands
 from parsedatetime import parsedatetime
 from pytz import timezone
 
+from src.cogs.base_cog import BaseDBCog
 from src.database import RemindersDB
 
 
-class Reminders:
+class Reminders(BaseDBCog):
     def __init__(self, bot, tz="UTC", db_url=None):
-        self.bot = bot
+        super().__init__(bot, RemindersDB("res/reminders.db", db_url))
         self.tz = tz
-        self.reminder_db = RemindersDB("res/reminders.db", db_url)
         self.bot.loop.create_task(self.background())
 
     async def background(self):
@@ -27,7 +27,7 @@ class Reminders:
 
     async def on_ready(self):
         print("listening in another class " + __name__)
-        await self.reminder_db.create_table()
+        await self.database.create_table()
 
     async def on_message(self, message):
         pass
@@ -49,11 +49,11 @@ class Reminders:
         date = dt.timestamp()
         await self.bot.say(
             "Ok I will message you about '{}' on {}".format(message, dt.strftime('%Y-%m-%d %H:%M:%S %Z')))
-        await self.reminder_db.insert(ctx.message.author, message, date)
+        await self.database.insert(ctx.message.author, message, date)
 
     async def check_db(self):
         dt = time.time()
-        for user_id, message, date in await self.reminder_db.get(dt):
+        for user_id, message, date in await self.database.get(dt):
             user = None
             for server in self.bot.servers:
                 user = server.get_member(str(user_id))
@@ -61,7 +61,7 @@ class Reminders:
                     break
             await self.bot.send_message(user,
                 "Hey you told me to remind you about `{}` at this time.".format(message))
-        await self.reminder_db.delete(dt)
+        await self.database.delete(dt)
 
     @staticmethod
     def get_quoted_message(ctx):

@@ -4,15 +4,15 @@ import re
 import discord
 from discord.ext import commands
 
+from src.cogs.base_cog import BaseDBCog
 from src.database import NotificationsDB
 
 
-class Notifications:
+class Notifications(BaseDBCog):
     ignore_list = []
 
     def __init__(self, bot, *, config_file=None, db_url=None):
-        self.notif_db = NotificationsDB("res/notifications.db", db_url)
-        self.bot = bot
+        super().__init__(bot, NotificationsDB("res/notifications.db", db_url))
 
         if config_file is not None:
             config = configparser.RawConfigParser()
@@ -25,7 +25,7 @@ class Notifications:
     async def on_ready(self):
         print("listening in another class " + __name__)
         await self.bot.change_presence(game=discord.Game(name="Notification Bot"))
-        await self.notif_db.create_table()
+        await self.database.create_table()
 
     async def on_message(self, message):
         if message.author == self.bot.user:
@@ -40,19 +40,19 @@ class Notifications:
         content = message.content
         server = message.server
         # foreach notification
-        for (n,) in await self.notif_db.get_all_notifications():
+        for (n,) in await self.database.get_all_notifications():
             search = re.search(n, content, re.IGNORECASE)
             if search is not None:
                 search = search.group(0)
                 # notification matched
                 # foreach user listening to that notification
-                for (user_id,) in await self.notif_db.get_users(n):
+                for (user_id,) in await self.database.get_users(n):
                     user = server.get_member(str(user_id))
                     await self._send_message(user, message, search)
 
     async def on_pin_add(self, message):
         server = message.server
-        for user_id in await self.notif_db.get_users("pinnedMessages"):
+        for user_id in await self.database.get_users("pinnedMessages"):
             user = server.get_member(user_id)
             await self._send_message(user, message, is_pinned=True)
 
@@ -64,20 +64,20 @@ class Notifications:
         """Adds a new notification. You will get a PM when this keyword is mentioned.
             Also supports some basic regex.
         """
-        await self.notif_db.insert(ctx.message.author, notification)
+        await self.database.insert(ctx.message.author, notification)
         await self.bot.say("Ok, I will notify you when `{}` is mentioned".format(notification))
 
     @commands.command(aliases=["notifyPinned"], pass_context=True)
     async def notify_pinned(self, ctx):
         """Adds a notification for when a message is pinned
         """
-        await self.notif_db.insert(ctx.message.author, "pinnedMessages")
+        await self.database.insert(ctx.message.author, "pinnedMessages")
         await self.bot.say("Ok, I will notify you when a message is pinned")
 
     @commands.command(aliases=["deletenotification"], pass_context=True)
     async def delnotify(self, ctx, notification=None):
         """Deletes a notification. This can be used in conjunction with the notifications command"""
-        await self.notif_db.delete(ctx.message.author, notification)
+        await self.database.delete(ctx.message.author, notification)
         await self.bot.say("Ok, I will no longer notify you when `{}` is mentioned".format(notification))
 
     @commands.command(pass_context=True)
@@ -85,7 +85,7 @@ class Notifications:
         """Sends you a PM with a list of notifications"""
         notify_list = []
         user = ctx.message.author
-        notifs = await self.notif_db.get_notifications(user)
+        notifs = await self.database.get_notifications(user)
         for i, (n,) in enumerate(notifs):
             notify_list.append("{0}. {1}".format(i, n))
         message = "\n".join(notify_list)

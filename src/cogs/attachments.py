@@ -1,19 +1,20 @@
 import asyncio
 import configparser
-import os
 import imghdr
+import os
 import shutil
 from pprint import pprint
-
 from urllib import request as urllib_request
 from urllib.error import HTTPError
 
+from src.cogs import BaseCog
 
-class Attachments:
+
+class Attachments(BaseCog):
     has_curled = False
 
     def __init__(self, bot, config_file):
-        self.bot = bot
+        super().__init__(bot)
 
         opener = urllib_request.build_opener()
         opener.addheaders = [("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Tnybot/1.0 Chrome/55.0")]
@@ -57,9 +58,6 @@ class Attachments:
                     print("sleeping for 10")
                     await asyncio.sleep(10)
         print("Done downloading missed images")
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
 
     async def on_message(self, message):
         if message.author != self.bot.user:
