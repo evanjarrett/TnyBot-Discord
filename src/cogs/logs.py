@@ -2,8 +2,10 @@ import os
 
 from discord import Channel
 
+from src.cogs import BaseCog
 
-class Logs:
+
+class Logs(BaseCog):
     _logs_dir = "res/logs"
 
     async def on_message(self, message):
