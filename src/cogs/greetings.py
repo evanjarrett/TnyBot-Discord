@@ -49,7 +49,7 @@ class Greetings(BaseDBCog):
         """
         Toggles the greeting message for this server
         """
-        self.do_toggle_greeting(ctx, toggle)
+        await self.do_toggle_greeting(ctx, toggle)
 
     async def do_toggle_greeting(self, ctx, toggle):
         server = ctx.message.server
