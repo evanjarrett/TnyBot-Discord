@@ -34,7 +34,7 @@ class RolesDB(Database):
         self.cursor.execute(
             self.query(
                 '''INSERT INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)
-                    ON CONFLICT(role)
+                    ON CONFLICT(role, server_id)
                     DO UPDATE SET alias = %(alias)s''').format(self._table(server)),
             {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
         self.connection.commit()

@@ -25,7 +25,8 @@ class ConfigDB(Database):
             return await self._insert_lite(server, key, value)
         self.cursor.execute(
             self.query(
-                "INSERT INTO config VALUES (%(key)s, %(value)s, %(server)s) ON CONFLICT DO UPDATE SET value = %(value)s"
+                "INSERT INTO config VALUES (%(key)s, %(value)s, %(server)s) "
+                "ON CONFLICT(key, server_id) DO UPDATE SET value = %(value)s"
             ),
             {"key": key, "value": value, "server": server.id})
         self.connection.commit()
