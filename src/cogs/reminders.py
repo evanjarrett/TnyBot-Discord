@@ -18,19 +18,12 @@ class Reminders(BaseDBCog):
         self.bot.loop.create_task(self.background())
 
     async def background(self):
-        print("Running background task " + __name__)
+        print("Running background task " + self.__class__.__name__)
         await self.bot.wait_until_ready()
         # We want to run this in a separate process, since on_ready could be called multiple times
         while not self.bot.is_closed:
             await self.check_db()
             await asyncio.sleep(60)
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
-        await self.database.create_table()
-
-    async def on_message(self, message):
-        pass
 
     @commands.command(aliases=["reminder", "remind"], pass_context=True)
     async def remindme(self, ctx, *, date):

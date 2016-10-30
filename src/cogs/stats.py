@@ -3,12 +3,14 @@ import sqlite3
 from discord import Member
 from discord.ext import commands
 
+from src.cogs import BaseCog
 
-class Stats:
+
+class Stats(BaseCog):
     _db_file = "res/stats.db"
 
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
         self.connection = sqlite3.connect(self._db_file)
         self.connection.execute(
             '''CREATE TABLE IF NOT EXISTS stats
@@ -16,14 +18,6 @@ class Stats:
             server_id       INT      NOT NULL,
             message_count   INT      NOT NULL DEFAULT 0,
             command_count   INT      NOT NULL DEFAULT 0)''')
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.connection is not None:
-            print("closing the connection")
-            self.connection.close()
-
-    async def on_ready(self):
-        print("listening in another class " + __name__)
 
     async def on_message(self, message):
         if message.server is None:
