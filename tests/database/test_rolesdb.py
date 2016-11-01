@@ -147,6 +147,3 @@ class TestRolesDB(AsyncTestCase):
         self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
         result = self.cursor.fetchone()
         self.assertTupleEqual(("12345", "testing", "12345", 0), result)
-
-    def _get_table(self):
-        return self.roles_db.table(self.server.id)
