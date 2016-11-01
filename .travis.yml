@@ -1,13 +1,19 @@
 language: python
 python:
   - "3.5"
-install: "pip install -r requirements.txt"
-script:
-  - python -m unittest discover tests
-notifications:
-  webhooks: https://tny.site/travis/
-  email: false
+
 before_install:
   - sudo apt-add-repository -y ppa:travis-ci/sqlite3
   - sudo apt-get -y update
   - sudo apt-get -y install sqlite3=3.7.15.1-1~travis1
+
+install:
+  - pip install -r requirements.txt
+  - pip install codecov
+
+script:
+  - coverage run tests.py
+
+notifications:
+  webhooks: https://tny.site/travis/
+  email: false

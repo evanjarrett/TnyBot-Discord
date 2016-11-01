@@ -1,16 +1,15 @@
 import configparser
 
-from discord.ext import commands
+from discord.ext import commands as cmds
 
 from src.basicbot import BasicBot
-from src.cogs import Commands, CustomCommands, Notifications, Grep, Reminders, Stats, Logs, Greetings
-from src.cogs import Reaction
+from src.cogs import *
 
 config = configparser.RawConfigParser()
 config_file = "../tnybot_config"
 config.read(config_file)
 
-tnybot = BasicBot(command_prefix=commands.when_mentioned_or("#!"))
+tnybot = BasicBot(command_prefix=cmds.when_mentioned_or("#!"))
 
 tnybot.add_cog(Reaction(tnybot))
 tnybot.add_cog(Commands(tnybot))

@@ -1,7 +1,6 @@
 .idea/
+.coverage
 res/*.txt
 res/*.db
 res/logs/
 __pycache__/
-nohup.out
-mention
