@@ -23,13 +23,14 @@ class ConfigDB(Database):
         """
         if self.sql_type is SQLType.sqlite:
             return await self._insert_lite(server, key, value)
-        self.cursor.execute(
-            self.query(
-                "INSERT INTO config VALUES (%(key)s, %(value)s, %(server)s) "
-                "ON CONFLICT(key, server_id) DO UPDATE SET value = %(value)s"
-            ),
-            {"key": key, "value": value, "server": server.id})
-        self.connection.commit()
+        else:  # pragma: no cover
+            self.cursor.execute(
+                self.query(
+                    "INSERT INTO config VALUES (%(key)s, %(value)s, %(server)s) "
+                    "ON CONFLICT(key, server_id) DO UPDATE SET value = %(value)s"
+                ),
+                {"key": key, "value": value, "server": server.id})
+            self.connection.commit()
 
     async def update(self, server: Server, key: str, value: str = None):
         """ Updates the value of a key

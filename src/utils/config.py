@@ -5,9 +5,11 @@ import os
 
 
 class MyConfigParser(RawConfigParser):
-    """RawConfigParser that does not convert to lower"""
-    def optionxform(self, optionstr):
-        return optionstr
+    """ RawConfigParser that does not convert to lower
+    """
+
+    def optionxform(self, option):
+        return option
 
 
 class Config:

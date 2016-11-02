@@ -51,6 +51,9 @@ class TestCommandsDB(AsyncTestCase):
         await self._setup()
         result = await self.commands_db.get("testing")
         self.assertIn("this is a test", result)
+        # Check cache for code coverage
+        result = await self.commands_db.get("testing")
+        self.assertIn("this is a test", result)
 
     async def test_get_all(self):
         await self._setup()
@@ -61,18 +64,19 @@ class TestCommandsDB(AsyncTestCase):
         await self.commands_db.insert("four", "testing", server)
         await self.commands_db.insert("five", "another", server)
 
-        result = await self.commands_db.get_all()
-        keys = result.keys()
-        self.assertIn("one", keys)
-        self.assertIn("two", keys)
-        self.assertIn("three", keys)
-        self.assertIn("four", keys)
-        self.assertIn("five", keys)
-        self.assertEqual(result["one"], "testing")
-        self.assertEqual(result["two"], "testing")
-        self.assertEqual(result["three"], "another")
-        self.assertEqual(result["four"], "testing")
-        self.assertEqual(result["five"], "another")
+        for x in range(0, 2):  # Loop twice to check cache for code coverage
+            result = await self.commands_db.get_all()
+            keys = result.keys()
+            self.assertIn("one", keys)
+            self.assertIn("two", keys)
+            self.assertIn("three", keys)
+            self.assertIn("four", keys)
+            self.assertIn("five", keys)
+            self.assertEqual(result["one"], "testing")
+            self.assertEqual(result["two"], "testing")
+            self.assertEqual(result["three"], "another")
+            self.assertEqual(result["four"], "testing")
+            self.assertEqual(result["five"], "another")
 
     async def test_has(self):
         await self._setup()
@@ -80,6 +84,16 @@ class TestCommandsDB(AsyncTestCase):
         self.assertTrue(result)
         result = await self.commands_db.has("nothing")
         self.assertFalse(result)
+
+    async def test_false(self):
+        await self._setup()
+        check = await self.commands_db.delete("is_false")
+        self.assertFalse(check)
+        check = await self.commands_db.delete_all(MockServer(id="54321"))
+        self.assertFalse(check)
+        # Inserting again should return false
+        check = await self.commands_db.insert("testing", "this is a test", MockServer())
+        self.assertFalse(check)
 
     async def _setup(self):
         await self.commands_db.create_table()

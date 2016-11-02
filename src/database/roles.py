@@ -22,11 +22,11 @@ class RolesDB(Database):
         """ Inserts a new role into the table.
             If the alias is not specified, the role name will be used instead
         """
+        if not role:  # pragma: no cover
+            return
+
         if self.sql_type is SQLType.sqlite:
             return await self._insert_lite(role, alias, is_primary)
-
-        if not role:
-            return
 
         server = role.server
         if alias is None:
@@ -35,7 +35,7 @@ class RolesDB(Database):
             self.query(
                 '''INSERT INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)
                     ON CONFLICT(role, server_id)
-                    DO UPDATE SET alias = %(alias)s''').format(self._table(server)),
+                    DO UPDATE SET alias = %(alias)s'''),
             {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
         self.connection.commit()
 
@@ -43,7 +43,7 @@ class RolesDB(Database):
         """ Bulk inserts multiple rows into the table (Really just uses insert...)
             Max rows allowed is 100.
         """
-        if len(rows) > 100:
+        if len(rows) > 100:  # pragma: no cover
             # TODO: raise some exception
             return
 
@@ -86,7 +86,7 @@ class RolesDB(Database):
         """ Bulk delete multiple rows from the table
             Max rows allowed is 10.
         """
-        if len(rows) > 10:
+        if len(rows) > 10:  # pragma: no cover
             # TODO: raise some exception
             return
 
@@ -149,9 +149,6 @@ class RolesDB(Database):
         """ Inserts a new role into the table.
             If the alias is not specified, the role name will be used instead
         """
-        if not role:
-            return
-
         server = role.server
         if alias is None:
             alias = role.name
@@ -160,6 +157,3 @@ class RolesDB(Database):
                 "INSERT OR REPLACE INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)"),
             {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
         self.connection.commit()
-
-    def _table(self, server: Server):
-        return self.table(server.id)

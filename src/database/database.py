@@ -46,7 +46,7 @@ class Database:
             return "\"{0}\"".format(table)
 
     async def create_table(self):
-        pass
+        pass  # pragma: no cover
 
     @staticmethod
     def _convert(query: str) -> str:

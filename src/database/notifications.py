@@ -31,16 +31,17 @@ class NotificationsDB(Database):
     async def insert(self, user: User, notification: str):
         """ Inserts a new notification into the table.
         """
-        if self.sql_type is SQLType.sqlite:
-            return await self._insert_lite(user, notification)
-        if not user or not notification:
+        if not user or not notification:  # pragma: no cover
             # TODO: raise some exception
             return
 
-        self.cursor.execute(
-            self.query("INSERT INTO notifications VALUES (%(user)s, %(notification)s) ON CONFLICT DO NOTHING"),
-            {"user": user.id, "notification": notification})
-        self.connection.commit()
+        if self.sql_type is SQLType.sqlite:
+            return await self._insert_lite(user, notification)
+        else:  # pragma: no cover
+            self.cursor.execute(
+                self.query("INSERT INTO notifications VALUES (%(user)s, %(notification)s) ON CONFLICT DO NOTHING"),
+                {"user": user.id, "notification": notification})
+            self.connection.commit()
 
     @invalidate_cache
     async def bulk_insert(self, rows: List[Tuple[User, str]]):
@@ -112,10 +113,6 @@ class NotificationsDB(Database):
     async def _insert_lite(self, user: User, notification: str):
         """ Inserts a new notification into the table.
         """
-        if not user or not notification:
-            # TODO: raise some exception
-            return
-
         self.cursor.execute(
             self.query("INSERT OR IGNORE INTO notifications VALUES (%(user)s, %(notification)s)"),
             {"user": user.id, "notification": notification})
