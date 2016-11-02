@@ -18,7 +18,8 @@ class CommandsDB(Database):
     cmd_cache = {}
 
     async def create_table(self):
-        """ Creates a new table for notifications if it doesn't exist"""
+        """ Creates a new table for notifications if it doesn't exist
+        """
         q = '''CREATE TABLE IF NOT EXISTS commands
         (name       TEXT    NOT NULL PRIMARY KEY,
          command    TEXT    NOT NULL,
@@ -32,19 +33,20 @@ class CommandsDB(Database):
     async def insert(self, name: str, command: str, server: Server):
         """ Inserts a new command into the table.
         """
+        if not name or not command:  # pragma: no cover
+            # TODO: raise some exception
+            return False
+
         if self.sql_type is SQLType.sqlite:
             return await self._insert_lite(name, command, server)
-        if not name or not command:
-            # TODO: raise some exception
-            return
-
-        self.cursor.execute(
-            self.query("INSERT INTO commands VALUES (%(name)s, %(command)s, %(server)s) ON CONFLICT DO NOTHING"),
-            {"name": name, "command": command, "server": server.id})
-        self.connection.commit()
-        if self.cursor.rowcount > 0:
-            return True
-        return False
+        else:  # pragma: no cover
+            self.cursor.execute(
+                self.query("INSERT INTO commands VALUES (%(name)s, %(command)s, %(server)s) ON CONFLICT DO NOTHING"),
+                {"name": name, "command": command, "server": server.id})
+            self.connection.commit()
+            if self.cursor.rowcount > 0:
+                return True
+            return False
 
     @invalidate_cache
     async def delete(self, name: str):
@@ -106,10 +108,6 @@ class CommandsDB(Database):
     async def _insert_lite(self, name: str, command: str, server: Server):
         """ Inserts a new notification into the table.
         """
-        if not name or not command:
-            # TODO: raise some exception
-            return
-
         self.cursor.execute(
             self.query("INSERT OR IGNORE INTO commands VALUES (%(name)s, %(command)s, %(server)s)"),
             {"name": name, "command": command, "server": server.id})

@@ -17,7 +17,7 @@ class Database:
         if db_url is None and db_file is not None:
             self.connection = sqlite3.connect(db_file, **kwargs)
             self.sql_type = SQLType.sqlite
-        else:
+        else:  # pragma: no cover
             self.connection = psycopg2.connect(
                 database=url.path[1:],
                 user=url.username,
@@ -50,8 +50,7 @@ class Database:
 
     @staticmethod
     def _convert(query: str) -> str:
-        """
-        Converts a query from pyformat to named format
+        """ Converts a query from pyformat to named format
         """
         pyformat = "%\((\w+)\)s"
         temp_query = query
