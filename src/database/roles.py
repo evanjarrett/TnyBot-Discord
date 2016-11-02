@@ -24,20 +24,20 @@ class RolesDB(Database):
         """
         if not role:  # pragma: no cover
             return
-
-        if self.sql_type is SQLType.sqlite:
-            return await self._insert_lite(role, alias, is_primary)
-
-        server = role.server
         if alias is None:
             alias = role.name
-        self.cursor.execute(
-            self.query(
-                '''INSERT INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)
-                    ON CONFLICT(role, server_id)
-                    DO UPDATE SET alias = %(alias)s'''),
-            {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
-        self.connection.commit()
+
+        server = role.server
+        if self.sql_type is SQLType.sqlite:
+            return await self._insert_lite(role, server, alias, is_primary)
+        else:  # pragma: no cover
+            self.cursor.execute(
+                self.query(
+                    '''INSERT INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)
+                        ON CONFLICT(role, server_id)
+                        DO UPDATE SET alias = %(alias)s'''),
+                {"role": role.id, "alias": alias, "server": server.id, "primary": is_primary})
+            self.connection.commit()
 
     async def bulk_insert(self, rows: List[Tuple[Role, str, int]]):
         """ Bulk inserts multiple rows into the table (Really just uses insert...)
@@ -145,13 +145,10 @@ class RolesDB(Database):
             ret_list.append((str(role), alias))
         return ret_list
 
-    async def _insert_lite(self, role: Role, alias: str = None, is_primary: int = 0):
+    async def _insert_lite(self, role: Role, server: Server, alias: str = None, is_primary: int = 0):
         """ Inserts a new role into the table.
             If the alias is not specified, the role name will be used instead
         """
-        server = role.server
-        if alias is None:
-            alias = role.name
         self.cursor.execute(
             self.query(
                 "INSERT OR REPLACE INTO roles VALUES (%(role)s, %(alias)s, %(server)s, %(primary)s)"),

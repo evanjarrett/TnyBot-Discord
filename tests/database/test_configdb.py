@@ -47,6 +47,8 @@ class TestConfigDB(AsyncTestCase):
         await self._setup()
         result = await self.config_db.get(MockServer(), "mykey")
         self.assertEqual("mytestvalue", result)
+        result = await self.config_db.get(MockServer(), "does_not_exist")
+        self.assertIsNone(result)
 
     async def test_get_all(self):
         await self._setup()

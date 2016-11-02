@@ -29,7 +29,7 @@ class Database:
 
         self.cursor = self.connection.cursor()
 
-    def __del__(self):
+    def __del__(self):  # pragma: no cover
         if self.connection is not None:
             self.connection.close()
 
@@ -40,13 +40,13 @@ class Database:
 
     def table(self, table: str):
         if self.sql_type is SQLType.sqlite:
-            return "`{0}`".format(table)
-
+            table = "`{0}`".format(table)
         if self.sql_type is SQLType.postgres:
-            return "\"{0}\"".format(table)
+            table = "\"{0}\"".format(table)
+        return table
 
-    async def create_table(self):
-        pass  # pragma: no cover
+    async def create_table(self):  # pragma: no cover
+        pass
 
     @staticmethod
     def _convert(query: str) -> str:

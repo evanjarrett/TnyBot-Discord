@@ -48,7 +48,7 @@ class NotificationsDB(Database):
         """ Bulk inserts multiple rows into the table (Really just uses insert...)
             Max rows allowed is 100.
         """
-        if len(rows) > 100:
+        if len(rows) > 100:  # pragma: no cover
             # TODO: raise some exception
             return
 

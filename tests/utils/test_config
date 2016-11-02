@@ -1,5 +1,5 @@
 [Ignore]
-list = user1,user2,user4,user5,user6
+list = user6
 
 [Channels]
 general = 000000000000000000001

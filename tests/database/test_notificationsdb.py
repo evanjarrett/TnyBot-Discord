@@ -73,10 +73,11 @@ class TestNotificationDB(AsyncTestCase):
         await self.notif_db.insert(MockUser(id="11111"), "another")
         await self.notif_db.insert(MockUser(id="22222"), "testing")
         await self.notif_db.insert(MockUser(id="33333"), "another")
-        result = await self.notif_db.get_all_notifications()
 
-        self.assertIn(("another",), result)
-        self.assertIn(("testing",), result)
+        for x in range(0, 2):  # Loop twice to check cache for code coverage
+            result = await self.notif_db.get_all_notifications()
+            self.assertIn(("another",), result)
+            self.assertIn(("testing",), result)
 
     async def test_get_users(self):
         await self._setup()
@@ -85,13 +86,14 @@ class TestNotificationDB(AsyncTestCase):
         await self.notif_db.insert(MockUser(id="11111"), "testing")
         await self.notif_db.insert(MockUser(id="22222"), "testing")
         await self.notif_db.insert(MockUser(id="33333"), "testing")
-        result = await self.notif_db.get_users("testing")
 
-        self.assertIn(("54321",), result)
-        self.assertIn(("11111",), result)
-        self.assertIn(("22222",), result)
-        self.assertIn(("33333",), result)
-        self.assertIn(("12345",), result)
+        for x in range(0, 2):  # Loop twice to check cache for code coverage
+            result = await self.notif_db.get_users("testing")
+            self.assertIn(("54321",), result)
+            self.assertIn(("11111",), result)
+            self.assertIn(("22222",), result)
+            self.assertIn(("33333",), result)
+            self.assertIn(("12345",), result)
 
     async def test_get_notifications(self):
         await self._setup()

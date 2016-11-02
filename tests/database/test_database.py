@@ -12,6 +12,10 @@ class TestDatabase(TestCase):
         query = self.database.query("INSERT INTO commands VALUES (%(name)s, %(command)s, %(server)s)")
         self.assertEqual("INSERT INTO commands VALUES (:name, :command, :server)", query)
 
+        self.database.sql_type = SQLType.postgres
+        query = self.database.query("INSERT INTO commands VALUES (%(name)s, %(command)s, %(server)s)")
+        self.assertEqual("INSERT INTO commands VALUES (%(name)s, %(command)s, %(server)s)", query)
+
     def test_table(self):
         table = self.database.table("commands")
         self.assertEqual("`commands`", table)

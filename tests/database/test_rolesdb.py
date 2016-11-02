@@ -28,6 +28,11 @@ class TestRolesDB(AsyncTestCase):
 
     async def test_insert(self):
         await self._setup()
+        await self.roles_db.insert(MockRole())
+
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles WHERE alias='MockRole'")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("12345", "MockRole", "12345", 0), result)
 
     async def test_bulk_insert(self):
         await self._setup()
@@ -36,7 +41,7 @@ class TestRolesDB(AsyncTestCase):
             (MockRole(id="22222"), "my role", 0),
             (MockRole(id="33333"), "타이니 봇", 0)])
 
-        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchall()
         self.assertIn(("11111", "another", "12345", 0), result)
         self.assertIn(("22222", "my role", "12345", 0), result)
@@ -47,15 +52,21 @@ class TestRolesDB(AsyncTestCase):
         role = MockRole()
         await self.roles_db.update(role, "Role Alias")
 
-        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchone()
         self.assertTupleEqual((role.id, "Role Alias", "12345", 0), result)
+
+        await self.roles_db.update(role)
+
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles WHERE alias='MockRole'")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual((role.id, "MockRole", "12345", 0), result)
 
     async def test_delete(self):
         await self._setup()
         await self.roles_db.delete(MockRole())
 
-        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchone()
         self.assertIsNone(result)
 
@@ -63,7 +74,7 @@ class TestRolesDB(AsyncTestCase):
         await self._setup()
         await self.roles_db.delete_by_id(self.server, MockRole().id)
 
-        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchone()
         self.assertIsNone(result)
 
@@ -77,10 +88,11 @@ class TestRolesDB(AsyncTestCase):
         await self.roles_db.bulk_insert([
             (role1, "another", 0),
             (role2, "my role", 0),
+            (None, "bad role", 0),
             (role3, "타이니 봇", 0)])
         await self.roles_db.bulk_delete([(role1,), (role2,), (role3,), (role4,)])
 
-        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchone()
         self.assertIsNone(result)
 
@@ -88,6 +100,8 @@ class TestRolesDB(AsyncTestCase):
         await self._setup()
         result = await self.roles_db.get(self.server, "testing")
         self.assertEqual(MockRole().id, result)
+        result = await self.roles_db.get(self.server, "does_not_exist")
+        self.assertIsNone(result)
 
     async def test_get_all(self):
         await self._setup()
@@ -144,6 +158,6 @@ class TestRolesDB(AsyncTestCase):
         await self.roles_db.create_table()
         await self.roles_db.insert(MockRole(), "testing")
 
-        self.cursor.execute("SELECT role, alias, server_id, is_primary from roles")
+        self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchone()
         self.assertTupleEqual(("12345", "testing", "12345", 0), result)

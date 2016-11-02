@@ -72,12 +72,15 @@ class TestConfig(unittest.TestCase):
         self.assertIn("user9001", users)
 
     def test_truncate(self):
-        self.ignore_config.truncate("list", "user3")
-        users = self.ignore_config.get("list")
-        self.assertNotIn("user3", users)
+        # Try a option that doesn't exist
         self.ignore_config.truncate("list2", "user3")
         does_have = self.ignore_config.has("list2")
         self.assertFalse(does_have)
+        for x in range(0, 6):
+            user = "user{}".format(x)
+            self.ignore_config.truncate("list", user)
+            users = self.ignore_config.get("list")
+            self.assertNotIn(user, users, "Running " + user)
 
     def test_delete(self):
         self.channel_config.delete("asdf")
