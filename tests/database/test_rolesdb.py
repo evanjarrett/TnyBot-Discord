@@ -88,9 +88,8 @@ class TestRolesDB(AsyncTestCase):
         await self.roles_db.bulk_insert([
             (role1, "another", 0),
             (role2, "my role", 0),
-            (None, "bad role", 0),
             (role3, "타이니 봇", 0)])
-        await self.roles_db.bulk_delete([(role1,), (role2,), (role3,), (role4,)])
+        await self.roles_db.bulk_delete([(role1,), (role2,), (None,), (role3,), (role4,)])
 
         self.cursor.execute("SELECT role, alias, server_id, is_primary FROM roles")
         result = self.cursor.fetchone()

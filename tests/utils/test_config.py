@@ -1,3 +1,4 @@
+import configparser
 import os
 import unittest
 
@@ -12,6 +13,8 @@ class TestConfig(unittest.TestCase):
         data = []
         data.append("[Ignore]")
         data.append("list = user1,user2,user3,user4,user5,user6")
+        data.append("list3 = ")
+        data.append("list4 = user10")
         data.append("")
         data.append("[Channels]")
         data.append("general = 000000000000000000001")
@@ -70,6 +73,10 @@ class TestConfig(unittest.TestCase):
         self.ignore_config.append("list2", "user9001")
         users = self.ignore_config.get("list2")
         self.assertIn("user9001", users)
+        # Try adding it to an empty option
+        self.ignore_config.append("list3", "user9001")
+        users = self.ignore_config.get("list3")
+        self.assertIn("user9001", users)
 
     def test_truncate(self):
         # Try a option that doesn't exist
@@ -81,6 +88,12 @@ class TestConfig(unittest.TestCase):
             self.ignore_config.truncate("list", user)
             users = self.ignore_config.get("list")
             self.assertNotIn(user, users, "Running " + user)
+
+        # Test deleting the last one deletes the entire option
+        self.ignore_config.truncate("list", "user6")
+        with self.assertRaises(configparser.NoOptionError):
+            # get raises and exception if it can't find the option. This is what we are testing.
+            self.ignore_config.get("list")
 
     def test_delete(self):
         self.channel_config.delete("asdf")
@@ -95,4 +108,8 @@ class TestConfig(unittest.TestCase):
         does_contain = self.ignore_config.contains("list", "user5")
         self.assertTrue(does_contain)
         does_contain = self.ignore_config.contains("list2", "user5")
+        self.assertFalse(does_contain)
+        does_contain = self.ignore_config.contains("list4", "user10")
+        self.assertTrue(does_contain)
+        does_contain = self.ignore_config.contains("list4", "user5")
         self.assertFalse(does_contain)

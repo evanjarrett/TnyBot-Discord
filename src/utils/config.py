@@ -46,7 +46,7 @@ class Config:
             self.save(option, value)
             return
 
-        if current_val is None:
+        if current_val is None or current_val == "":
             self.save(option, value)
             return
 
@@ -60,9 +60,6 @@ class Config:
         try:
             current_val = self.get(option)
         except configparser.NoOptionError:
-            return
-
-        if current_val is None:
             return
 
         if "," in current_val:
@@ -86,10 +83,12 @@ class Config:
     def contains(self, option, search):
         try:
             val = self.get(option)
-            if val is None:
+            if val is None or val == "":
                 return False
             if search in val.split(','):
                 return True
+            else:
+                return False
         except configparser.NoOptionError:
             return False
 

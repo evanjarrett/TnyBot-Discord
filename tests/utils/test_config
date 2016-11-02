@@ -1,5 +1,7 @@
 [Ignore]
-list = user6
+list = user1,user2,user3,user4,user5,user6
+list3 = 
+list4 = user10
 
 [Channels]
 general = 000000000000000000001
@@ -8,4 +10,3 @@ awesome = 000000000000000000003
 asdf = 000000000000000000004
 cool = 000000000000000000005
 voice = 000000000000000000006
-
