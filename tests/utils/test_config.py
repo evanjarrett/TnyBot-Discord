@@ -105,11 +105,18 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(does_contain)
 
     def test_contains(self):
+        # Test list contains
         does_contain = self.ignore_config.contains("list", "user5")
         self.assertTrue(does_contain)
+        # Test missing option doesn't contain
         does_contain = self.ignore_config.contains("list2", "user5")
         self.assertFalse(does_contain)
+        # Test empty option doesn't contain
+        does_contain = self.ignore_config.contains("list3", "user5")
+        self.assertFalse(does_contain)
+        # Test non-list contains
         does_contain = self.ignore_config.contains("list4", "user10")
         self.assertTrue(does_contain)
+        # Test non-list doesn't contain
         does_contain = self.ignore_config.contains("list4", "user5")
         self.assertFalse(does_contain)
