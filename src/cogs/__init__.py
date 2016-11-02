@@ -10,3 +10,4 @@ from .roles import Roles
 from .logs import Logs
 from .greetings import Greetings
 from .reaction import Reaction
+from .music import Music

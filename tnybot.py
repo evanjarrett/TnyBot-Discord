@@ -11,6 +11,7 @@ config.read(config_file)
 
 tnybot = BasicBot(command_prefix=cmds.when_mentioned_or("#!"))
 
+tnybot.add_cog(Music(tnybot))
 tnybot.add_cog(Reaction(tnybot))
 tnybot.add_cog(Commands(tnybot))
 tnybot.add_cog(CustomCommands(tnybot))
