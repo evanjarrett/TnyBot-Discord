@@ -4,3 +4,4 @@ res/*.txt
 res/*.db
 res/logs/
 __pycache__/
+*.pyc
