@@ -1,5 +1,5 @@
 requests
-discord.py
+discord.py[voice]
 pycurl
 parsedatetime
 pytz

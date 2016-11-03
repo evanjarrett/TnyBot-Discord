@@ -39,7 +39,7 @@ class Greetings(BaseDBCog):
             reply = await self.bot.wait_for_message(timeout=5.0, author=ctx.message.author)
             if reply and reply.content.lower() in ["yes", "y"]:
                 await self.database.insert(server, "greeting", greeting)
-                await self.do_toggle_greeting(ctx, "on")
+                await ctx.invoke(self.toggle_greeting, "on")
             else:
                 await self.bot.delete_message(bot_message)
 
@@ -49,9 +49,6 @@ class Greetings(BaseDBCog):
         """
         Toggles the greeting message for this server
         """
-        await self.do_toggle_greeting(ctx, toggle)
-
-    async def do_toggle_greeting(self, ctx, toggle):
         server = ctx.message.server
         channel = ctx.message.channel
         on_toggle = ["on", "yes", "y", "1", "true"]
@@ -75,7 +72,8 @@ class Greetings(BaseDBCog):
     @commands.command(aliases=["testGreeting"], pass_context=True)
     @commands.has_permissions(manage_server=True)
     async def test_greeting(self, ctx):
-        """Tests the greeting message for this server
+        """
+        Tests the greeting message for this server
         """
         server = ctx.message.server
         chnl = await self.get_greeting_channel(server)
