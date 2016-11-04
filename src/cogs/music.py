@@ -124,7 +124,7 @@ class Music(BaseCog):
         message = reaction.message
         if message.id in self._controls and member.id != "188766289794170880":
             if reaction.emoji == "🔀":
-                await self.bot.say("Shuffling...")
+                await self.bot.send_message(message.channel, "Shuffling...")
             if reaction.emoji == "⏹":
                 await self.do_stop(message, member)
             if reaction.emoji == "⏯":
