@@ -114,13 +114,14 @@ class Music(BaseCog):
             except:
                 pass
 
-    async def on_message_reaction_add(self, message, reaction, member):
-        await self.do_controls(message, reaction, member)
+    async def on_reaction_add(self, reaction, member):
+        await self.do_controls(reaction, member)
 
-    async def on_message_reaction_remove(self, message, reaction, member):
-        await self.do_controls(message, reaction, member)
+    async def on_reaction_remove(self, reaction, member):
+        await self.do_controls(reaction, member)
 
-    async def do_controls(self, message, reaction, member):
+    async def do_controls(self, reaction, member):
+        message = reaction.message
         if message.id in self._controls and member.id != "188766289794170880":
             if reaction.emoji == "🔀":
                 await self.bot.say("Shuffling...")

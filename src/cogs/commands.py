@@ -43,11 +43,6 @@ class Commands(BaseCog):
         if message is not None:
             await self.bot.say(message)
 
-    @commands.command(aliases=["샤샤샤"])
-    async def shyshyshy(self):
-        """No Sana No Life."""
-        await self.bot.upload("res/shyshyshy.gif", content="샤샤샤")
-
     @commands.command()
     async def joined(self, member: discord.Member):
         """Says when a member joined."""

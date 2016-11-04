@@ -15,7 +15,8 @@ class Reaction(BaseCog):
             #     await self.bot.add_reaction(message, "👍")
             #     pass
 
-    async def on_message_reaction_add(self, message, reaction, member):
+    async def on_reaction_add(self, reaction, member):
+        message = reaction.message
         if message.id in self._lucky and member.id != "188766289794170880":
             if reaction.emoji == "👍":
                 await self.bot.send_message(member, "https://streamable.com/q0nh")
