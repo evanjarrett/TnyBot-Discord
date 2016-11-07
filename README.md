@@ -2,7 +2,6 @@
 [![codecov.io](http://codecov.io/gh/00firestar00/TnyBot-Discord/coverage.svg?branch=master)](https://codecov.io/gh/00firestar00/TnyBot-Discord?branch=master)
 [![Discord](https://discordapp.com/api/guilds/231979788275810306/widget.png)](https://discord.gg/fqmCJJQ)
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/00firestar00/TnyBot-Discord)
 
 ##TnyBot-Discord
 The idea behind TnyBot is that I wanted a Discord bot that had all the functionality of the multiple bots servers were using.
@@ -34,3 +33,14 @@ Or you know, you could just check Travis... Or join my discord, it has Travis we
 ####Note on code coverage:
 The only reason its only 25% is I need to find a way to test without actually having to run discord.py.
 The database and utils modules are 100% covered. :)
+
+####Heroku
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/00firestar00/TnyBot-Discord)
+
+If you want an easy way to test Tny, without having to install python, postgres, sqlite or anything else he needs,
+then use this button. If you don't have an account, you can create one for free. 
+
+`Note: In order to have enough dyno hours for the month, you will need to validate your credit card. (Still free)`
+
+This will configure everything you need to get it running. Just stick your Bot's token in the field that it ask's you to.
+If you are having trouble using heroku, please submit a ticket here, or a pull request if you need something fixed.
