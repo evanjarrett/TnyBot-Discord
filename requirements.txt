@@ -4,3 +4,4 @@ pycurl
 parsedatetime
 pytz
 psycopg2
+cffi
