@@ -4,6 +4,7 @@ import imghdr
 import os
 import shutil
 from pprint import pprint
+from typing import List
 from urllib import request as urllib_request
 from urllib.error import HTTPError
 
@@ -25,19 +26,22 @@ class Attachments(BaseCog):
 
         self.base_dir = config["Images"]["dir"]
 
-        channels_config = config.items("Channels")
-        # Channels are in name = id format, but we only need the id
-        self.channels = []
-        for c in channels_config:
-            self.channels.append(c[1])
-
-        merged_channels_config = config.items("MergedChannels")
-        # Do the same for the channels that we want merged together
-        self.mergedChannels = []
-        for c in merged_channels_config:
-            self.mergedChannels.append(c[1])
+        self.channels = self.get_config_values(config, "Channels")
+        self.merged_channels = self.get_config_values(config, "MergedChannels")
+        self.upload_channels = self.get_config_values(config, "Upload")
 
         self.bot.loop.create_task(self.wait())
+        #self.bot.loop.create_task(self.upload())
+
+    async def upload(self):
+        print("Running background task")
+        await self.bot.wait_until_ready()
+        for c_id in self.upload_channels:
+            channel = self.bot.get_channel(c_id)
+            if channel is not None:
+                print(channel)
+                await self.upload_images(channel)
+                await asyncio.sleep(10)
 
     async def wait(self):
         print("Running background task")
@@ -89,14 +93,40 @@ class Attachments(BaseCog):
                     proxy_url = a["proxy_url"]
                     await self.download_image(url, dirs, proxy_url)
 
-    async def download_image(self, url, dirs, proxy_url=None):
-        parts = url.split("/")
-        pic_name = parts[-1]
-        if ".srt" in pic_name or ".html" in pic_name:
-            return
-        if "unknown" in pic_name:
-            pic_name = parts[-2] + pic_name
+    async def upload_images(self, channel):
+        dirs = self.get_directory(channel)
+        os.chdir(dirs)
+        files = filter(os.path.isfile, os.listdir(dirs))
+        files = [os.path.join(dirs, f) for f in files]  # add path to each file
+        files.sort(key=lambda x: os.path.getmtime(x))
+        pprint(files)
+        logs = self.bot.logs_from(channel)
+        pic_names = []
+        async for message in logs:
+            for a in message.attachments:
+                url = a["url"]
+                pic_name = self.get_name_from_url(url)
+                if pic_name is not None:
+                    pic_names.append(pic_name)
+            for e in message.embeds:
+                if e["type"] == "image":
+                    url = e["url"]
+                    pic_name = self.get_name_from_url(url)
+                    if pic_name is not None:
+                        pic_names.append(pic_name)
 
+        for f in files:
+            name = f.replace(dirs, "")
+            if name in pic_names:
+                print("already have that")
+            else:
+                await self.bot.send_file(channel, f)
+                await asyncio.sleep(3)
+
+    async def download_image(self, url, dirs, proxy_url=None):
+        pic_name = self.get_name_from_url(url)
+        if not pic_name:
+            return
         file_path = dirs + pic_name
         if not self.has_extension(file_path):
             if os.path.exists(file_path + ".jpeg") \
@@ -144,7 +174,7 @@ class Attachments(BaseCog):
         server_dir = server_dir.strip(".")
         channel_dir = channel.name
         dirs = self.base_dir + "/" + server_dir + "/"
-        if channel.id not in self.mergedChannels:
+        if channel.id not in self.merged_channels:
             dirs = dirs + channel_dir + "/"
         return dirs
 
@@ -166,9 +196,28 @@ class Attachments(BaseCog):
             await self.url_request(url, file_path)
 
     @staticmethod
-    def has_extension(file_path):
+    def has_extension(file_path: str) -> bool:
         for e in ["jpg", "jpeg", "png", "gif"]:
             # I really only care about these, anything else probably wont download correctly anyways
             if file_path.lower().endswith("." + e):
                 return True
         return False
+
+    @staticmethod
+    def get_name_from_url(url: str) -> str:
+        parts = url.split("/")
+        pic_name = parts[-1]
+        if ".srt" in pic_name or ".html" in pic_name:
+            return None
+        if "unknown" in pic_name:
+            pic_name = parts[-2] + pic_name
+        return pic_name
+
+    @staticmethod
+    def get_config_values(config, section: str) -> List:
+        merged_channels_config = config.items(section)
+        # Do the same for the channels that we want merged together
+        items = []
+        for c in merged_channels_config:
+            items.append(c[1])
+        return items

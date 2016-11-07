@@ -9,7 +9,7 @@ class Grep(BaseCog):
     ignore_case = False
     count = False
 
-    @commands.group(pass_context=True, no_pm=True)
+    @commands.group(aliases=["search"], pass_context=True, no_pm=True)
     async def grep(self, ctx):
         """
         Works similar to GNU grep. Searches for a string in messages,channels or members.
