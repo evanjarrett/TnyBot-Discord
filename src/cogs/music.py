@@ -1,10 +1,11 @@
 import asyncio
+from collections import deque
+from random import random, shuffle
+
 import discord
 from discord import Member
 from discord import Message
-from discord import Server
 from discord.ext import commands
-from discord.ext.commands import Context
 
 from src.cogs import BaseCog
 
@@ -37,7 +38,7 @@ class VoiceEntry:
         self.player = player
 
     def __str__(self):
-        fmt = "*{0.title}* uploaded by {0.uploader} and requested by {1.display_name}"
+        fmt = "Now playing: *{0.title}*"  # requested by {1.display_name}"
         duration = self.player.duration
         if duration:
             fmt += " [length: {0[0]}m {0[1]}s]".format(divmod(duration, 60))
@@ -69,6 +70,9 @@ class VoiceState:
         self.skip_votes.clear()
         if self.is_playing():
             self.player.stop()
+
+    def shuffle(self):
+        shuffle(self.songs)
 
     def toggle_next(self):
         self.bot.loop.call_soon_threadsafe(self.play_next_song.set)
@@ -124,7 +128,7 @@ class Music(BaseCog):
         message = reaction.message
         if message.id in self._controls and member.id != "188766289794170880":
             if reaction.emoji == "🔀":
-                await self.bot.send_message(message.channel, "Shuffling...")
+                await self.do_shuffle(message, member)
             if reaction.emoji == "⏹":
                 await self.do_stop(message, member)
             if reaction.emoji == "⏯":
@@ -292,7 +296,10 @@ class Music(BaseCog):
         await self.do_shuffle(ctx.message, ctx.message.author)
 
     async def do_shuffle(self, message: Message, voter: Member):
-        pass
+        state = self.get_voice_state(message.server)
+        if state.is_playing():
+            state.shuffle()
+            await self.bot.send_message(message.channel, "Shuffling...")
 
     @commands.command(pass_context=True, no_pm=True)
     async def playing(self, ctx):

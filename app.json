@@ -1,0 +1,28 @@
+{
+  "name": "TnyBot-Discord",
+  "description": "Basic discord bot.",
+  "keywords": [
+    "bot",
+    "discord",
+    "tny",
+    "tiny"
+  ],
+  "website": "https://tny.site",
+  "repository": "https://github.com/00firestar00/TnyBot-Discord",
+  "env": {
+    "TOKEN": {
+      "description": "Discord Bot Token",
+      "value": "PUT_YOUR_BOT_TOKEN_HERE"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
