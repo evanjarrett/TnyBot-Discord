@@ -9,3 +9,9 @@ class SameUserException(TnyBotException):
     def __init__(self):
         message = "The bot is responding to it's own messages. This may cause and infinite loop."
         super(SameUserException, self).__init__(message)
+
+
+class VideoNotFoundException(TnyBotException):
+    def __init__(self):
+        message = "No video found on channel"
+        super(VideoNotFoundException, self).__init__(message)
