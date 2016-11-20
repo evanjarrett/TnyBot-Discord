@@ -4,7 +4,7 @@ from urllib import request as urllib_request
 from discord.ext import commands
 
 from src.cogs import BaseCog
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # Also requires lxml installed
 
 
 class Vlive(BaseCog):
@@ -27,7 +27,7 @@ class Vlive(BaseCog):
             "{0}/search/all?query={1}".format(self.vlive_url, quote(query))
         )
 
-        soup = BeautifulSoup(search_page.read(), "lxml")
+        soup = BeautifulSoup(search_page.read(), "lxml")  # TODO: fallback to html.parser
         channels = soup.find_all("a", "ct_box")
         if channels:
             channel = channels[0]
