@@ -31,7 +31,7 @@ class Attachments(BaseCog):
         self.upload_channels = self.get_config_values(config, "Upload")
 
         self.bot.loop.create_task(self.wait())
-        #self.bot.loop.create_task(self.upload())
+        # self.bot.loop.create_task(self.upload())
 
     async def upload(self):
         print("Running background task")
@@ -215,7 +215,10 @@ class Attachments(BaseCog):
 
     @staticmethod
     def get_config_values(config, section: str) -> List:
-        merged_channels_config = config.items(section)
+        try:
+            merged_channels_config = config.items(section)
+        except configparser.NoSectionError:
+            return
         # Do the same for the channels that we want merged together
         items = []
         for c in merged_channels_config:

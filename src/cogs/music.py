@@ -1,6 +1,5 @@
 import asyncio
-from collections import deque
-from random import random, shuffle
+from random import shuffle
 
 import discord
 from discord import Member
@@ -30,6 +29,12 @@ if not discord.opus.is_loaded():
 # !disconnect -- Perms
 # !restart call disconnect then summon, clear out any cache -- Perms
 
+class ShufflePriorityQueue(asyncio.PriorityQueue):
+    """ Queue That allows shuffling of the items
+    """
+    def shuffle(self):
+        shuffle(self._queue)
+
 
 class VoiceEntry:
     def __init__(self, message, player):
@@ -51,7 +56,7 @@ class VoiceState:
         self.voice = None
         self.bot = bot
         self.play_next_song = asyncio.Event()
-        self.songs = asyncio.Queue()
+        self.songs = ShufflePriorityQueue()
         self.skip_votes = set()  # a set of user_ids that voted
         self.audio_player = self.bot.loop.create_task(self.audio_player_task())
 
@@ -72,7 +77,7 @@ class VoiceState:
             self.player.stop()
 
     def shuffle(self):
-        shuffle(self.songs)
+        self.songs.shuffle()
 
     def toggle_next(self):
         self.bot.loop.call_soon_threadsafe(self.play_next_song.set)
@@ -301,7 +306,7 @@ class Music(BaseCog):
             state.shuffle()
             await self.bot.send_message(message.channel, "Shuffling...")
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(aliases=["np", "nowplaying"], pass_context=True, no_pm=True)
     async def playing(self, ctx):
         """Shows info about the currently played song."""
 
