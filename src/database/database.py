@@ -17,7 +17,6 @@ class Database:
         url = urlparse(db_url)
         if db_url is None and db_file is not None:
             db_file = utils.full_path(db_file)
-            print(db_file)
             self.connection = sqlite3.connect(db_file, **kwargs)
             self.sql_type = SQLType.sqlite
         else:  # pragma: no cover
