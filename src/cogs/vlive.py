@@ -1,10 +1,10 @@
-from urllib.parse import quote
 from urllib import request as urllib_request
+from urllib.parse import quote
 
+from bs4 import BeautifulSoup, FeatureNotFound
 from discord.ext import commands
 
 from src.cogs import BaseCog
-from bs4 import BeautifulSoup  # Also requires lxml installed
 
 
 class Vlive(BaseCog):
@@ -23,11 +23,9 @@ class Vlive(BaseCog):
         if ctx.invoked_subcommand is not None:
             return
         query = query.lower()
-        search_page = urllib_request.urlopen(
-            "{0}/search/all?query={1}".format(self.vlive_url, quote(query))
-        )
 
-        soup = BeautifulSoup(search_page.read(), "lxml")  # TODO: fallback to html.parser
+        soup = await self.get_url_contents("{0}/search/all?query={1}".format(self.vlive_url, quote(query)))
+
         channels = soup.find_all("a", "ct_box")
         if channels:
             channel = channels[0]
@@ -39,7 +37,7 @@ class Vlive(BaseCog):
                 "Found channel `{0}`. Searching for videos..".format(channel["data-name"])
             )
             channel_url = self.vlive_url + channel["href"]
-            channel_html = await self.get_channel(channel_url)
+            channel_html = await self.get_url_contents(channel_url)
             channel_vid, live = await self.get_vid(channel_html)
             await self.print_vid(channel_vid, live)
         else:
@@ -53,14 +51,17 @@ class Vlive(BaseCog):
         if vid:
             header = ""
             if live is not None:
-                header = "```md\n### LIVE ###\n```\n"
+                header = "```http\nLIVE:\n```\n"
             await self.bot.say("{0}{1}".format(header, vid))
         else:
             await self.bot.say("No videos found :(")
 
-    async def get_channel(self, url: str) -> BeautifulSoup:
+    async def get_url_contents(self, url: str) -> BeautifulSoup:
         search_page = urllib_request.urlopen(url)
-        return BeautifulSoup(search_page.read(), "lxml")
+        try:
+            return BeautifulSoup(search_page.read(), "lxml")
+        except FeatureNotFound:
+            return BeautifulSoup(search_page.read(), "html.parser")
 
     async def get_vid(self, html: BeautifulSoup):
         first_vid = html.find("a", "thumb_area")

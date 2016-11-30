@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord.ext.commands import Context, BadArgument
 from discord.ext.commands.converter import RoleConverter
 
-from src.cogs.base_cog import BaseDBCog
+from src.cogs import BaseDBCog
 from src.database import RolesDB
 
 

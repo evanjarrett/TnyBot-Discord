@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 
-from src.cogs.base_cog import BaseDBCog
+from src.cogs import BaseDBCog
 from src.database import CommandsDB
 
 

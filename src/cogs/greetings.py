@@ -2,7 +2,7 @@ from discord import Server
 from discord.ext import commands
 from discord.ext.commands import MissingRequiredArgument
 
-from src.cogs.base_cog import BaseDBCog
+from src.cogs import BaseDBCog
 from src.database import ConfigDB
 
 

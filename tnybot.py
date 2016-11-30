@@ -9,7 +9,7 @@ config = configparser.RawConfigParser()
 config_file = "../tnybot_config"
 config.read(config_file)
 
-tnybot = BasicBot(command_prefix=cmds.when_mentioned_or("#!"))
+tnybot = BasicBot(command_prefix=cmds.when_mentioned_or("#!"), name="TnyBot")
 
 tnybot.add_cog(Music(tnybot))
 tnybot.add_cog(Reaction(tnybot))
@@ -21,6 +21,5 @@ tnybot.add_cog(Grep(tnybot))
 tnybot.add_cog(Logs(tnybot))
 tnybot.add_cog(Stats(tnybot))
 tnybot.add_cog(Notifications(tnybot, config_file=config_file))
-# tnybot.add_cog(Roles(tnybot, db_url=config["Postgres"]["URL"]))
-# tnybot.add_cog(Reminders(tnybot, config["TimeZone"]["tz"]))
+tnybot.add_cog(Reminders(tnybot, config["TimeZone"]["tz"]))
 tnybot.run(config["User"]["user"], config["User"]["pass"])

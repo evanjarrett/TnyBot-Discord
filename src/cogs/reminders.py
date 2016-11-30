@@ -7,7 +7,7 @@ from discord.ext import commands
 from parsedatetime import parsedatetime
 from pytz import timezone
 
-from src.cogs.base_cog import BaseDBCog
+from src.cogs import BaseDBCog
 from src.database import RemindersDB
 
 
@@ -15,15 +15,13 @@ class Reminders(BaseDBCog):
     def __init__(self, bot, tz="UTC", db_url=None):
         super().__init__(bot, RemindersDB("res/reminders.db", db_url))
         self.tz = tz
-        self.bot.loop.create_task(self.background())
 
-    async def background(self):
-        print("Running background task " + self.__class__.__name__)
-        await self.bot.wait_until_ready()
-        # We want to run this in a separate process, since on_ready could be called multiple times
-        while not self.bot.is_closed:
+    async def on_ready(self):
+        # The checks are done by a cron that runs reminderbot.py
+        if self.bot.name == "ReminderBot":
             await self.check_db()
-            await asyncio.sleep(60)
+            await asyncio.sleep(10)
+            await self.bot.logout()
 
     @commands.command(aliases=["reminder", "remind"], pass_context=True)
     async def remindme(self, ctx, *, date):

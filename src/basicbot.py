@@ -10,10 +10,12 @@ from discord.ext.commands import Bot, CheckFailure, CommandNotFound
 class BasicBot(Bot):
     def __init__(self, command_prefix=commands.when_mentioned_or("#!"),
             formatter=None,
+            name="BasicBot",
             description="""Tnybot is a basic bot that includes custom commands and notifications""",
             pm_help=False, **options):
         super().__init__(command_prefix, formatter, description, pm_help, **options)
 
+        self.name = name
         self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
 
     async def on_ready(self):
