@@ -17,6 +17,7 @@ class Reminders(BaseDBCog):
         self.tz = tz
 
     async def on_ready(self):
+        await super().on_ready()
         # The checks are done by a cron that runs reminderbot.py
         if self.bot.name == "ReminderBot":
             await self.check_db()

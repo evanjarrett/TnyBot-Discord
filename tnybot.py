@@ -1,4 +1,5 @@
 import configparser
+import os
 
 from discord.ext import commands as cmds
 
@@ -6,10 +7,10 @@ from src.basicbot import BasicBot
 from src.cogs import *
 
 config = configparser.RawConfigParser()
-config_file = "../tnybot_config"
+config_file = os.path.dirname(os.path.realpath(__file__)) + "/../tnybot_config"
 config.read(config_file)
 
-tnybot = BasicBot(command_prefix=cmds.when_mentioned_or("#!"), name="TnyBot")
+tnybot = BasicBot(name="TnyBot", command_prefix=cmds.when_mentioned_or("#!"))
 
 tnybot.add_cog(Music(tnybot))
 tnybot.add_cog(Reaction(tnybot))

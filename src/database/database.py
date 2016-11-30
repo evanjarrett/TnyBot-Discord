@@ -2,8 +2,9 @@ import re
 import sqlite3
 from enum import Enum
 from urllib.parse import urlparse
-
 import psycopg2
+
+import src.utils as utils
 
 
 class SQLType(Enum):
@@ -15,6 +16,8 @@ class Database:
     def __init__(self, db_file=None, db_url=None, **kwargs):
         url = urlparse(db_url)
         if db_url is None and db_file is not None:
+            db_file = utils.full_path(db_file)
+            print(db_file)
             self.connection = sqlite3.connect(db_file, **kwargs)
             self.sql_type = SQLType.sqlite
         else:  # pragma: no cover
