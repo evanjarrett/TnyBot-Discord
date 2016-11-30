@@ -5,3 +5,4 @@ parsedatetime
 pytz
 psycopg2
 cffi
+bs4
