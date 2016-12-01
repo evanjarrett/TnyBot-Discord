@@ -15,7 +15,7 @@ class CustomCommands(BaseDBCog):
         if not await self.bot.is_prefixed(message):
             return
 
-        name = await self.bot.trim_prefix(message, message.content.split()[0])
+        name = await self.bot.trim_prefix(message, message.content)
         if message.author != self.bot.user and name not in self.bot.commands.keys():
             if await self.database.has(name):
                 command = await self.database.get(name)
