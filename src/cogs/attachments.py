@@ -4,7 +4,7 @@ import imghdr
 import os
 import shutil
 from pprint import pprint
-from typing import List
+from typing import Optional
 from urllib import request as urllib_request
 from urllib.error import HTTPError
 
@@ -72,7 +72,7 @@ class Attachments(BaseCog):
         if len(message.embeds):
             chnl = message.channel.id
             if chnl in self.channels:
-                dirs = self.get_directory(message.channel)
+                dirs = self.get_directory(message.channel, self.channels)
                 has_print = False
                 for e in message.embeds:
                     if e["type"] == "image":
@@ -86,7 +86,7 @@ class Attachments(BaseCog):
         if len(message.attachments):
             chnl = message.channel.id
             if chnl in self.channels:
-                dirs = self.get_directory(message.channel)
+                dirs = self.get_directory(message.channel, self.channels)
                 print("attachment found! Uploaded by {}".format(message.author.name))
                 for a in message.attachments:
                     url = a["url"]
@@ -94,7 +94,7 @@ class Attachments(BaseCog):
                     await self.download_image(url, dirs, proxy_url)
 
     async def upload_images(self, channel):
-        dirs = self.get_directory(channel)
+        dirs = self.get_directory(channel, self.upload_channels)
         os.chdir(dirs)
         files = filter(os.path.isfile, os.listdir(dirs))
         files = [os.path.join(dirs, f) for f in files]  # add path to each file
@@ -169,10 +169,13 @@ class Attachments(BaseCog):
                     print("!! Making a copy with {} extension".format(ext))
                     shutil.copy(file_path, new_file)
 
-    def get_directory(self, channel):
+    def get_directory(self, channel, chnl_dict=None):
         server_dir = channel.server.name
         server_dir = server_dir.strip(".")
-        channel_dir = channel.name
+        if chnl_dict is None:
+            channel_dir = channel.name
+        else:
+            channel_dir = chnl_dict.get(channel.id, channel.name)
         dirs = self.base_dir + "/" + server_dir + "/"
         if channel.id not in self.merged_channels:
             dirs = dirs + channel_dir + "/"
@@ -204,23 +207,23 @@ class Attachments(BaseCog):
         return False
 
     @staticmethod
-    def get_name_from_url(url: str) -> str:
+    def get_name_from_url(url: str) -> Optional[str]:
         parts = url.split("/")
         pic_name = parts[-1]
         if ".srt" in pic_name or ".html" in pic_name:
-            return None
+            return
         if "unknown" in pic_name:
             pic_name = parts[-2] + pic_name
         return pic_name
 
     @staticmethod
-    def get_config_values(config, section: str) -> List:
+    def get_config_values(config, section: str) -> dict:
         try:
             merged_channels_config = config.items(section)
         except configparser.NoSectionError:
             return
         # Do the same for the channels that we want merged together
-        items = []
-        for c in merged_channels_config:
-            items.append(c[1])
+        items = {}
+        for c_id, dirs in merged_channels_config:
+            items[c_id] = dirs
         return items
