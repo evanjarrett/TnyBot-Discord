@@ -8,9 +8,6 @@ from discord.ext import commands
 
 from src.cogs import BaseCog
 
-if not discord.opus.is_loaded():
-    discord.opus.load_opus("opus")
-
 
 # Commands needed to mostly match Musicbot
 # !play [link | text]
@@ -32,6 +29,7 @@ if not discord.opus.is_loaded():
 class ShufflePriorityQueue(asyncio.PriorityQueue):
     """ Queue That allows shuffling of the items
     """
+
     def shuffle(self):
         shuffle(self._queue)
 
@@ -100,6 +98,9 @@ class Music(BaseCog):
     def __init__(self, bot):
         super().__init__(bot)
         self.voice_states = {}
+
+        if not discord.opus.is_loaded():
+            discord.opus.load_opus("opus")
 
     def get_voice_state(self, server):
         state = self.voice_states.get(server.id)
