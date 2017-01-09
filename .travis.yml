@@ -1,12 +1,17 @@
 language: python
-cache: pip
+cache:
+  pip: true
+  apt: true
+
 python:
   - "3.5"
 
-before_install:
-  - sudo apt-add-repository -y ppa:travis-ci/sqlite3
-  - sudo apt-get -y update
-  - sudo apt-get -y install sqlite3=3.7.15.1-1~travis1
+addons:
+  apt:
+    sources:
+      - sourceline: ppa:travis-ci/sqlite3
+    packages:
+      - sqlite3=3.7.15.1-1~travis1
 
 install:
   - pip install -r requirements.txt
