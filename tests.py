@@ -1,5 +1,8 @@
 import unittest
 
+import sys
+
 if __name__ == "__main__":
     suite = unittest.TestLoader().discover("tests")
-    unittest.TextTestRunner().run(suite)
+    result = unittest.TextTestRunner().run(suite)
+    sys.exit(not result.wasSuccessful())
