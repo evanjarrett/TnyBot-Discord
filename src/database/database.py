@@ -16,7 +16,8 @@ class Database:
     def __init__(self, db_file=None, db_url=None, **kwargs):
         url = urlparse(db_url)
         if db_url is None and db_file is not None:
-            if ":memory:" not in db_file:
+            if ":memory:" not in db_file:  # pragma: no cover
+                # If we are using sqlite memory, we don't want to change the file path. (it breaks the tests)
                 db_file = utils.full_path(db_file)
             self.connection = sqlite3.connect(db_file, **kwargs)
             self.sql_type = SQLType.sqlite
