@@ -41,7 +41,7 @@ class Commands(BaseCog):
     async def say(self, *, message=None):
         """Says what you tell it to say"""
         if message is not None:
-            await self.bot.say(message)
+            return await self.bot.say(message)
 
     @commands.command()
     async def joined(self, member: discord.Member):
