@@ -17,6 +17,14 @@ class TestRemindersDB(AsyncTestCase):
 
         self.reminders_db = RemindersDB("file::memory:?cache=shared", uri=True)
 
+    async def asyncSetUp(self):
+        await self.reminders_db.create_table()
+        await self.reminders_db.insert(MockUser(), "my reminder message", self.remind_date)
+
+        self.cursor.execute("SELECT user_id, message, remind_date from reminders")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("12345", "my reminder message", self.remind_date), result)
+
     def tearDown(self):
         self.connection.close()
 
@@ -27,10 +35,13 @@ class TestRemindersDB(AsyncTestCase):
         self.assertIsNotNone(result)
 
     async def test_insert(self):
-        await self._setup()
+        await self.reminders_db.insert(MockUser(), "my reminder message", self.remind_date)
+
+        self.cursor.execute("SELECT user_id, message, remind_date from reminders")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("12345", "my reminder message", self.remind_date), result)
 
     async def test_delete(self):
-        await self._setup()
         await self.reminders_db.delete(self.remind_date - 61)
 
         self.cursor.execute("SELECT user_id, message, remind_date from reminders")
@@ -44,14 +55,5 @@ class TestRemindersDB(AsyncTestCase):
         self.assertIsNone(result)  # Assert we did delete it
 
     async def test_get(self):
-        await self._setup()
         result = await self.reminders_db.get(self.remind_date)
         self.assertListEqual([("12345", "my reminder message", self.remind_date)], result)
-
-    async def _setup(self):
-        await self.reminders_db.create_table()
-        await self.reminders_db.insert(MockUser(), "my reminder message", self.remind_date)
-
-        self.cursor.execute("SELECT user_id, message, remind_date from reminders")
-        result = self.cursor.fetchone()
-        self.assertTupleEqual(("12345", "my reminder message", self.remind_date), result)

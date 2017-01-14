@@ -15,6 +15,14 @@ class TestCommandsDB(AsyncTestCase):
 
         self.commands_db = CommandsDB("file::memory:?cache=shared", uri=True)
 
+    async def asyncSetUp(self):
+        await self.commands_db.create_table()
+        await self.commands_db.insert("testing", "this is a test", MockServer())
+
+        self.cursor.execute("SELECT name, command, server_id from commands")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("testing", "this is a test", "12345"), result)
+
     def tearDown(self):
         self.connection.close()
 
@@ -25,10 +33,13 @@ class TestCommandsDB(AsyncTestCase):
         self.assertIsNotNone(result)
 
     async def test_insert(self):
-        await self._setup()
+        await self.commands_db.insert("testing", "this is a test", MockServer())
+
+        self.cursor.execute("SELECT name, command, server_id from commands")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("testing", "this is a test", "12345"), result)
 
     async def test_delete(self):
-        await self._setup()
         await self.commands_db.delete("testing")
 
         self.cursor.execute("SELECT name, command from commands")
@@ -36,7 +47,6 @@ class TestCommandsDB(AsyncTestCase):
         self.assertIsNone(result)
 
     async def test_delete_all(self):
-        await self._setup()
         server = MockServer()
         await self.commands_db.insert("another", "another command", server)
         await self.commands_db.insert("test", "asdasdasd", server)
@@ -48,7 +58,6 @@ class TestCommandsDB(AsyncTestCase):
         self.assertIsNone(result)
 
     async def test_get(self):
-        await self._setup()
         result = await self.commands_db.get("testing")
         self.assertIn("this is a test", result)
         # Check cache for code coverage
@@ -56,7 +65,6 @@ class TestCommandsDB(AsyncTestCase):
         self.assertIn("this is a test", result)
 
     async def test_get_all(self):
-        await self._setup()
         server = MockServer()
         await self.commands_db.insert("one", "testing", server)
         await self.commands_db.insert("two", "testing", server)
@@ -79,14 +87,12 @@ class TestCommandsDB(AsyncTestCase):
             self.assertEqual(result["five"], "another")
 
     async def test_has(self):
-        await self._setup()
         result = await self.commands_db.has("testing")
         self.assertTrue(result)
         result = await self.commands_db.has("nothing")
         self.assertFalse(result)
 
     async def test_false(self):
-        await self._setup()
         check = await self.commands_db.delete("is_false")
         self.assertFalse(check)
         check = await self.commands_db.delete_all(MockServer(id="54321"))
@@ -94,11 +100,3 @@ class TestCommandsDB(AsyncTestCase):
         # Inserting again should return false
         check = await self.commands_db.insert("testing", "this is a test", MockServer())
         self.assertFalse(check)
-
-    async def _setup(self):
-        await self.commands_db.create_table()
-        await self.commands_db.insert("testing", "this is a test", MockServer())
-
-        self.cursor.execute("SELECT name, command, server_id from commands")
-        result = self.cursor.fetchone()
-        self.assertTupleEqual(("testing", "this is a test", "12345"), result)

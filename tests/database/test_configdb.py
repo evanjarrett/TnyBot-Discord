@@ -15,6 +15,14 @@ class TestConfigDB(AsyncTestCase):
 
         self.config_db = ConfigDB("file::memory:?cache=shared", uri=True)
 
+    async def asyncSetUp(self):
+        await self.config_db.create_table()
+        await self.config_db.insert(MockServer(), "mykey", "mytestvalue")
+
+        self.cursor.execute("SELECT key,value,server_id from config")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("mykey", "mytestvalue", "12345"), result)
+
     def tearDown(self):
         self.connection.close()
 
@@ -25,10 +33,13 @@ class TestConfigDB(AsyncTestCase):
         self.assertIsNotNone(result)
 
     async def test_insert(self):
-        await self._setup()
+        await self.config_db.insert(MockServer(), "mykey", "mytestvalue")
+
+        self.cursor.execute("SELECT key,value,server_id from config")
+        result = self.cursor.fetchone()
+        self.assertTupleEqual(("mykey", "mytestvalue", "12345"), result)
 
     async def test_update(self):
-        await self._setup()
         await self.config_db.update(MockServer(), "mykey", "my new test value")
 
         self.cursor.execute("SELECT key,value,server_id from config")
@@ -36,7 +47,6 @@ class TestConfigDB(AsyncTestCase):
         self.assertTupleEqual(("mykey", "my new test value", "12345"), result)
 
     async def test_delete(self):
-        await self._setup()
         await self.config_db.delete(MockServer(), "mykey")
 
         self.cursor.execute("SELECT key,value,server_id from config")
@@ -44,14 +54,12 @@ class TestConfigDB(AsyncTestCase):
         self.assertIsNone(result)
 
     async def test_get(self):
-        await self._setup()
         result = await self.config_db.get(MockServer(), "mykey")
         self.assertEqual("mytestvalue", result)
         result = await self.config_db.get(MockServer(), "does_not_exist")
         self.assertIsNone(result)
 
     async def test_get_all(self):
-        await self._setup()
         await self.config_db.insert(MockServer(), "key2", "anothervalue")
         await self.config_db.insert(MockServer(), "awesome", "wow this is cool")
 
@@ -59,11 +67,3 @@ class TestConfigDB(AsyncTestCase):
         self.assertIn(("mykey", "mytestvalue"), result)
         self.assertIn(("key2", "anothervalue"), result)
         self.assertIn(("awesome", "wow this is cool"), result)
-
-    async def _setup(self):
-        await self.config_db.create_table()
-        await self.config_db.insert(MockServer(), "mykey", "mytestvalue")
-
-        self.cursor.execute("SELECT key,value,server_id from config")
-        result = self.cursor.fetchone()
-        self.assertTupleEqual(("mykey", "mytestvalue", "12345"), result)

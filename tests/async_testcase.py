@@ -21,7 +21,7 @@ class AsyncTestCase(unittest.TestCase):
     def __getattribute__(self, item):
         attr = object.__getattribute__(self, item)
         # run an event loop on each, ignoring underscore functions
-        if asyncio.iscoroutinefunction(attr) and not item.startswith("_"):
+        if asyncio.iscoroutinefunction(attr) and item not in ["asyncTearDown", "asyncSetUp"]:
             if item not in self._function_cache:
                 self._function_cache[item] = self.coroutine_function_decorator(attr)
             return self._function_cache[item]
