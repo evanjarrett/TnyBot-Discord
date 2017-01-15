@@ -22,6 +22,8 @@ class Reaction(BaseCog):
                 await self.bot.send_message(member, "https://streamable.com/q0nh")
             if reaction.emoji == "👎":
                 await self.bot.send_message(member, "https://streamable.com/5wgl")
+        if reaction.emoji == "🤦":
+            await self.bot.remove_reaction(message, "😍", self.bot.user)
 
     @commands.command(pass_context=True, no_pm=True)
     async def secret(self, ctx, *, content=None):
