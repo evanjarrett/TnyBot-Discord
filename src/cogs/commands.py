@@ -19,7 +19,7 @@ class Commands(BaseCog):
                    "안녕하세요",
                    "sup",
                    ]
-        await self.bot.say(random.choice(choices))
+        return await self.bot.say(random.choice(choices))
 
     @commands.command(aliases=["prune"], pass_context=True)
     @commands.has_permissions(manage_messages=True)
@@ -46,7 +46,7 @@ class Commands(BaseCog):
     @commands.command()
     async def joined(self, member: discord.Member):
         """Says when a member joined."""
-        await self.bot.say("{0.name} joined on {0.joined_at}".format(member))
+        return await self.bot.say("{0.name} joined on {0.joined_at}".format(member))
 
     @commands.command(aliases=["emojis"], pass_context=True)
     async def emoji(self, ctx):
@@ -55,7 +55,7 @@ class Commands(BaseCog):
         msg = ""
         for e in server.emojis:
             msg = msg + str(e) + " "
-        await self.bot.say(msg)
+        return await self.bot.say(msg)
 
     @commands.command(pass_context=True)
     async def listserveroles(self, ctx):
@@ -64,7 +64,7 @@ class Commands(BaseCog):
         msg = ""
         for e in server.roles:
             msg = msg + str(e) + "\n"
-        await self.bot.send_message(ctx.message.author, msg)
+        return await self.bot.send_message(ctx.message.author, msg)
 
     @commands.command(pass_context=True)
     @commands.has_permissions(manage_emojis=True)
@@ -74,20 +74,20 @@ class Commands(BaseCog):
         response = requests.get(url)
         image = response.content
         emoji = await self.bot.create_custom_emoji(server, name=name, image=image)
-        await self.bot.say("Done: {}".format(emoji))
+        return await self.bot.say("Done: {}".format(emoji))
 
     @commands.command()
     async def invite(self):
         """Get Invite link for bot"""
-        await self.bot.say("https://tny.click/invite")
+        return await self.bot.say("https://tny.click/invite")
 
     @commands.group(pass_context=True)
     async def cool(self, ctx):
         """Says if a something is cool."""
         if ctx.invoked_subcommand is None:
-            await self.bot.say("No, {0.subcommand_passed} is not cool".format(ctx))
+            return await self.bot.say("No, {0.subcommand_passed} is not cool.".format(ctx))
 
     @cool.command(name="bot")
     async def _bot(self):
         """Is the bot cool?"""
-        await self.bot.say("Yes, the bot is cool.")
+        return await self.bot.say("Yes, the bot is cool.")
