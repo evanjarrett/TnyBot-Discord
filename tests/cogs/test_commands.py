@@ -14,7 +14,8 @@ class TestCommands(AsyncTestCase):
         await self.bot.logout()
 
     async def test_hello(self):
-        ret = await self.ctx.invoke(self.cog.hello, self.cog)
+        self.cog.hello.instance = self.cog
+        ret = await self.ctx.invoke(self.cog.hello)
         self.assertIn(ret,
             ["hi",
              "ohai",

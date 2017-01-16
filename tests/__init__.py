@@ -6,9 +6,9 @@ from discord import Message
 from discord import Role
 from discord import Server
 from discord import User
-from discord.ext.commands import Bot
 from discord.ext.commands import Context
 
+from basicbot import BasicBot
 from .async_testcase import AsyncTestCase
 
 
@@ -24,7 +24,7 @@ class MockChannel(Channel):
 
 class MockUser(User):
     def __init__(self, *, id="12345", **kwargs):
-        super().__init__(id=id, **kwargs)
+        super().__init__(id=id, username="MockUser123", **kwargs)
 
 
 class MockMember(Member):
@@ -42,7 +42,9 @@ class MockRole(Role):
         super().__init__(id=id, name=name, server=server)
 
 
-class MockBot(Bot):
+class MockBot(BasicBot):
+    user = MockUser()
+
     def __init__(self):
         super().__init__("!")
 

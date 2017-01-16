@@ -33,20 +33,20 @@ class CustomCommands(BaseDBCog):
         """Adds a new custom command"""
         message = ctx.message
         if name is None or command is None:
-            await self.bot.say("Please match the format `{}add [command] [link]`".format(self.bot.get_prefix(ctx)))
-            return
+            return await self.bot.say("Please match the format `{}add [command] [link]`".format(self.bot.get_prefix(ctx)))
 
         command.replace("\n", "")
         name = await self.bot.trim_prefix(message, name)
         if name in self.bot.commands.keys() or await self.database.has(name):
-            await self.bot.say("Command `{}` is already in the commands list.".format(name))
+            return await self.bot.say("Command `{}` is already in the commands list.".format(name))
         else:
             if await self.database.insert(name, command, message.server):
-                await self.bot.say(
+                msg = await self.bot.say(
                     "Added `{0}` to the commands list. `{1}undo` if you made an error".format(name,
                         self.bot.get_prefix(ctx)))
                 self._undo_list[message.author] = name
                 print("{0} | added by: {1}".format(name, message.author.name))
+                return msg
 
     @commands.command(pass_context=True, no_pm=True)
     async def delete(self, ctx, name=None):
