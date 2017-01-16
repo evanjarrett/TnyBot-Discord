@@ -8,8 +8,8 @@ from src.database import CommandsDB
 class CustomCommands(BaseDBCog):
     _undo_list = {}
 
-    def __init__(self, bot, *, db_url=None):
-        super().__init__(bot, CommandsDB("res/commands.db", db_url))
+    def __init__(self, bot, *, db_file="res/commands.db", db_url=None):
+        super().__init__(bot, CommandsDB(db_file, db_url))
 
     async def on_message(self, message):
         if not await self.bot.is_prefixed(message):

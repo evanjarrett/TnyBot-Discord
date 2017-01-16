@@ -1,3 +1,4 @@
+import os
 import signal
 from pprint import pprint
 from time import time
@@ -43,12 +44,15 @@ class BasicBot(Bot):
             await self.on_error("on_command_error", exception, ctx)
 
     async def close(self):
-        print("Closing client...")
-        print(time())
+        if os.environ["UNIT_TESTS"] != "1":
+            print("Closing client...")
+            print(time())
+
         await super().close()
 
     def exit(self):
-        print("SIGTERM Closing client... ")
+        if os.environ["UNIT_TESTS"] != "1":
+            print("SIGTERM Closing client... ")
         # This gets handled in the run() method
         raise KeyboardInterrupt
 

@@ -11,6 +11,10 @@ from discord.ext.commands import Context
 from src.basicbot import BasicBot
 from .async_testcase import AsyncTestCase
 
+import os
+
+os.environ["UNIT_TESTS"] = "1"
+
 
 class MockServer(Server):
     def __init__(self, *, id="12345"):
