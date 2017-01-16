@@ -1,4 +1,3 @@
-import os
 import signal
 from pprint import pprint
 from time import time
@@ -14,10 +13,12 @@ class BasicBot(Bot):
             name="BasicBot",
             description="""Tnybot is a basic bot that includes custom commands and notifications""",
             pm_help=False, **options):
+        self.unit_tests = options.pop('unit_tests', False)
         super().__init__(command_prefix, formatter, description, pm_help, **options)
 
         self.name = name
-        self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
+        if not self.unit_tests:
+            self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
 
     async def on_ready(self):
         print("------------------------------------------------------------------------------------------------------")
@@ -44,14 +45,14 @@ class BasicBot(Bot):
             await self.on_error("on_command_error", exception, ctx)
 
     async def close(self):
-        if os.environ["UNIT_TESTS"] != "1":
+        if not self.unit_tests:
             print("Closing client...")
             print(time())
 
         await super().close()
 
     def exit(self):
-        if os.environ["UNIT_TESTS"] != "1":
+        if not self.unit_tests:
             print("SIGTERM Closing client... ")
         # This gets handled in the run() method
         raise KeyboardInterrupt
