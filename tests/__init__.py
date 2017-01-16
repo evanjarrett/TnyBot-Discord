@@ -8,7 +8,7 @@ from discord import Server
 from discord import User
 from discord.ext.commands import Context
 
-from basicbot import BasicBot
+from src.basicbot import BasicBot
 from .async_testcase import AsyncTestCase
 
 
