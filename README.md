@@ -30,10 +30,6 @@ This can be quickly edited in the associated py files for now.
 You can run the tests by using `python3.5 tests.py` or, `python3.5 -m unittest discover tests`.
 Or you know, you could just check Travis... Or join my discord, it has Travis webhooks.
 
-####Note on code coverage:
-The only reason its only 25% is I need to find a way to test without actually having to run discord.py.
-The database and utils modules are 100% covered. :)
-
 ####Heroku
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/00firestar00/TnyBot-Discord)
 
