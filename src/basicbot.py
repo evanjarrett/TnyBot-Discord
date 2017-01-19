@@ -17,7 +17,7 @@ class BasicBot(Bot):
         super().__init__(command_prefix, formatter, description, pm_help, **options)
 
         self.name = name
-        if not self.unit_tests:
+        if not self.unit_tests:  # pragma: no cover
             self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
 
     async def on_ready(self):
@@ -45,14 +45,14 @@ class BasicBot(Bot):
             await self.on_error("on_command_error", exception, ctx)
 
     async def close(self):
-        if not self.unit_tests:
+        if not self.unit_tests:  # pragma: no cover
             print("Closing client...")
             print(time())
 
         await super().close()
 
     def exit(self):
-        if not self.unit_tests:
+        if not self.unit_tests:  # pragma: no cover
             print("SIGTERM Closing client... ")
         # This gets handled in the run() method
         raise KeyboardInterrupt

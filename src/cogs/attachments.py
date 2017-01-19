@@ -30,7 +30,8 @@ class Attachments(BaseCog):
         self.merged_channels = self.get_config_values(config, "MergedChannels")
         self.upload_channels = self.get_config_values(config, "Upload")
 
-        self.bot.loop.create_task(self.wait())
+        if not self.bot.unit_tests:  # pragma: no cover
+            self.bot.loop.create_task(self.wait())
         # self.bot.loop.create_task(self.upload())
 
     async def upload(self):
