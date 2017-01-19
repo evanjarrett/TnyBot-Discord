@@ -5,7 +5,7 @@ from tests import AsyncTestCase, MockBot, MockContext
 class TestGreetings(AsyncTestCase):
     def setUp(self):
         self.bot = MockBot()
-        self.cog = Greetings(self.bot)
+        self.cog = Greetings(self.bot, db_file=":memory:")
         self.ctx = MockContext()
 
     async def asyncTearDown(self):

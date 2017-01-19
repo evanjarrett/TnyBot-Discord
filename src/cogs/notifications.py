@@ -11,8 +11,8 @@ from src.database import NotificationsDB
 class Notifications(BaseDBCog):
     ignore_list = []
 
-    def __init__(self, bot, *, config_file=None, db_url=None):
-        super().__init__(bot, NotificationsDB("res/notifications.db", db_url))
+    def __init__(self, bot, *, config_file=None, db_file="res/notifications.db", db_url=None):
+        super().__init__(bot, NotificationsDB(db_file, db_url))
 
         if config_file is not None:
             config = configparser.RawConfigParser()

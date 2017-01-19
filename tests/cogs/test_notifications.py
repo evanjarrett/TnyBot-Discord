@@ -6,7 +6,7 @@ from tests import AsyncTestCase, MockBot, MockContext
 class TestNotifications(AsyncTestCase):
     def setUp(self):
         self.bot = MockBot()
-        self.cog = Notifications(self.bot)
+        self.cog = Notifications(self.bot, db_file=":memory:")
         self.ctx = MockContext()
 
     async def asyncTearDown(self):

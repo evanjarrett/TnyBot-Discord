@@ -10,8 +10,8 @@ class Greetings(BaseDBCog):
     _default_greeting = "Welcome {member}!"
     _server_greetings = {}
 
-    def __init__(self, bot, *, db_url=None):
-        super().__init__(bot, ConfigDB("res/config.db", db_url))
+    def __init__(self, bot, db_file="res/config.db", db_url=None):
+        super().__init__(bot, ConfigDB(db_file, db_url))
 
     async def on_member_join(self, member):
         server = member.server

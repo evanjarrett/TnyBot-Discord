@@ -12,8 +12,8 @@ from src.database import RemindersDB
 
 
 class Reminders(BaseDBCog):
-    def __init__(self, bot, tz="UTC", db_url=None):
-        super().__init__(bot, RemindersDB("res/reminders.db", db_url))
+    def __init__(self, bot, tz="UTC", db_file="res/reminders.db", db_url=None):
+        super().__init__(bot, RemindersDB(db_file, db_url))
         self.tz = tz
 
     async def on_ready(self):

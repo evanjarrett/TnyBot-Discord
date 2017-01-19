@@ -10,8 +10,8 @@ from src.database import RolesDB
 
 
 class Roles(BaseDBCog):
-    def __init__(self, bot, *, db_url=None):
-        super().__init__(bot, RolesDB("res/roles.db", db_url))
+    def __init__(self, bot, *, db_file="res/roles.db", db_url=None):
+        super().__init__(bot, RolesDB(db_file, db_url))
 
     async def on_server_role_delete(self, role: Role):
         await self.database.delete(role)
