@@ -9,7 +9,7 @@ class Reaction(BaseCog):
     _lucky = []
 
     async def on_message(self, message):
-        if " chungha " in message.content.lower():
+        if " chungha " in message.content.lower() and message.author.id != self.bot.user.id:
             await self.bot.add_reaction(message, "😍")
             # if message.author.id == "90269810016923648":
             #     await self.bot.add_reaction(message, "👍")

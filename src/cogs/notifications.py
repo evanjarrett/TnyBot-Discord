@@ -102,7 +102,9 @@ class Notifications(BaseDBCog):
                 '`Someone pinned a message by {0.author.name} in {0.server.name} | #{0.channel.name}:` {0.content}'
                     .format(message))
         else:
-            timestamp = message.timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+            time = message.timestamp.now().strftime('%H:%M:%S')
+            date = message.timestamp.now().strftime('%Y-%m-%d')
             await self.bot.send_message(user,
-                '`{1} - {0.author.name} mentioned {2} in {0.server.name} | #{0.channel.name}:` {0.content}'
-                    .format(message, timestamp, search))
+                '`{1} {2} - {3} was mentioned in server {0.server.name}`\n'
+                '```during:{2} from:{0.author} in:{0.channel.name} {0.content}```'
+                    .format(message, time, date, search))
