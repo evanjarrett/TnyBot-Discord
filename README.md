@@ -40,3 +40,7 @@ then use this button. If you don't have an account, you can create one for free.
 
 This will configure everything you need to get it running. Just stick your Bot's token in the field that it ask's you to.
 If you are having trouble using heroku, please submit a ticket here, or a pull request if you need something fixed.
+
+
+
+
