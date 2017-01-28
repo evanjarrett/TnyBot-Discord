@@ -3,6 +3,8 @@
 [![Discord](https://discordapp.com/api/guilds/231979788275810306/widget.png)](https://discord.gg/fqmCJJQ)
 
 
+
+
 ##TnyBot-Discord
 The idea behind TnyBot is that I wanted a Discord bot that had all the functionality of the multiple bots servers were using.
 
