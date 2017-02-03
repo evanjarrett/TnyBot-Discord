@@ -27,7 +27,7 @@ class Attachments(BaseCog):
         self.base_dir = config["Images"]["dir"]
 
         self.channels = self.get_config_values(config, "Channels")
-        self.merged_channels = self.get_config_values(config, "MergedChannels")
+        self.merged_channels = self.get_config_values(config, "MergedChannels") or []
         self.upload_channels = self.get_config_values(config, "Upload")
 
         if not self.bot.unit_tests:  # pragma: no cover
