@@ -1,4 +1,5 @@
 import signal
+import sys
 from pprint import pprint
 from time import time
 
@@ -17,7 +18,8 @@ class BasicBot(Bot):
         super().__init__(command_prefix, formatter, description, pm_help, **options)
 
         self.name = name
-        if not self.unit_tests:  # pragma: no cover
+        if not self.unit_tests and not sys.platform.startswith('win'):  # pragma: no cover
+            # This is needed for safe shutdown on Heroku.
             self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
 
     async def on_ready(self):
