@@ -28,6 +28,10 @@ The bots expect the config to be located at `../tnybot_config`.
 I didn't want to risk accidentally committing credentials to GitHub, so I put it put it outside this repo. 
 This can be quickly edited in the associated py files for now.
 
+For Windows Users:
+	It looks like it will fail to parse the config files unless they are named with an extension. Try renaming the files to `tnybot_config.txt` and fixing the associated bot file to point there.
+
+
 ####Tests
 You can run the tests by using `python3.5 tests.py` or, `python3.5 -m unittest discover tests`.
 Or you know, you could just check Travis... Or join my discord, it has Travis webhooks.
