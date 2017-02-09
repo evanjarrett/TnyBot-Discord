@@ -1,3 +1,4 @@
+from discord import Forbidden
 from discord.ext import commands
 from discord.ext.commands import MissingRequiredArgument
 
@@ -11,9 +12,12 @@ class Reaction(BaseCog):
     async def on_message(self, message):
         if " chungha " in message.content.lower() and message.author.id != self.bot.user.id:
             await self.bot.add_reaction(message, "😍")
-            # if message.author.id == "90269810016923648":
-            #     await self.bot.add_reaction(message, "👍")
-            #     pass
+
+    async def on_command_error(self, exception, ctx):
+        if isinstance(exception, Forbidden):
+            print(
+                "{0}: Permission Denied in {1.server} {1.channel} at {1.timestamp}".format(self.bot.user, ctx.message)
+            )
 
     async def on_reaction_add(self, reaction, member):
         message = reaction.message
