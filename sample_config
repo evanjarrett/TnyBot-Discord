@@ -13,6 +13,7 @@ tz = US/Pacific
 
 [Images]
 dir = /home/discord/tnybot
+checksum = False
 
 [Ignore]
 user1 = 000000000000000000

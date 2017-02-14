@@ -1,5 +1,6 @@
 import asyncio
 import configparser
+import hashlib
 import imghdr
 import os
 import re
@@ -7,14 +8,15 @@ import shutil
 from pprint import pprint
 from typing import Optional
 from urllib import request as urllib_request
-from urllib.parse import urlparse, parse_qs
 from urllib.error import HTTPError
+from urllib.parse import urlparse, parse_qs
 
 from src.cogs import BaseCog
 
 
 class Attachments(BaseCog):
     has_curled = False
+    channel_checksums = {}
     # Regex pulled from https://github.com/Seklfreak/discord-image-downloader-go
     regexps = [
         "^https?:\/\/pbs\.twimg\.com\/media\/[^\./]+\.(jpg|png)((\:[a-z]+)?)$",
@@ -42,6 +44,9 @@ class Attachments(BaseCog):
         config.read(config_file)
 
         self.base_dir = config["Images"]["dir"]
+        self.checksum = config["Images"]["checksum"] == "True" or False
+        if self.checksum:
+            print("!!!! Warning! Using checksums to detect duplicate images. This will cause an increase downloads")
 
         self.channels = self.get_config_values(config, "Channels")
         self.merged_channels = self.get_config_values(config, "MergedChannels") or []
@@ -68,13 +73,13 @@ class Attachments(BaseCog):
         for c_id in self.channels:
             channel = self.bot.get_channel(c_id)
             if channel is not None:
+                self.save_checksums(channel)
                 print(channel)
                 logs = self.bot.logs_from(channel)
                 async for message in logs:
-                    if message.author != self.bot.user:
-                        await self.get_attachments(message)
-                        await self.get_embeds(message)
-                        await self.get_links(message)
+                    await self.get_attachments(message)
+                    await self.get_embeds(message)
+                    await self.get_links(message)
 
                 if self.has_curled is True:
                     self.has_curled = False
@@ -214,6 +219,11 @@ class Attachments(BaseCog):
             print("already have that image: " + pic_name)
             pass
 
+        file_checksum = hashlib.sha256(open(file_path, 'rb').read()).digest()
+        if file_checksum in self.channel_checksums[dirs]:
+            os.remove(file_path)
+            print("Removing file, because checksum matched")
+
         ext = imghdr.what(file_path)
         if ext is not None and not file_path.lower().endswith(ext):
             if not (ext == "jpeg" and file_path.lower().endswith("jpg")):
@@ -281,3 +291,13 @@ class Attachments(BaseCog):
         for c_id, dirs in merged_channels_config:
             items[c_id] = dirs
         return items
+
+    def save_checksums(self, channel):
+        dirs = self.get_directory(channel, self.channels)
+        if not os.path.exists(dirs):
+            print("making new directory: " + dirs)
+            os.makedirs(dirs)
+        if dirs not in self.channel_checksums:
+            files = [os.path.join(dirs, f) for f in os.listdir(dirs)]
+            checksums = [hashlib.sha256(open(fname, 'rb').read()).digest() for fname in files]
+            self.channel_checksums[dirs] = checksums
