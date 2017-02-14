@@ -2,10 +2,12 @@ import asyncio
 import configparser
 import imghdr
 import os
+import re
 import shutil
 from pprint import pprint
 from typing import Optional
 from urllib import request as urllib_request
+from urllib.parse import urlparse, parse_qs
 from urllib.error import HTTPError
 
 from src.cogs import BaseCog
@@ -13,6 +15,21 @@ from src.cogs import BaseCog
 
 class Attachments(BaseCog):
     has_curled = False
+    # Regex pulled from https://github.com/Seklfreak/discord-image-downloader-go
+    regexps = [
+        "^https?:\/\/pbs\.twimg\.com\/media\/[^\./]+\.(jpg|png)((\:[a-z]+)?)$",
+        "^https?:\/\/[a-z0-9]+\.uf\.tistory\.com\/(image|original)\/[A-Z0-9]+$",
+        "^https?:\/\/[0-9a-z]+.daumcdn.net\/[a-z]+\/[a-zA-Z0-9\.]+\/\?scode=mtistory&fname=https?%3A%2F%2F[a-z0-9]+\.uf\.tistory\.com%2F(image|original)%2F[A-Z0-9]+$",
+        "^https?:\/\/gfycat\.com\/([A-Za-z]+)$"
+        "^https?:\/\/(i\.)?imgur\.com\/[A-Za-z0-9]+(\.gifv)?$",
+        "^https?:\/\/imgur\.com\/a\/[A-Za-z0-9]+$",
+        # "^https?:\/\/(www\.)?instagram\.com\/p\/[^/]+\/(\?[^/]+)?$",
+        # "^https?:\/\/drive\.google\.com\/file\/d\/[^/]+\/view$",
+        # "^https?:\/\/[0-9a-zA-Z\.-]+\/(m\/)?(photo\/)?[0-9]+$",
+        # "^https?:\/\/(www\.)?flickr\.com\/photos\/([0-9]+)@([A-Z0-9]+)\/([0-9]+)(\/)?(\/in\/album-([0-9]+)(\/)?)?$",
+        # "^https?:\/\/(www\.)?flickr\.com\/photos\/([0-9]+)@([A-Z0-9]+)\/albums\/(with\/)?([0-9]+)(\/)?$",
+        # "^https?:\/\/(www\.)?streamable\.com\/([0-9a-z]+)$"
+    ]
 
     def __init__(self, bot, config_file):
         super().__init__(bot)
@@ -32,7 +49,7 @@ class Attachments(BaseCog):
 
         if not self.bot.unit_tests:  # pragma: no cover
             self.bot.loop.create_task(self.wait())
-        # self.bot.loop.create_task(self.upload())
+            # self.bot.loop.create_task(self.upload())
 
     async def upload(self):
         print("Running background task")
@@ -57,6 +74,7 @@ class Attachments(BaseCog):
                     if message.author != self.bot.user:
                         await self.get_attachments(message)
                         await self.get_embeds(message)
+                        await self.get_links(message)
 
                 if self.has_curled is True:
                     self.has_curled = False
@@ -68,6 +86,7 @@ class Attachments(BaseCog):
         if message.author != self.bot.user:
             await self.get_attachments(message)
             await self.get_embeds(message)
+            await self.get_links(message)
 
     async def get_embeds(self, message):
         if len(message.embeds):
@@ -78,7 +97,7 @@ class Attachments(BaseCog):
                 for e in message.embeds:
                     if e["type"] == "image":
                         if not has_print:
-                            print("embedded image found! Uploaded by {}".format(message.author.name))
+                            print("Embedded image found! Linked by {}".format(message.author.name))
                             has_print = True
                         url = e["url"]
                         await self.download_image(url, dirs)
@@ -88,11 +107,45 @@ class Attachments(BaseCog):
             chnl = message.channel.id
             if chnl in self.channels:
                 dirs = self.get_directory(message.channel, self.channels)
-                print("attachment found! Uploaded by {}".format(message.author.name))
+                print("Attachment found! Uploaded by {}".format(message.author.name))
                 for a in message.attachments:
                     url = a["url"]
                     proxy_url = a["proxy_url"]
                     await self.download_image(url, dirs, proxy_url)
+
+    async def get_links(self, message):
+        chnl = message.channel.id
+        if chnl in self.channels:
+            dirs = self.get_directory(message.channel, self.channels)
+            for exp in self.regexps:
+                msg = message.content
+                for m in re.finditer(exp, msg):
+                    url = m.group(0)
+                    proxy_url = url
+                    if "gfycat" in url:
+                        animal = m.group(1)
+                        url = "https://{}.gfycat.com/{}.gif".format("giant", animal)
+                        proxy_url = "https://{}.gfycat.com/{}.gif".format("fat", animal)
+                    elif "tistory" in url:
+                        url = url.replace("/image/", "/original/")
+                        parsed = urlparse(url)
+                        qs = parse_qs(parsed.query)
+                        if "fname" in qs and qs["fname"] is not None:
+                            url = ["fname"]
+                    elif "instagram" in url:
+                        pass
+                    elif "imgur" in url:
+                        url = url.replace("imgur.com/", "imgur.com/download/")
+                        url = url.replace(".gifv", "")
+                        if "/a/" in url:
+                            print("downloading full albums not supported yet")
+                            continue
+                    elif "flickr" in url:
+                        print("Who still uses flickr?????")
+                        continue
+                    if url is not None:
+                        print("Regex URL matched! Linked by {}".format(message.author.name))
+                        await self.download_image(url, dirs, proxy_url)
 
     async def upload_images(self, channel):
         dirs = self.get_directory(channel, self.upload_channels)
@@ -141,7 +194,7 @@ class Attachments(BaseCog):
                 pic_name += ("." + img_ext)
                 file_path += ("." + img_ext)
             except HTTPError as e:
-                print(e.code)
+                print("{}\t{}".format(e.code, url))
                 return
 
         if not os.path.exists(dirs):
