@@ -46,14 +46,19 @@ class Attachments(BaseCog):
         self.base_dir = config["Images"]["dir"]
         self.checksum = config["Images"]["checksum"] == "True" or False
         if self.checksum:
-            print("!!!! Warning! Using checksums to detect duplicate images. This will cause an increase downloads")
+            print(
+                """!!!! Warning! Using checksums to detect duplicate images.
+                Processing image hashes may take awhile on older CPUs.
+                This will save disk space, but will cause an increase in downloads on restart.
+                """
+            )
 
         self.channels = self.get_config_values(config, "Channels")
         self.merged_channels = self.get_config_values(config, "MergedChannels") or []
         self.upload_channels = self.get_config_values(config, "Upload")
 
         if not self.bot.unit_tests:  # pragma: no cover
-            self.bot.loop.create_task(self.wait())
+            self.bot.loop.create_task(self.background())
             # self.bot.loop.create_task(self.upload())
 
     async def upload(self):
@@ -66,7 +71,7 @@ class Attachments(BaseCog):
                 await self.upload_images(channel)
                 await asyncio.sleep(10)
 
-    async def wait(self):
+    async def background(self):
         print("Running background task")
         await self.bot.wait_until_ready()
         # We want to run this in a separate process, since on_ready could be called multiple times
@@ -77,9 +82,10 @@ class Attachments(BaseCog):
                 print(channel)
                 logs = self.bot.logs_from(channel)
                 async for message in logs:
-                    await self.get_attachments(message)
-                    await self.get_embeds(message)
-                    await self.get_links(message)
+                    if message.author != self.bot.user:
+                        await self.get_attachments(message)
+                        await self.get_embeds(message)
+                        await self.get_links(message)
 
                 if self.has_curled is True:
                     self.has_curled = False
@@ -217,12 +223,14 @@ class Attachments(BaseCog):
                 await asyncio.sleep(3)
         else:
             print("already have that image: " + pic_name)
-            pass
+            return
 
-        file_checksum = hashlib.sha256(open(file_path, 'rb').read()).digest()
-        if file_checksum in self.channel_checksums[dirs]:
-            os.remove(file_path)
-            print("Removing file, because checksum matched")
+        if self.checksum:
+            file_checksum = hashlib.sha256(open(file_path, 'rb').read()).digest()
+            if file_checksum in self.channel_checksums[dirs]:
+                os.remove(file_path)
+                print("Removing file, because checksum matched")
+                return
 
         ext = imghdr.what(file_path)
         if ext is not None and not file_path.lower().endswith(ext):

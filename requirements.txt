@@ -1,8 +1,9 @@
 requests
 discord.py[voice]
+cffi
 pycurl
 parsedatetime
 pytz
 psycopg2
-cffi
 bs4
+colorama
