@@ -212,6 +212,11 @@ class Attachments(BaseCog):
             print("making new directory: " + dirs)
             os.makedirs(dirs)
 
+        if self.checksum:
+            while os.path.isfile(file_path):
+                file, extention = file_path.rsplit('.', 1)
+                file_path = file + "1" + extention
+
         if not os.path.isfile(file_path):
             try:
                 await self.url_request(url, file_path, proxy_url)
