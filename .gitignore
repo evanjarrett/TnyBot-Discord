@@ -3,5 +3,6 @@
 res/*.txt
 res/*.db
 res/logs/
+res/temp.gif
 __pycache__/
 *.pyc

@@ -11,3 +11,4 @@ from .greetings import Greetings
 from .reaction import Reaction
 from .music import Music
 from .vlive import Vlive
+from .spoiler import Spoiler
