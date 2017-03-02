@@ -22,7 +22,7 @@ class Attachments(BaseCog):
         "^https?:\/\/pbs\.twimg\.com\/media\/[^\./]+\.(jpg|png)((\:[a-z]+)?)$",
         "^https?:\/\/[a-z0-9]+\.uf\.tistory\.com\/(image|original)\/[A-Z0-9]+$",
         "^https?:\/\/[0-9a-z]+.daumcdn.net\/[a-z]+\/[a-zA-Z0-9\.]+\/\?scode=mtistory&fname=https?%3A%2F%2F[a-z0-9]+\.uf\.tistory\.com%2F(image|original)%2F[A-Z0-9]+$",
-        "^https?:\/\/gfycat\.com\/([A-Za-z]+)$"
+        "^https?:\/\/gfycat\.com\/([A-Za-z]+)$",
         "^https?:\/\/(i\.)?imgur\.com\/[A-Za-z0-9]+(\.gifv)?$",
         "^https?:\/\/imgur\.com\/a\/[A-Za-z0-9]+$",
         # "^https?:\/\/(www\.)?instagram\.com\/p\/[^/]+\/(\?[^/]+)?$",
