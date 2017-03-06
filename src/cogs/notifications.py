@@ -105,6 +105,7 @@ class Notifications(BaseDBCog):
             time = message.timestamp.now().strftime('%H:%M:%S')
             date = message.timestamp.now().strftime('%Y-%m-%d')
             await self.bot.send_message(user,
-                '`{1} {2} - {3} was mentioned in server {0.server.name}`\n'
+                '`{1} {2} - {3} was mentioned in <#{0.channel.name}>`\n'
+                'Search Query:\n'
                 '```during:{2} from:{0.author} in:{0.channel.name} {0.content}```'
                     .format(message, time, date, search))
