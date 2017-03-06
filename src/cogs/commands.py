@@ -91,3 +91,7 @@ class Commands(BaseCog):
     async def _bot(self):
         """Is the bot cool?"""
         return await self.bot.say("Yes, the bot is cool.")
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Commands(bot))

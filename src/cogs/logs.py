@@ -80,3 +80,7 @@ class Logs(BaseCog):
         if not os.path.exists(path):
             os.makedirs(path)
         return path + "/" + channel + ".log"
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Logs(bot))

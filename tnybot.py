@@ -4,7 +4,6 @@ import os
 from discord.ext import commands as cmds
 
 from src.basicbot import BasicBot
-from src.cogs import *
 
 config = configparser.RawConfigParser()
 config_file = os.path.dirname(os.path.realpath(__file__)) + "/../tnybot_config"
@@ -12,14 +11,19 @@ config.read(config_file)
 
 tnybot = BasicBot(name="TnyBot", command_prefix=cmds.when_mentioned_or("#!"))
 
-tnybot.add_cog(Music(tnybot))
-tnybot.add_cog(Reaction(tnybot))
-tnybot.add_cog(Vlive(tnybot))
-tnybot.add_cog(Commands(tnybot))
-tnybot.add_cog(CustomCommands(tnybot))
-tnybot.add_cog(Greetings(tnybot))
-tnybot.add_cog(Logs(tnybot))
-tnybot.add_cog(Stats(tnybot))
-tnybot.add_cog(Notifications(tnybot, config_file=config_file))
-tnybot.add_cog(Reminders(tnybot, config["TimeZone"]["tz"]))
+# Tuple of the path to the cog file, and the extra args it takes
+cogs = [
+    ("cogs.commands", {}),
+    ("cogs.custom_commands", {}),
+    ("cogs.greetings", {}),
+    ("cogs.logs", {}),
+    ("cogs.music", {}),
+    ("cogs.notifications", {"config_file": config_file}),
+    ("cogs.reaction", {}),
+    ("cogs.reminders", {"tz": config["TimeZone"]["tz"]}),
+    ("cogs.vlive", {}),
+]
+
+tnybot.load_cogs(cogs)
+
 tnybot.run(config["User"]["user"], config["User"]["pass"])

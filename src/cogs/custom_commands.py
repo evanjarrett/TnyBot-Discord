@@ -8,7 +8,7 @@ from src.database import CommandsDB
 class CustomCommands(BaseDBCog):
     _undo_list = {}
 
-    def __init__(self, bot, *, db_file="res/commands.db", db_url=None):
+    def __init__(self, bot, db_file="res/commands.db", db_url=None):
         super().__init__(bot, CommandsDB(db_file, db_url))
 
     async def on_message(self, message):
@@ -78,3 +78,7 @@ class CustomCommands(BaseDBCog):
             del self._undo_list[author]
         else:
             await self.bot.say("No new command was added recently.")
+
+
+def setup(bot, kwargs):
+    bot.add_cog(CustomCommands(bot, **kwargs))

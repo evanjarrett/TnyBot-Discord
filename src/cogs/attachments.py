@@ -314,3 +314,7 @@ class Attachments(BaseCog):
             files = [os.path.join(dirs, f) for f in os.listdir(dirs)]
             checksums = [hashlib.sha256(open(fname, 'rb').read()).digest() for fname in files]
             self.channel_checksums[dirs] = checksums
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Attachments(bot, **kwargs))

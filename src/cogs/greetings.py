@@ -85,3 +85,7 @@ class Greetings(BaseDBCog):
         if server.id not in self._server_greetings or self._server_greetings[server.id] is None:
             self._server_greetings[server.id] = await self.database.get(server, "greeting_channel")
         return self._server_greetings[server.id]
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Greetings(bot, **kwargs))

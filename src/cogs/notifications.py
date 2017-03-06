@@ -11,7 +11,7 @@ from src.database import NotificationsDB
 class Notifications(BaseDBCog):
     ignore_list = []
 
-    def __init__(self, bot, *, config_file=None, db_file="res/notifications.db", db_url=None):
+    def __init__(self, bot, config_file=None, db_file="res/notifications.db", db_url=None):
         super().__init__(bot, NotificationsDB(db_file, db_url))
 
         if config_file is not None:
@@ -99,13 +99,17 @@ class Notifications(BaseDBCog):
         if is_pinned:
             # Until we have a way to know who edited/pinned a message, it will say "Someone"
             await self.bot.send_message(user,
-                '`Someone pinned a message by {0.author.name} in {0.server.name} | #{0.channel.name}:` {0.content}'
+                "`Someone pinned a message by {0.author.name} in {0.server.name} | #{0.channel.name}:` {0.content}"
                     .format(message))
         else:
-            time = message.timestamp.now().strftime('%H:%M:%S')
-            date = message.timestamp.now().strftime('%Y-%m-%d')
+            time = message.timestamp.now().strftime("%H:%M:%S")
+            date = message.timestamp.now().strftime("%Y-%m-%d")
             await self.bot.send_message(user,
-                '`{1} {2} - {3} was mentioned in <#{0.channel.name}>`\n'
-                'Search Query:\n'
-                '```during:{2} from:{0.author} in:{0.channel.name} {0.content}```'
+                "{1} {2} - {3} was mentioned in <#{0.channel.id}>\n"
+                "Search Query:\n"
+                "```during:{2} from:{0.author} in:{0.channel.name} {0.content}```"
                     .format(message, time, date, search))
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Notifications(bot, **kwargs))

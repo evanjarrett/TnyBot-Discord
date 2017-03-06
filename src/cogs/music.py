@@ -317,3 +317,7 @@ class Music(BaseCog):
         else:
             skip_count = len(state.skip_votes)
             await self.bot.say("Now playing {} [skips: {}/3]".format(state.current, skip_count))
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Music(bot))

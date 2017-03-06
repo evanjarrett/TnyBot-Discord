@@ -75,3 +75,7 @@ class Spoiler(BaseCog):
         font = ImageFont.truetype(self.fontname, 14)
         d.text((5, 5), "( Hover to reveal spoiler )", font=font)
         return im.convert('P', palette=Image.ADAPTIVE, colors=5)
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Spoiler(bot))

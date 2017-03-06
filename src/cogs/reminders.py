@@ -68,3 +68,7 @@ class Reminders(BaseDBCog):
             msg_str = needle.replace("\\" + quote, quote)
 
         return msg_str
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Reminders(bot, **kwargs))

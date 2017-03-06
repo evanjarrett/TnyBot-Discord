@@ -1,8 +1,11 @@
+import importlib
 import signal
 import sys
 from pprint import pprint
 from time import time
+from typing import List
 
+import discord
 from discord import Message
 from discord.ext import commands
 from discord.ext.commands import Bot, CheckFailure, CommandNotFound
@@ -81,3 +84,21 @@ class BasicBot(Bot):
 
     def get_prefix(self, ctx):
         return ctx.prefix.replace(self.user.mention, '@' + self.user.name)
+
+    def load_cogs(self, cogs: List):
+        for cog, kwargs in cogs:
+            try:
+                # This is taken from self.load_extensions but allows kwargs to be passed
+                if cog in self.extensions:
+                    return
+
+                lib = importlib.import_module("src." + cog)
+                if not hasattr(lib, 'setup'):
+                    del lib
+                    del sys.modules[cog]
+                    raise discord.ClientException("extension does not have a setup function")
+
+                lib.setup(self, kwargs)
+                self.extensions[cog] = lib
+            except Exception as e:
+                print('Failed to load extension {}\n{}: {}'.format(cog, type(e).__name__, e))

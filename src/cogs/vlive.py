@@ -71,3 +71,7 @@ class Vlive(BaseCog):
                 live = live.string
             return self.vlive_url + first_vid["href"], live
         return None
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Vlive(bot))

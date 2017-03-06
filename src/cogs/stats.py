@@ -50,3 +50,6 @@ class Stats(BaseCog):
         for count in cursor:
             await self.bot.say("{}: {} messages".format(member.mention, count[0]))
 
+
+def setup(bot, kwargs):
+    bot.add_cog(Stats(bot))

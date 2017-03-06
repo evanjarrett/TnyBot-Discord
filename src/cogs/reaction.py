@@ -80,3 +80,7 @@ class Reaction(BaseCog):
     async def on_endvote_error(self, exception, ctx):
         if isinstance(exception, MissingRequiredArgument()):
             await self.bot.send_message(ctx.message.channel, "Oops, I need a message id to end the vote")
+
+
+def setup(bot, kwargs):
+    bot.add_cog(Reaction(bot))
