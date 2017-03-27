@@ -189,6 +189,7 @@ class Attachments(BaseCog):
                 await asyncio.sleep(3)
 
     async def download_image(self, url, dirs, proxy_url=None):
+        url = url.replace(u"\u202c", "")
         pic_name = self.get_name_from_url(url)
         if not pic_name:
             return
@@ -206,6 +207,9 @@ class Attachments(BaseCog):
                 file_path += ("." + img_ext)
             except HTTPError as e:
                 print("{}\t{}".format(e.code, url))
+                return
+            except UnicodeEncodeError as e:
+                pprint(e)
                 return
 
         if not os.path.exists(dirs):
