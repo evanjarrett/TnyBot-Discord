@@ -5,7 +5,7 @@ from tests import AsyncTestCase, MockBot, MockContext
 class TestReminders(AsyncTestCase):
     def setUp(self):
         self.bot = MockBot()
-        self.cog = Reminders(self.bot, db_file=":memery:")
+        self.cog = Reminders(self.bot, db_file=":memory:")
         self.ctx = MockContext()
 
     async def asyncTearDown(self):

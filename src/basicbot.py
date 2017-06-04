@@ -26,12 +26,12 @@ class BasicBot(Bot):
             self.loop.add_signal_handler(getattr(signal, "SIGTERM"), self.exit)
 
     async def on_ready(self):
-        print("------------------------------------------------------------------------------------------------------")
+        print("-" * 48)
         print("Logged in as")
         print(self.user.name)
         print(self.user.id)
         print(time())
-        print("------------------------------------------------------------------------------------------------------")
+        print("-" * 48)
 
     async def on_message_edit(self, before, after):
         if before.pinned is False and after.pinned is True:

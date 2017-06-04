@@ -141,8 +141,8 @@ class Attachments(BaseCog):
                         url = url.replace("/image/", "/original/")
                         parsed = urlparse(url)
                         qs = parse_qs(parsed.query)
-                        if "fname" in qs and qs["fname"] is not None:
-                            url = ["fname"]
+                        if "fname" in qs and qs["fname"] is not None and qs["fname"][0] is not None:
+                            url = qs["fname"][0]
                     elif "instagram" in url:
                         pass
                     elif "imgur" in url:
