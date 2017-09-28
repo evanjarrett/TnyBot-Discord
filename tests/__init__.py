@@ -13,13 +13,13 @@ from .async_testcase import AsyncTestCase
 
 
 class MockServer(Server):
-    def __init__(self, *, id="12345"):
-        super().__init__(id=id)
+    def __init__(self, *, id="12345", name="MockServer"):
+        super().__init__(id=id, name=name)
 
 
 class MockChannel(Channel):
-    def __init__(self, *, id="12345"):
-        super().__init__(id=id, server=MockServer())
+    def __init__(self, *, id="12345", name="MockChannel"):
+        super().__init__(id=id, server=MockServer(), name=name)
 
 
 class MockUser(User):
@@ -33,8 +33,8 @@ class MockMember(Member):
 
 
 class MockMessage(Message):
-    def __init__(self, *, id="12345"):
-        super().__init__(id=id, channel=MockChannel(), reactions=[], content="test")
+    def __init__(self, *, id="12345", channel=MockChannel()):
+        super().__init__(id=id, channel=channel, reactions=[], content="test")
 
 
 class MockRole(Role):
