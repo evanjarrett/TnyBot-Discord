@@ -5,14 +5,14 @@ cache:
   apt: true
 
 python:
-  - "3.5"
+  - "3.6"
 
 addons:
   apt:
     sources:
-      - sourceline: ppa:travis-ci/sqlite3
+    - travis-ci/sqlite3
     packages:
-      - sqlite3=3.7.15.1-1~travis1
+    - sqlite3
 
 install:
   - pip install -r requirements.txt
