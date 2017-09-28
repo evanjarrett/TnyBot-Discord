@@ -44,10 +44,10 @@ class Commands(BaseCog):
             return await self.bot.say(message)
         
     @commands.command(no_pm=true)
-    async def thot(self, channel, message, user)
+    async def thot(self, channel, member: discord.Member)
         """Tells weather a user is a thot or not"""
-        choices = ["(user) is a thot"
-                   "(user) is not a thot,
+        choices = ["{0.name} is a thot".format(member)),
+                   "{0.name} is not a thot".format(member)),
                    ]
         return await self.bot.say(random.choice(choices)) 
 
