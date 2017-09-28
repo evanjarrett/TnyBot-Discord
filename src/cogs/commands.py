@@ -42,6 +42,14 @@ class Commands(BaseCog):
         """Says what you tell it to say"""
         if message is not None:
             return await self.bot.say(message)
+        
+    @commands.command(no_pm=true)
+    async def thot(self, channel, message, user)
+        """Tells weather a user is a thot or not"""
+        choices = ["(user) is a thot"
+                   "(user) is not a thot,
+                   ]
+        return await self.bot.say(random.choice(choices)) 
 
     @commands.command()
     async def joined(self, member: discord.Member):
