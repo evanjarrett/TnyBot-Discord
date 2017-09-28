@@ -42,7 +42,7 @@ class Commands(BaseCog):
         """Says what you tell it to say"""
         if message is not None:
             return await self.bot.say(message)
-
+        
     @commands.command()
     async def joined(self, member: discord.Member):
         """Says when a member joined."""
