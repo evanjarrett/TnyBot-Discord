@@ -252,8 +252,8 @@ class Attachments(BaseCog):
 
     def get_directory(self, channel, chnl_dict=None):
         server_dir = channel.server.name
-        server_dir = server_dir.strip(".")
         server_dir = server_dir.split(" - ", 1)[0]
+        server_dir = server_dir.strip(".")
         if chnl_dict is None:
             channel_dir = channel.name
         else:
